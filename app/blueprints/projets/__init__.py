@@ -19,10 +19,20 @@ def projet_du_conseiller(projet_id: int) -> Projet:
     return projet
 
 
-def preparer_form(form: ProjetForm) -> None:
+def preparer_form(form: ProjetForm) -> list[dict]:
+    """Alimente le sélecteur de zone et renvoie les zones pour le JS du formulaire."""
     zones = ZonePreset.query.order_by(ZonePreset.par_defaut.desc(), ZonePreset.nom).all()
-    form.zone_id.choices = [
-        (z.id, f"{z.nom} ({z.devise}, frais {z.taux_frais_total:.1f} %)") for z in zones
+    form.zone_id.choices = [(z.id, z.nom) for z in zones]
+    return [
+        {
+            "id": z.id,
+            "nom": z.nom,
+            "devise": z.devise,
+            "taux_frais_total": z.taux_frais_total,
+            "taux_imposition_defaut": z.taux_imposition_defaut,
+            "personnalisable": z.personnalisable,
+        }
+        for z in zones
     ]
 
 
@@ -43,7 +53,7 @@ def liste():
 def nouveau(client_id: int):
     client = client_du_conseiller(client_id)
     form = ProjetForm()
-    preparer_form(form)
+    zones = preparer_form(form)
     if form.validate_on_submit():
         projet = Projet(client_id=client.id)
         form.populate_obj(projet)
@@ -56,7 +66,7 @@ def nouveau(client_id: int):
         if zone_defaut:
             form.zone_id.data = zone_defaut.id
     return render_template(
-        "projets/form.html", form=form, client=client,
+        "projets/form.html", form=form, client=client, zones=zones,
         titre=f"Nouveau projet pour {client.nom}",
     )
 
@@ -89,14 +99,14 @@ def detail(projet_id: int):
 def modifier(projet_id: int):
     projet = projet_du_conseiller(projet_id)
     form = ProjetForm(obj=projet)
-    preparer_form(form)
+    zones = preparer_form(form)
     if form.validate_on_submit():
         form.populate_obj(projet)
         db.session.commit()
         flash("Projet mis à jour — les indicateurs sont recalculés.", "success")
         return redirect(url_for("projets.detail", projet_id=projet.id))
     return render_template(
-        "projets/form.html", form=form, client=projet.client,
+        "projets/form.html", form=form, client=projet.client, zones=zones,
         titre=f"Modifier « {projet.nom} »",
     )
 

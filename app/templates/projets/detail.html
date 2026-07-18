@@ -76,14 +76,17 @@
 <h5 class="mb-3">Scénarios de financement</h5>
 {% set scenarios = projet.scenarios.all() %}
 {% if scenarios %}
+<form method="get" action="{{ url_for('scenarios.comparer') }}">
 <div class="table-responsive">
   <table class="table table-hover align-middle">
     <thead class="table-light">
-      <tr><th>Scénario</th><th>Mode</th><th>Apport</th><th>Taux</th><th>Durée</th><th class="text-end">Actions</th></tr>
+      <tr><th></th><th>Scénario</th><th>Mode</th><th>Apport</th><th>Taux</th><th>Durée</th><th class="text-end">Actions</th></tr>
     </thead>
     <tbody>
       {% for s in scenarios %}
       <tr>
+        <td><input class="form-check-input" type="checkbox" name="ids" value="{{ s.id }}"
+                   aria-label="Sélectionner {{ s.nom }} pour la comparaison"></td>
         <td class="fw-semibold">{{ s.nom }}</td>
         <td>{{ "Crédit" if s.mode == "credit" else "Cash" }}</td>
         <td>{{ s.apport | montant }} {{ projet.zone.devise }}</td>
@@ -98,6 +101,10 @@
     </tbody>
   </table>
 </div>
+{% if scenarios | length >= 2 %}
+<button class="btn btn-outline-primary" type="submit">Comparer la sélection (2 à 4)</button>
+{% endif %}
+</form>
 {% else %}
 <p class="text-muted">Aucun scénario — créez-en un pour calculer cash-flow, TRI et VAN.</p>
 {% endif %}

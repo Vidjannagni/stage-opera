@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+
+{% block title %}Comparaison — {{ projet.nom }} — RentImmo{% endblock %}
+
+{% set devise = projet.zone.devise %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{{ url_for('clients.detail', client_id=projet.client_id) }}">{{ projet.client.nom }}</a></li>
+    <li class="breadcrumb-item"><a href="{{ url_for('projets.detail', projet_id=projet.id) }}">{{ projet.nom }}</a></li>
+    <li class="breadcrumb-item active">Comparaison</li>
+  </ol>
+</nav>
+
+<h2 class="mb-4">Comparaison de scénarios — {{ projet.nom }}</h2>
+
+{# ── Tableau comparatif (relief du graphique : toutes les valeurs y figurent) ── #}
+<div class="card shadow-sm mb-4">
+  <div class="card-header fw-semibold">Indicateurs côte à côte</div>
+  <div class="table-responsive">
+    <table class="table align-middle mb-0">
+      <thead class="table-light">
+        <tr>
+          <th style="min-width: 220px">Indicateur</th>
+          {% for c in comparaison %}
+          <th class="text-end">
+            <span class="pastille" data-serie="{{ loop.index0 }}"></span>
+            {{ c.scenario.nom }}
+          </th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Mode de financement</td>
+          {% for c in comparaison %}<td class="text-end">{{ "Crédit" if c.scenario.mode == "credit" else "Cash" }}</td>{% endfor %}
+        </tr>
+        <tr>
+          <td>Investissement initial</td>
+          {% for c in comparaison %}<td class="text-end">{{ c.r.projection.investissement_initial | montant }} {{ devise }}</td>{% endfor %}
+        </tr>
+        <tr>
+          <td>Mensualité (assurance incluse)</td>
+          {% for c in comparaison %}<td class="text-end">
+            {% if c.scenario.mode == "credit" %}{{ "%.2f" | format(c.r.financement.mensualite_totale) }} {{ devise }}{% else %}—{% endif %}
+          </td>{% endfor %}
+        </tr>
+        <tr>
+          <td>Coût total du crédit</td>
+          {% for c in comparaison %}<td class="text-end">
+            {% if c.scenario.mode == "credit" %}{{ c.r.financement.cout_total_credit | montant }} {{ devise }}{% else %}—{% endif %}
+          </td>{% endfor %}
+        </tr>
+        <tr>
+          <td>Cash-flow mensuel (année 1)</td>
+          {% for c in comparaison %}
+          <td class="text-end fw-semibold {{ 'text-success' if c.r.indicateurs.cashflow_mensuel >= 0 else 'text-danger' }}">
+            {{ c.r.indicateurs.cashflow_mensuel | montant }} {{ devise }}</td>
+          {% endfor %}
+        </tr>
+        <tr>
+          <td>Rendement net-net</td>
+          {% for c in comparaison %}<td class="text-end">{{ "%.2f" | format(c.r.rendements.net_net) }} %</td>{% endfor %}
+        </tr>
+        <tr>
+          <td>VAN ({{ "%.1f" | format(comparaison[0].scenario.taux_actualisation) }} %)</td>
+          {% for c in comparaison %}
+          <td class="text-end fw-semibold {{ 'text-success' if c.r.indicateurs.van >= 0 else 'text-danger' }}">
+            {{ c.r.indicateurs.van | montant }} {{ devise }}</td>
+          {% endfor %}
+        </tr>
+        <tr>
+          <td>TRI sur l'horizon</td>
+          {% for c in comparaison %}
+          <td class="text-end fw-bold">
+            {% if c.r.indicateurs.tri is not none %}{{ "%.2f" | format(c.r.indicateurs.tri) }} %{% else %}—{% endif %}
+          </td>
+          {% endfor %}
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{# ── Graphique : cash-flow cumulé superposé ─────────────────────────────── #}
+<div class="card shadow-sm mb-4">
+  <div class="card-header fw-semibold">Cash-flow cumulé (revente incluse en dernière année)</div>
+  <div class="card-body" style="height: 380px">
+    <canvas id="chart-comparaison" role="img"
+            aria-label="Cash-flow cumulé par scénario ; toutes les valeurs finales figurent dans le tableau ci-dessus"></canvas>
+  </div>
+</div>
+
+<div class="d-flex gap-2 mb-4">
+  {% for c in comparaison %}
+  <a href="{{ url_for('scenarios.resultats', scenario_id=c.scenario.id) }}" class="btn btn-sm btn-outline-primary">
+    Détail « {{ c.scenario.nom }} »
+  </a>
+  {% endfor %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+<script>
+  const SERIES = {{ comparaison_json | tojson }};
+  const DEVISE = {{ devise | tojson }};
+
+  // Pastilles de couleur du tableau = couleur de la série du graphique
+  document.querySelectorAll(".pastille").forEach((el) => {
+    el.style.cssText =
+      "display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;" +
+      `background:${RENTIMMO.palette[el.dataset.serie]}`;
+  });
+
+  const horizonMax = Math.max(...SERIES.map((s) => s.cumul.length));
+  new Chart(document.getElementById("chart-comparaison"), {
+    type: "line",
+    data: {
+      labels: Array.from({ length: horizonMax }, (_, i) => i + 1),
+      datasets: SERIES.map((s, i) => ({
+        label: s.nom,
+        data: s.cumul,
+        borderColor: RENTIMMO.palette[i],
+        backgroundColor: RENTIMMO.palette[i],
+        borderWidth: 2,
+        pointRadius: 0,
+        pointHoverRadius: 5,
+        tension: 0.15,
+      })),
+    },
+    options: RENTIMMO.baseOptions(DEVISE),
+  });
+</script>
+{% endblock %}

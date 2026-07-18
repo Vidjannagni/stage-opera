@@ -118,11 +118,43 @@
   </div>
 </div>
 
+{# ── Graphiques ──────────────────────────────────────────────────────── #}
+<div class="row g-3 mb-4">
+  <div class="{{ 'col-lg-5' if scenario.mode == 'credit' else 'col-lg-7' }}">
+    <div class="card shadow-sm h-100">
+      <div class="card-header fw-semibold">Cash-flow annuel et cumulé</div>
+      <div class="card-body" style="height: 300px">
+        <canvas id="chart-cashflow" role="img"
+                aria-label="Cash-flow annuel en barres et cumul en ligne, détail dans le tableau de projection ci-dessous"></canvas>
+      </div>
+    </div>
+  </div>
+  {% if scenario.mode == "credit" %}
+  <div class="col-lg-4">
+    <div class="card shadow-sm h-100">
+      <div class="card-header fw-semibold">Capital restant dû</div>
+      <div class="card-body" style="height: 300px">
+        <canvas id="chart-crd" role="img"
+                aria-label="Capital restant dû par année, détail dans le tableau de projection ci-dessous"></canvas>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+  <div class="{{ 'col-lg-3' if scenario.mode == 'credit' else 'col-lg-5' }}">
+    <div class="card shadow-sm h-100">
+      <div class="card-header fw-semibold">Coût d'acquisition</div>
+      <div class="card-body" style="height: 300px">
+        <canvas id="chart-acquisition" role="img"
+                aria-label="Décomposition du coût d'acquisition, détail dans le tableau Acquisition ci-dessus"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
 {# ── Projection annuelle ─────────────────────────────────────────────── #}
 <div class="card shadow-sm mb-4">
   <div class="card-header fw-semibold">
     Projection sur {{ r.projection.horizon_annees }} ans
-    <span class="text-muted small">(graphiques Chart.js en semaine 3)</span>
   </div>
   <div class="table-responsive">
     <table class="table table-sm table-striped mb-0">
@@ -156,4 +188,94 @@
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
   <button class="btn btn-sm btn-outline-danger">Supprimer le scénario</button>
 </form>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+<script>
+  const R = {{ r | tojson }};
+  const DEVISE = R.devise;
+  const annees = R.projection.lignes.map((l) => l.annee);
+  const [bleu, teal, orange] = RENTIMMO.palette;
+
+  // Cash-flow annuel (barres, revente incluse) + cumul (ligne) — même unité, un seul axe
+  new Chart(document.getElementById("chart-cashflow"), {
+    data: {
+      labels: annees,
+      datasets: [
+        {
+          type: "bar",
+          label: "Cash-flow annuel",
+          data: R.projection.lignes.map((l) => l.cashflow + l.revente),
+          backgroundColor: bleu,
+          borderRadius: 4,
+          maxBarThickness: 18,
+        },
+        {
+          type: "line",
+          label: "Cumul",
+          data: R.projection.lignes.map((l) => l.cumul),
+          borderColor: teal,
+          backgroundColor: teal,
+          borderWidth: 2,
+          pointRadius: 0,
+          pointHoverRadius: 5,
+          tension: 0.15,
+        },
+      ],
+    },
+    options: RENTIMMO.baseOptions(DEVISE),
+  });
+
+  // Capital restant dû — série unique : pas de légende
+  const canvasCrd = document.getElementById("chart-crd");
+  if (canvasCrd) {
+    const options = RENTIMMO.baseOptions(DEVISE);
+    options.plugins.legend = { display: false };
+    new Chart(canvasCrd, {
+      type: "line",
+      data: {
+        labels: annees,
+        datasets: [{
+          label: "Capital restant dû",
+          data: R.projection.lignes.map((l) => l.crd),
+          borderColor: bleu,
+          backgroundColor: bleu,
+          borderWidth: 2,
+          pointRadius: 0,
+          pointHoverRadius: 5,
+          tension: 0.15,
+        }],
+      },
+      options,
+    });
+  }
+
+  // Décomposition du coût d'acquisition — identité : teintes catégorielles en ordre fixe
+  new Chart(document.getElementById("chart-acquisition"), {
+    type: "doughnut",
+    data: {
+      labels: ["Prix du bien", "Frais d'acquisition", "Travaux"],
+      datasets: [{
+        data: [R.acquisition.prix, R.acquisition.frais, R.acquisition.travaux],
+        backgroundColor: [bleu, teal, orange],
+        borderColor: "#ffffff",
+        borderWidth: 2,
+      }],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { position: "bottom" },
+        tooltip: {
+          callbacks: {
+            label: (ctx) => `${ctx.label} : ${RENTIMMO.fmt(ctx.parsed)} ${DEVISE}`,
+          },
+        },
+      },
+    },
+  });
+</script>
 {% endblock %}

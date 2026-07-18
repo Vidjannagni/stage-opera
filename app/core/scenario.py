@@ -13,7 +13,7 @@ Conventions de projection (cf. cahier des charges §3) :
   revente et du capital restant dû.
 """
 from .acquisition import cout_acquisition, frais_acquisition
-from .financement import capital_restant_du, cout_credit
+from .financement import cout_credit, tableau_amortissement
 from .indicateurs import tri, van
 from .rendement import rendements
 
@@ -34,6 +34,18 @@ def calculer_scenario(projet, scenario) -> dict:
     )
     annuite = credit["mensualite_totale"] * 12.0
     investissement_initial = cout_total - capital
+
+    # Tableau d'amortissement construit une seule fois ; CRD en fin d'année k
+    amortissement = (
+        tableau_amortissement(capital, scenario.taux_interet, scenario.duree_annees)
+        if en_credit else []
+    )
+
+    def crd_fin_annee(annee: int) -> float:
+        if not amortissement:
+            return 0.0
+        mois = min(annee * 12, len(amortissement))
+        return amortissement[mois - 1]["crd"] if mois > 0 else capital
 
     # ── Exploitation (année 1) ────────────────────────────────────────────────
     loyer_annuel = 12.0 * projet.loyer_mensuel
@@ -74,10 +86,10 @@ def calculer_scenario(projet, scenario) -> dict:
         revente_k = 0.0
         if annee == horizon:
             valeur_bien = prix * r_bien ** horizon
-            crd = capital_restant_du(
-                capital, scenario.taux_interet, scenario.duree_annees, horizon
-            ) if en_credit else 0.0
-            revente_k = valeur_bien * (1.0 - scenario.frais_revente_pct / 100.0) - crd
+            revente_k = (
+                valeur_bien * (1.0 - scenario.frais_revente_pct / 100.0)
+                - crd_fin_annee(horizon)
+            )
 
         flux.append(cashflow_k + revente_k)
         cumul += cashflow_k + revente_k
@@ -91,6 +103,7 @@ def calculer_scenario(projet, scenario) -> dict:
                 "cashflow": cashflow_k,
                 "revente": revente_k,
                 "cumul": cumul,
+                "crd": crd_fin_annee(annee),
             }
         )
 

@@ -24,6 +24,7 @@
           {{ render_field(form.nom) }}
           {{ render_field(form.adresse) }}
           {{ render_field(form.zone_id) }}
+          <div id="zone-info" class="alert alert-info py-2 small mb-3" role="status"></div>
           {{ render_field(form.surface_m2) }}
         </div>
       </div>
@@ -59,4 +60,32 @@
     <a href="{{ url_for('clients.detail', client_id=client.id) }}" class="btn btn-outline-secondary">Annuler</a>
   </div>
 </form>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // Le changement de zone actualise l'encart d'information et les placeholders
+  // des champs de surcharge (vide = hériter de la zone).
+  const ZONES = {{ zones | tojson }};
+  const selectZone = document.getElementById("zone_id");
+  const infoZone = document.getElementById("zone-info");
+  const champFrais = document.getElementById("taux_frais_override");
+  const champImpot = document.getElementById("taux_imposition_override");
+
+  function actualiserZone() {
+    const zone = ZONES.find((z) => z.id === Number(selectZone.value));
+    if (!zone) return;
+    infoZone.innerHTML = zone.personnalisable
+      ? `Zone <strong>${zone.nom}</strong> : saisissez vos taux dans les champs de surcharge ci-dessous.`
+      : `Zone <strong>${zone.nom}</strong> — devise <strong>${zone.devise}</strong>, ` +
+        `frais d'acquisition <strong>${zone.taux_frais_total.toFixed(1)} %</strong>, ` +
+        `imposition effective <strong>${zone.taux_imposition_defaut.toFixed(1)} %</strong>. ` +
+        `Les calculs s'actualisent selon cette zone.`;
+    champFrais.placeholder = `Zone : ${zone.taux_frais_total.toFixed(1)} %`;
+    champImpot.placeholder = `Zone : ${zone.taux_imposition_defaut.toFixed(1)} %`;
+  }
+
+  selectZone.addEventListener("change", actualiserZone);
+  actualiserZone();
+</script>
 {% endblock %}
