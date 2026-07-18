@@ -1,12 +1,19 @@
-"""Coût d'acquisition : P_acq = prix + frais(zone) + travaux.
-
-Implémentation prévue en semaine 2 (feuille de route).
-"""
+"""Coût d'acquisition : P_acq = prix + frais(zone) + travaux."""
 
 
-def cout_acquisition(prix: float, taux_frais_pct: float, travaux: float) -> float:
-    """Coût total d'acquisition.
+def frais_acquisition(prix: float, taux_frais_pct: float) -> float:
+    """Frais d'acquisition : F_acq = P * taux/100.
 
-    P_acq = P + P * taux_frais/100 + T
+    Le taux est la somme des taux de la zone (enregistrement, publicité
+    foncière, notaire, divers) ou la surcharge saisie au niveau du bien.
     """
-    raise NotImplementedError("Semaine 2 — moteur de calcul")
+    if prix < 0 or taux_frais_pct < 0:
+        raise ValueError("prix et taux de frais doivent être positifs")
+    return prix * taux_frais_pct / 100.0
+
+
+def cout_acquisition(prix: float, taux_frais_pct: float, travaux: float = 0.0) -> float:
+    """Coût total d'acquisition : P_acq = P + F_acq + T."""
+    if travaux < 0:
+        raise ValueError("le budget travaux doit être positif")
+    return prix + frais_acquisition(prix, taux_frais_pct) + travaux

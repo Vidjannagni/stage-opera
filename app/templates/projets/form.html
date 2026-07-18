@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% from "_form_helpers.html" import render_field %}
+
+{% block title %}{{ titre }} — RentImmo{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{{ url_for('clients.liste') }}">Clients</a></li>
+    <li class="breadcrumb-item"><a href="{{ url_for('clients.detail', client_id=client.id) }}">{{ client.nom }}</a></li>
+    <li class="breadcrumb-item active">Projet</li>
+  </ol>
+</nav>
+
+<h3 class="mb-4">{{ titre }}</h3>
+
+<form method="post" novalidate>
+  {{ form.hidden_tag() }}
+  <div class="row">
+    <div class="col-lg-6">
+      <div class="card shadow-sm mb-4">
+        <div class="card-header fw-semibold">Identification</div>
+        <div class="card-body">
+          {{ render_field(form.nom) }}
+          {{ render_field(form.adresse) }}
+          {{ render_field(form.zone_id) }}
+          {{ render_field(form.surface_m2) }}
+        </div>
+      </div>
+      <div class="card shadow-sm mb-4">
+        <div class="card-header fw-semibold">Acquisition</div>
+        <div class="card-body">
+          {{ render_field(form.prix_bien) }}
+          {{ render_field(form.budget_travaux) }}
+          {{ render_field(form.taux_frais_override) }}
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-6">
+      <div class="card shadow-sm mb-4">
+        <div class="card-header fw-semibold">Exploitation locative</div>
+        <div class="card-body">
+          {{ render_field(form.loyer_mensuel) }}
+          <div class="row">
+            <div class="col-md-6">{{ render_field(form.charges_copro_annuelles) }}</div>
+            <div class="col-md-6">{{ render_field(form.assurance_annuelle) }}</div>
+            <div class="col-md-6">{{ render_field(form.frais_gestion_pct) }}</div>
+            <div class="col-md-6">{{ render_field(form.vacance_pct) }}</div>
+            <div class="col-md-6">{{ render_field(form.entretien_annuel) }}</div>
+            <div class="col-md-6">{{ render_field(form.taxe_annuelle) }}</div>
+          </div>
+          {{ render_field(form.taux_imposition_override) }}
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="d-flex gap-2">
+    {{ form.submit(class="btn btn-primary") }}
+    <a href="{{ url_for('clients.detail', client_id=client.id) }}" class="btn btn-outline-secondary">Annuler</a>
+  </div>
+</form>
+{% endblock %}

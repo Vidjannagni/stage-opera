@@ -40,6 +40,13 @@ def create_app(config_name: str | None = None) -> Flask:
     app.register_blueprint(scenarios_bp, url_prefix="/scenarios")
     app.register_blueprint(exports_bp, url_prefix="/exports")
 
+    @app.template_filter("montant")
+    def montant(valeur) -> str:
+        """Format monétaire : 1 234 567 (arrondi à l'unité, séparateur espace)."""
+        if valeur is None:
+            return "—"
+        return f"{valeur:,.0f}".replace(",", " ").replace("−", "-")
+
     register_cli(app)
     return app
 

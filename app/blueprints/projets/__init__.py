@@ -1,9 +1,112 @@
-"""Biens / projets d'investissement (implémentation prévue en semaines 2-3)."""
-from flask import Blueprint, render_template
+"""Biens / projets d'investissement."""
+from flask import Blueprint, abort, flash, redirect, render_template, url_for
+from flask_login import current_user, login_required
+
+from ...core.acquisition import cout_acquisition, frais_acquisition
+from ...core.rendement import rendements
+from ...extensions import db
+from ...models import Client, Projet, ZonePreset
+from ..clients import client_du_conseiller
+from .forms import ProjetForm
 
 bp = Blueprint("projets", __name__)
 
 
+def projet_du_conseiller(projet_id: int) -> Projet:
+    projet = db.session.get(Projet, projet_id)
+    if projet is None or projet.client.user_id != current_user.id:
+        abort(404)
+    return projet
+
+
+def preparer_form(form: ProjetForm) -> None:
+    zones = ZonePreset.query.order_by(ZonePreset.par_defaut.desc(), ZonePreset.nom).all()
+    form.zone_id.choices = [
+        (z.id, f"{z.nom} ({z.devise}, frais {z.taux_frais_total:.1f} %)") for z in zones
+    ]
+
+
 @bp.route("/")
+@login_required
 def liste():
-    return render_template("placeholder.html", module="Projets", semaine=2)
+    projets = (
+        Projet.query.join(Client)
+        .filter(Client.user_id == current_user.id)
+        .order_by(Projet.created_at.desc())
+        .all()
+    )
+    return render_template("projets/liste.html", projets=projets)
+
+
+@bp.route("/nouveau/<int:client_id>", methods=["GET", "POST"])
+@login_required
+def nouveau(client_id: int):
+    client = client_du_conseiller(client_id)
+    form = ProjetForm()
+    preparer_form(form)
+    if form.validate_on_submit():
+        projet = Projet(client_id=client.id)
+        form.populate_obj(projet)
+        db.session.add(projet)
+        db.session.commit()
+        flash(f"Projet « {projet.nom} » créé.", "success")
+        return redirect(url_for("projets.detail", projet_id=projet.id))
+    if not form.is_submitted():
+        zone_defaut = ZonePreset.query.filter_by(par_defaut=True).first()
+        if zone_defaut:
+            form.zone_id.data = zone_defaut.id
+    return render_template(
+        "projets/form.html", form=form, client=client,
+        titre=f"Nouveau projet pour {client.nom}",
+    )
+
+
+@bp.route("/<int:projet_id>")
+@login_required
+def detail(projet_id: int):
+    projet = projet_du_conseiller(projet_id)
+    frais = frais_acquisition(projet.prix_bien, projet.taux_frais_acquisition)
+    cout_total = cout_acquisition(
+        projet.prix_bien, projet.taux_frais_acquisition, projet.budget_travaux
+    )
+    # Charges annuelles selon la convention du moteur (vacance + gestion incluses)
+    loyer_effectif = 12.0 * projet.loyer_mensuel * (1.0 - projet.vacance_pct / 100.0)
+    charges = (
+        projet.charges_copro_annuelles + projet.assurance_annuelle
+        + projet.entretien_annuel + projet.taxe_annuelle
+        + loyer_effectif * projet.frais_gestion_pct / 100.0
+        + 12.0 * projet.loyer_mensuel * projet.vacance_pct / 100.0
+    )
+    rdts = rendements(projet.loyer_mensuel, charges, cout_total, projet.taux_imposition)
+    return render_template(
+        "projets/detail.html", projet=projet, frais=frais,
+        cout_total=cout_total, rdts=rdts,
+    )
+
+
+@bp.route("/<int:projet_id>/modifier", methods=["GET", "POST"])
+@login_required
+def modifier(projet_id: int):
+    projet = projet_du_conseiller(projet_id)
+    form = ProjetForm(obj=projet)
+    preparer_form(form)
+    if form.validate_on_submit():
+        form.populate_obj(projet)
+        db.session.commit()
+        flash("Projet mis à jour — les indicateurs sont recalculés.", "success")
+        return redirect(url_for("projets.detail", projet_id=projet.id))
+    return render_template(
+        "projets/form.html", form=form, client=projet.client,
+        titre=f"Modifier « {projet.nom} »",
+    )
+
+
+@bp.route("/<int:projet_id>/supprimer", methods=["POST"])
+@login_required
+def supprimer(projet_id: int):
+    projet = projet_du_conseiller(projet_id)
+    client_id = projet.client_id
+    db.session.delete(projet)
+    db.session.commit()
+    flash(f"Projet « {projet.nom} » supprimé.", "info")
+    return redirect(url_for("clients.detail", client_id=client_id))

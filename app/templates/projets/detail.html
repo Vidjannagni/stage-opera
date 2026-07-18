@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block title %}{{ projet.nom }} — RentImmo{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{{ url_for('clients.liste') }}">Clients</a></li>
+    <li class="breadcrumb-item"><a href="{{ url_for('clients.detail', client_id=projet.client_id) }}">{{ projet.client.nom }}</a></li>
+    <li class="breadcrumb-item active">{{ projet.nom }}</li>
+  </ol>
+</nav>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h2 class="mb-0">{{ projet.nom }}</h2>
+  <div>
+    <a href="{{ url_for('scenarios.nouveau', projet_id=projet.id) }}" class="btn btn-primary">+ Nouveau scénario</a>
+    <a href="{{ url_for('projets.modifier', projet_id=projet.id) }}" class="btn btn-outline-secondary">Modifier</a>
+  </div>
+</div>
+
+<p class="text-muted">
+  Zone <strong>{{ projet.zone.nom }}</strong> ({{ projet.zone.devise }})
+  {% if projet.adresse %} · {{ projet.adresse }}{% endif %}
+  {% if projet.surface_m2 %} · {{ projet.surface_m2 }} m²{% endif %}
+</p>
+
+<div class="row g-3 mb-4">
+  <div class="col-md-3">
+    <div class="card text-center shadow-sm"><div class="card-body">
+      <div class="small text-muted">Prix du bien</div>
+      <div class="fs-5 fw-bold">{{ projet.prix_bien | montant }} {{ projet.zone.devise }}</div>
+    </div></div>
+  </div>
+  <div class="col-md-3">
+    <div class="card text-center shadow-sm"><div class="card-body">
+      <div class="small text-muted">Frais ({{ "%.1f" | format(projet.taux_frais_acquisition) }} %)</div>
+      <div class="fs-5 fw-bold">{{ frais | montant }} {{ projet.zone.devise }}</div>
+    </div></div>
+  </div>
+  <div class="col-md-3">
+    <div class="card text-center shadow-sm"><div class="card-body">
+      <div class="small text-muted">Travaux</div>
+      <div class="fs-5 fw-bold">{{ projet.budget_travaux | montant }} {{ projet.zone.devise }}</div>
+    </div></div>
+  </div>
+  <div class="col-md-3">
+    <div class="card text-center shadow-sm border-primary"><div class="card-body">
+      <div class="small text-muted">Coût total d'acquisition</div>
+      <div class="fs-5 fw-bold text-primary">{{ cout_total | montant }} {{ projet.zone.devise }}</div>
+    </div></div>
+  </div>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-md-4">
+    <div class="card text-center shadow-sm"><div class="card-body">
+      <div class="small text-muted">Rendement brut</div>
+      <div class="fs-4 fw-bold">{{ "%.2f" | format(rdts.brut) }} %</div>
+    </div></div>
+  </div>
+  <div class="col-md-4">
+    <div class="card text-center shadow-sm"><div class="card-body">
+      <div class="small text-muted">Rendement net</div>
+      <div class="fs-4 fw-bold">{{ "%.2f" | format(rdts.net) }} %</div>
+    </div></div>
+  </div>
+  <div class="col-md-4">
+    <div class="card text-center shadow-sm"><div class="card-body">
+      <div class="small text-muted">Rendement net-net (impôt {{ "%.1f" | format(projet.taux_imposition) }} %)</div>
+      <div class="fs-4 fw-bold">{{ "%.2f" | format(rdts.net_net) }} %</div>
+    </div></div>
+  </div>
+</div>
+
+<h5 class="mb-3">Scénarios de financement</h5>
+{% set scenarios = projet.scenarios.all() %}
+{% if scenarios %}
+<div class="table-responsive">
+  <table class="table table-hover align-middle">
+    <thead class="table-light">
+      <tr><th>Scénario</th><th>Mode</th><th>Apport</th><th>Taux</th><th>Durée</th><th class="text-end">Actions</th></tr>
+    </thead>
+    <tbody>
+      {% for s in scenarios %}
+      <tr>
+        <td class="fw-semibold">{{ s.nom }}</td>
+        <td>{{ "Crédit" if s.mode == "credit" else "Cash" }}</td>
+        <td>{{ s.apport | montant }} {{ projet.zone.devise }}</td>
+        <td>{% if s.mode == "credit" %}{{ "%.2f" | format(s.taux_interet) }} %{% else %}—{% endif %}</td>
+        <td>{% if s.mode == "credit" %}{{ s.duree_annees }} ans{% else %}—{% endif %}</td>
+        <td class="text-end">
+          <a href="{{ url_for('scenarios.resultats', scenario_id=s.id) }}" class="btn btn-sm btn-primary">Résultats</a>
+          <a href="{{ url_for('scenarios.modifier', scenario_id=s.id) }}" class="btn btn-sm btn-outline-secondary">Modifier</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<p class="text-muted">Aucun scénario — créez-en un pour calculer cash-flow, TRI et VAN.</p>
+{% endif %}
+
+<form method="post" action="{{ url_for('projets.supprimer', projet_id=projet.id) }}" class="mt-5"
+      onsubmit="return confirm('Supprimer ce projet et tous ses scénarios ?');">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <button class="btn btn-sm btn-outline-danger">Supprimer le projet</button>
+</form>
+{% endblock %}

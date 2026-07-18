@@ -1,0 +1,447 @@
+\documentclass[11pt,a4paper]{article}
+
+% ─── Encodage & langue ────────────────────────────────────────────────────────
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[french]{babel}
+\setlength{\headheight}{15pt}
+\setlength{\headsep}{18pt}
+
+% ─── Mise en page ─────────────────────────────────────────────────────────────
+\usepackage[left=1.65cm, right=1.65cm, top=1.95cm, bottom=2.55cm]{geometry}
+\usepackage{setspace}
+\setstretch{1.05}
+\setlength{\parindent}{1.5em}
+\setlength{\parskip}{0.18em plus 0.06em minus 0.03em}
+
+% ─── Mathématiques & Graphiques ───────────────────────────────────────────────
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{tabularx}
+\usepackage{xcolor}
+\usepackage{colortbl}
+\usepackage{caption}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,decorations.pathmorphing,patterns,calc,fadings}
+
+% ─── Mise en forme ────────────────────────────────────────────────────────────
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{tocloft}
+\usepackage{enumitem}
+\usepackage{indentfirst}
+\setlist[itemize,1]{label=\textbullet, leftmargin=1.7em, itemsep=0.20em, topsep=0.30em}
+\usepackage{hyperref}
+\usepackage{bookmark}
+\usepackage[most]{tcolorbox}
+
+% ─── Couleurs (thème bleu) ────────────────────────────────────────────────────
+\definecolor{eccblue}{RGB}{0,82,145}
+\definecolor{linkblue}{RGB}{0,0,250}
+\definecolor{darkgray}{RGB}{80,80,80}
+\definecolor{navy}{RGB}{12,25,48}
+\definecolor{accent}{RGB}{0,188,170}
+\definecolor{smoke}{RGB}{160,170,185}
+\definecolor{headergray}{gray}{0.88}
+
+\newcommand{\coverSerif}{\fontfamily{ptm}\selectfont}
+\newcommand{\coverSans}{\fontfamily{phv}\selectfont}
+
+\hypersetup{
+	colorlinks=true, linkcolor=linkblue, urlcolor=linkblue,
+	citecolor=linkblue, filecolor=linkblue,
+	pdftitle={Cahier des charges -- Outil d'analyse de rentabilité d'investissement immobilier},
+	pdfauthor={René DANSOU, Marius HOUNKPETOHOU}
+}
+
+% ─── Habillage des sections (style rapport) ──────────────────────────────────
+\newcounter{manualbookmark}
+\makeatletter
+\newcommand{\mainsection}[1]{%
+	\clearpage
+	\thispagestyle{empty}%
+	\refstepcounter{section}%
+	\setcounter{subsection}{0}%
+	\stepcounter{manualbookmark}%
+	\phantomsection%
+	\pdfbookmark[1]{\thesection\space #1}{sec-\themanualbookmark}%
+	\addcontentsline{toc}{section}{\protect\numberline{\thesection}#1}%
+	\markboth{\thesection. #1}{\thesection. #1}%
+	\vspace*{0.10cm}%
+	\noindent\hspace*{-1.25cm}%
+	\begin{tikzpicture}[x=1cm,y=1cm]
+		\shade[inner color=eccblue!18,outer color=eccblue!82]
+		(0.90,0.10) circle (1.45);
+		\node[anchor=west,font=\fontsize{9}{10}\selectfont,color=white]
+		at (0.18,1.02) {Section};
+		\node[font=\bfseries\fontsize{36}{36}\selectfont,color=white]
+		at (0.92,0.10) {\thesection};
+		\fill[eccblue!80] (1.70,-0.16) rectangle (16.05,0.08);
+		\node[text width=13.6cm,align=center,
+		font=\bfseries\itshape\fontsize{19}{23}\selectfont,color=black]
+		at (8.90,-0.98) {#1};
+		\draw[eccblue!55,line width=0.50pt] (1.60,-1.95) -- (16.00,-1.95);
+	\end{tikzpicture}\par
+	\vspace{0.8cm}%
+}
+\makeatother
+
+% ─── En-têtes et pieds de page ────────────────────────────────────────────────
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\scriptsize\leftmark}
+\fancyhead[R]{\scriptsize\thepage}
+\fancyfoot[L]{\fontsize{8}{9}\selectfont\color{darkgray} \textit{René DANSOU \& Marius HOUNKPETOHOU}}
+\fancyfoot[C]{\fontsize{9}{10}\selectfont\bfseries\color{eccblue} \thepage}
+\fancyfoot[R]{\fontsize{8}{9}\selectfont\color{darkgray} \textit{Choubel Consulting}}
+\renewcommand{\headrulewidth}{1.0pt}
+\renewcommand{\footrulewidth}{0.8pt}
+
+% ─── Table des matières ───────────────────────────────────────────────────────
+\renewcommand{\contentsname}{Table des matières}
+\renewcommand{\cfttoctitlefont}{\hfill\LARGE\bfseries\itshape\color{black}}
+\renewcommand{\cftaftertoctitle}{\hfill\par\vspace{0.85cm}}
+\renewcommand{\cftsecfont}{\small\color{eccblue}\bfseries}
+\renewcommand{\cftsecpagefont}{\small\bfseries\color{black}}
+\renewcommand{\cftdotsep}{2.5}
+
+\makeatletter
+\newcommand{\printstyledtoc}{%
+	\clearpage
+	\pagestyle{empty}%
+	\thispagestyle{empty}%
+	\phantomsection%
+	\pdfbookmark[1]{Table des matières}{toc}%
+	\vspace*{0.58cm}%
+	\noindent
+	\begin{tikzpicture}[baseline]
+		\fill[gray!28] (0,0.09) rectangle (0.62\linewidth,0.50);
+		\node[anchor=east,font=\LARGE\bfseries\itshape,color=black]
+		at (\linewidth,0.30) {Table des matières};
+		\draw[black,line width=0.55pt] (0,0.00) -- (\linewidth,0.00);
+	\end{tikzpicture}\par
+	\vspace{0.82cm}%
+	{\hypersetup{linkcolor=linkblue,linktoc=section}\@starttoc{toc}}%
+	\clearpage
+	\pagestyle{fancy}}%
+\makeatother
+
+% ─── Insertion d'images tolérante (logos optionnels) ─────────────────────────
+\newcommand{\safelogo}[2]{%
+	\IfFileExists{#1}{\includegraphics[height=#2,keepaspectratio]{#1}}{\phantom{\rule{0pt}{#2}}}}
+
+% ══════════════════════════════════════════════════════════════════════════════
+\begin{document}
+	\hypersetup{pageanchor=false}
+	\thispagestyle{empty}
+
+	% ─── Page de garde ────────────────────────────────────────────────────────────
+	\begin{titlepage}
+		\thispagestyle{empty}
+		\begin{tikzpicture}[remember picture,overlay]
+
+			% Fond profond
+			\fill[navy] (current page.south west) rectangle (current page.north east);
+
+			% Voiles sobres pour lisibilité
+			\fill[navy,opacity=0.35]
+			(current page.north west)
+			rectangle ([yshift=14.8cm]current page.south west -| current page.east);
+			\fill[navy,path fading=north]
+			([yshift=14.8cm]current page.south west)
+			rectangle ([yshift=21cm]current page.south west -| current page.east);
+
+			% Logo de l'école (En haut à gauche)
+			\node[anchor=north west, inner sep=0pt]
+			at ([xshift=2.4cm,yshift=-2cm]current page.north west)
+			{\safelogo{logo.jpg}{2.5cm}};
+
+			% Logo Choubel Consulting (En haut à droite)
+			\node[anchor=north east, inner sep=0pt]
+			at ([xshift=-2.4cm,yshift=-2cm]current page.north east)
+			{\safelogo{WhatsApp Image 2026-07-10 at 16.00.06.jpeg}{2.5cm}};
+
+			% Type du document
+			\node[anchor=south west,
+			font=\coverSerif\fontsize{10.5}{12}\selectfont\bfseries,
+			text=white, fill=eccblue, fill opacity=0.85, text opacity=1,
+			inner xsep=6pt, inner ysep=4pt, rounded corners=2pt]
+			at ([xshift=2.2cm,yshift=20.8cm]current page.south west)
+			{Cahier des charges fonctionnel et technique};
+
+			% Titre principal
+			\node[anchor=south west, text width=15cm,
+			font=\coverSerif\bfseries\fontsize{30}{36}\selectfont, text=white, inner sep=0pt]
+			at ([xshift=2.4cm,yshift=15.6cm]current page.south west)
+			{Outil d'analyse de rentabilité \\ d'investissement immobilier};
+
+			% Sous-titre
+			\node[anchor=south west, text width=15cm,
+			font=\coverSerif\fontsize{16}{20}\selectfont, text=accent, inner sep=0pt]
+			at ([xshift=2.4cm,yshift=14.2cm]current page.south west)
+			{Application Flask « RentImmo » -- Support de conseil client};
+
+			% Bloc bas : auteurs
+			\node[anchor=north west, font=\coverSerif\fontsize{7.5}{9.5}\selectfont, text=accent]
+			at ([xshift=2.4cm,yshift=11.5cm]current page.south west)
+			{RÉALISÉ PAR};
+
+			\node[anchor=north west, text width=10cm,
+			font=\coverSerif\fontsize{12}{16}\selectfont, text=white, inner sep=0pt]
+			at ([xshift=2.4cm,yshift=10.8cm]current page.south west)
+			{\textbf{DANSOU} René\\
+				\textbf{HOUNKPETOHOU} Marius};
+
+			\draw[smoke!30,line width=0.4pt]
+			([xshift=11.5cm,yshift=11.7cm]current page.south west)
+			-- ([xshift=11.5cm,yshift=9.6cm]current page.south west);
+
+			% Bloc bas : dates
+			\node[anchor=north west, font=\coverSerif\fontsize{7.5}{9.5}\selectfont, text=accent]
+			at ([xshift=12.8cm,yshift=11.5cm]current page.south west)
+			{VERSION};
+
+			\node[anchor=north west, font=\coverSerif\fontsize{11}{14}\selectfont, text=white]
+			at ([xshift=12.8cm,yshift=10.8cm]current page.south west)
+			{1.0 --- 19 juillet 2026};
+
+			% Signal discret (décoration TikZ)
+			\begin{scope}[shift={([xshift=10.5cm,yshift=3.2cm]current page.south west)},
+				accent,line width=0.7pt,opacity=0.22]
+				\foreach \a/\p in {0.6/0, 0.45/40, 0.75/80, 0.35/120} {
+					\draw plot[domain=-4.5:4.5,samples=80,smooth]
+					(\x,{\a*sin(200*\x+\p)});
+				}
+			\end{scope}
+
+			% Pied de page de la couverture
+			\draw[smoke!25,line width=0.3pt]
+			([xshift=2.4cm,yshift=1.8cm]current page.south west)
+			-- ([xshift=-2.4cm,yshift=1.8cm]current page.south east);
+
+			\node[anchor=south west, font=\coverSans\fontsize{7.5}{9}\selectfont, text=smoke!60]
+			at ([xshift=2.4cm,yshift=1.0cm]current page.south west)
+			{Livrable de la semaine 1 — projet du 13 juillet au 21 août 2026};
+
+		\end{tikzpicture}
+	\end{titlepage}
+
+	\hypersetup{pageanchor=true}
+	\pagenumbering{arabic}
+	\setcounter{page}{1}
+
+	% ─── Table des matières ───────────────────────────────────────────────────────
+	\printstyledtoc
+
+	% ══════════════════════════════════════════════════════════════════════════════
+	\mainsection{Contexte, objectifs et utilisateurs}
+
+	\subsection{Contexte}
+	Le cabinet \textbf{Choubel Consulting} accompagne des investisseurs immobiliers dans leurs décisions d'acquisition. Les analyses de rentabilité sont aujourd'hui réalisées au cas par cas, sur tableur, sans support homogène présentable en rendez-vous. Le présent projet vise à doter le cabinet d'un outil web interne, nommé \textbf{RentImmo}, développé avec le framework \textbf{Flask} (Python), qui standardise ces analyses et les rend exploitables en direct face au client.
+
+	\subsection{Objectif du document}
+	Ce cahier des charges fixe le périmètre fonctionnel, les conventions de calcul, le modèle de données et les exigences techniques de l'application. Il constitue la référence commune entre les développeurs et le cabinet : toute évolution de périmètre devra y être répercutée.
+
+	\subsection{Utilisateur cible et cas d'usage nominal}
+	L'utilisateur unique de l'application est le \textbf{conseiller} du cabinet. Le cas d'usage de référence, qui a guidé tous les arbitrages, est le suivant : en rendez-vous, le conseiller dispose d'une annonce immobilière et de quelques hypothèses fournies par son client. Il saisit le bien en quelques minutes, construit deux ou trois scénarios de financement, les compare à l'écran, et remet au client une synthèse PDF ou Excel en fin d'entretien. Il en découle trois exigences transverses :
+
+	\begin{itemize}
+		\item la \textbf{saisie doit rester courte} : valeurs par défaut pertinentes partout, aucun champ obligatoire sans nécessité ;
+		\item les \textbf{résultats doivent être immédiatement lisibles} et chaque indicateur justifiable oralement en une phrase ;
+		\item toute modification d'hypothèse doit \textbf{actualiser les résultats} sans ressaisie.
+	\end{itemize}
+
+	\subsection{Exclusions de périmètre}
+	Sont explicitement hors périmètre des six semaines : la fiscalité détaillée par régime d'imposition, la connexion à des bases d'annonces immobilières, la gestion locative (baux, quittances), et tout module de signature ou de contractualisation. Ces exclusions protègent le calendrier et pourront constituer des perspectives d'évolution.
+
+	% ══════════════════════════════════════════════════════════════════════════════
+	\mainsection{Périmètre fonctionnel}
+
+	\subsection{Vue d'ensemble des modules}
+
+	\begin{table}[H]
+		\centering
+		\small
+		\renewcommand{\arraystretch}{1.40}
+		\begin{tabular}{|>{\raggedright\arraybackslash}p{4.5cm}|>{\raggedright\arraybackslash}p{10.5cm}|}
+			\hline
+			\rowcolor{eccblue!15}
+			\textbf{\color{eccblue}Module} & \textbf{\color{eccblue}Contenu} \\
+			\hline
+			\rowcolor{white}
+			Zones de marché & Préréglages de frais, fiscalité et devise par zone ; Maroc par défaut. \\
+			\rowcolor{gray!8}
+			Acquisition & Prix du bien, frais d'acquisition selon la zone, budget travaux. \\
+			\rowcolor{white}
+			Rendement locatif & Rendement brut, net et net-net selon le loyer et les charges. \\
+			\rowcolor{gray!8}
+			Financement & Simulation du prêt (apport, taux, assurance, durée) et des mensualités. \\
+			\rowcolor{white}
+			Comparaison de scénarios & Mise en parallèle de plusieurs hypothèses (cash, crédit, taux/durées variables). \\
+			\rowcolor{gray!8}
+			Indicateurs de décision & Cash-flow, TRI, VAN sur un horizon de projection paramétrable. \\
+			\rowcolor{white}
+			Restitution et export & Tableaux et graphiques de synthèse, export PDF/Excel pour le client. \\
+			\rowcolor{gray!8}
+			Comptes et dossiers & Connexion des conseillers, dossiers clients cloisonnés par conseiller. \\
+			\hline
+		\end{tabular}
+	\end{table}
+
+	\subsection{Zones de marché paramétrables}
+	L'application est \textbf{paramétrable par zone de marché}. Une zone regroupe : les taux des frais d'acquisition (droits d'enregistrement, publicité foncière, honoraires du notaire, frais divers), le taux d'imposition effectif par défaut des revenus locatifs, et la devise d'affichage. Trois préréglages sont livrés :
+
+	\begin{itemize}
+		\item \textbf{Maroc} — zone par défaut, devise MAD ;
+		\item \textbf{France} — devise EUR ;
+		\item \textbf{Personnalisée} — tous les taux librement saisissables par le conseiller.
+	\end{itemize}
+
+	Chaque bien hérite des taux de sa zone ; le conseiller peut les \textbf{surcharger ponctuellement} au niveau du bien sans altérer le préréglage. Le changement de zone d'un bien actualise immédiatement l'ensemble des calculs. Les valeurs par défaut livrées sont des valeurs de travail : leur validation par le cabinet est planifiée en semaine 5.
+
+	\subsection{Exigences par module}
+
+	\textbf{Acquisition.} Saisie du prix du bien, calcul automatique des frais d'acquisition à partir des taux de la zone (avec surcharge possible), budget travaux global puis, à partir de la semaine 4, détaillé par postes. L'outil affiche le coût total d'acquisition et sa décomposition.
+
+	\textbf{Rendement locatif.} À partir du loyer mensuel et des charges annuelles (copropriété, assurance, gestion en \% du loyer, vacance locative en \% du loyer, entretien, taxe annuelle), l'outil calcule et affiche les trois niveaux de rendement définis en section 3, avec leur convention à côté du résultat.
+
+	\textbf{Financement.} Deux modes : \textbf{cash} ou \textbf{crédit}. En mode crédit : apport, taux nominal annuel, taux d'assurance annuel, durée en années. L'outil produit la mensualité, le tableau d'amortissement complet et le coût total du crédit.
+
+	\textbf{Scénarios et comparaison.} Un même bien peut porter plusieurs scénarios (hypothèses de financement et de projection). L'écran de comparaison présente 2 à 4 scénarios côte à côte, avec un tableau d'indicateurs et des graphiques superposés.
+
+	\textbf{Indicateurs de décision.} Pour chaque scénario : cash-flow mensuel et annuel, VAN au taux d'actualisation choisi, TRI sur l'horizon de projection (incluant la revente en dernière année), et échéancier annuel des flux destiné aux graphiques.
+
+	\textbf{Restitution et export.} Pages de résultats avec graphiques (Chart.js) : amortissement du prêt, cash-flow cumulé, décomposition du coût d'acquisition. Export \textbf{PDF} (rapport client avec la charte du cabinet) et \textbf{Excel} (hypothèses, amortissement, indicateurs, comparaison).
+
+	\textbf{Comptes et dossiers.} Connexion par e-mail et mot de passe (haché). Chaque conseiller ne voit que ses propres dossiers clients ; un dossier client regroupe des biens, chacun portant ses scénarios.
+
+	% ══════════════════════════════════════════════════════════════════════════════
+	\mainsection{Conventions et formules de calcul}
+
+	\subsection{Conventions générales}
+	Les conventions suivantes s'appliquent à tous les calculs et sont affichées à proximité des résultats concernés :
+
+	\begin{itemize}
+		\item les \textbf{travaux sont intégrés au coût d'acquisition} (lecture patrimoniale), et non traités comme un flux de première année ;
+		\item la \textbf{fiscalité} est traitée par un taux d'imposition effectif $\tau$ appliqué au revenu locatif net de charges, hérité de la zone et ajustable ;
+		\item les \textbf{résultats ne sont jamais stockés} : ils sont recalculés à chaque affichage à partir des hypothèses courantes ;
+		\item les taux sont saisis en pourcentage annuel ; les montants sont exprimés dans la devise de la zone du bien.
+	\end{itemize}
+
+	\subsection{Formules}
+	Coût d'acquisition, avec $P$ le prix du bien, $F_{\text{acq}}$ les frais issus des taux de la zone et $T$ le budget travaux :
+	\begin{equation*}
+		P_{\text{acq}} = P + F_{\text{acq}} + T, \qquad F_{\text{acq}} = P \times \frac{\text{taux de la zone}}{100}.
+	\end{equation*}
+
+	Mensualité d'un prêt à annuité constante, avec $C$ le capital emprunté, $t$ le taux périodique mensuel et $n$ le nombre de mensualités ($M = C/n$ si $t=0$) :
+	\begin{equation*}
+		M \;=\; C\,\frac{t}{1-(1+t)^{-n}}, \qquad t=\frac{t_{\text{annuel}}}{12}, \qquad n = 12\,d.
+	\end{equation*}
+
+	Rendements locatifs, avec $L$ le loyer mensuel et $\mathcal{C}$ l'ensemble des charges annuelles :
+	\begin{equation*}
+		R_{\text{brut}}=\frac{12\,L}{P_{\text{acq}}}, \qquad
+		R_{\text{net}}=\frac{12\,L-\mathcal{C}}{P_{\text{acq}}}, \qquad
+		R_{\text{net-net}}=\frac{(12\,L-\mathcal{C})(1-\tau)}{P_{\text{acq}}}.
+	\end{equation*}
+
+	Indicateurs de décision, avec $F_k$ le cash-flow de l'année $k$, $a$ le taux d'actualisation et $F_N$ intégrant le produit de revente net du capital restant dû :
+	\begin{equation*}
+		\mathrm{VAN}=\sum_{k=0}^{N}\frac{F_k}{(1+a)^k},
+		\qquad
+		\mathrm{TRI} : \sum_{k=0}^{N}\frac{F_k}{(1+\mathrm{TRI})^k}=0 .
+	\end{equation*}
+
+	Le TRI est résolu numériquement (Newton-Raphson avec repli sur une bissection bornée) ; en l'absence de solution exploitable, l'outil l'indique explicitement plutôt que d'afficher une valeur trompeuse.
+
+	\subsection{Projection pluriannuelle}
+	Sur l'horizon $N$ choisi : le loyer est revalorisé annuellement au taux saisi, la valeur du bien également ; l'investissement initial est l'apport (mode crédit) ou le coût d'acquisition total (mode cash) ; la dernière année intègre la revente nette des frais de revente et du capital restant dû. La vacance locative réduit le loyer effectivement perçu.
+
+	% ══════════════════════════════════════════════════════════════════════════════
+	\mainsection{Modèle de données}
+
+	\begin{table}[H]
+		\centering
+		\small
+		\renewcommand{\arraystretch}{1.40}
+		\begin{tabular}{|>{\raggedright\arraybackslash}p{3.4cm}|>{\raggedright\arraybackslash}p{7.4cm}|>{\raggedright\arraybackslash}p{4.2cm}|}
+			\hline
+			\rowcolor{eccblue!15}
+			\textbf{\color{eccblue}Entité} & \textbf{\color{eccblue}Rôle} & \textbf{\color{eccblue}Relations} \\
+			\hline
+			\rowcolor{white}
+			\texttt{User} & Conseiller : e-mail, nom, mot de passe haché. & 1 $\rightarrow$ n \texttt{Client} \\
+			\rowcolor{gray!8}
+			\texttt{ZonePreset} & Zone de marché : taux de frais, taux d'imposition, devise. & 1 $\rightarrow$ n \texttt{Projet} \\
+			\rowcolor{white}
+			\texttt{Client} & Investisseur suivi par le conseiller. & 1 $\rightarrow$ n \texttt{Projet} \\
+			\rowcolor{gray!8}
+			\texttt{Projet} & Le bien : prix, frais, travaux, loyer, charges, surcharges de zone. & 1 $\rightarrow$ n \texttt{Scenario}, \texttt{LigneTravaux} \\
+			\rowcolor{white}
+			\texttt{LigneTravaux} & Poste de travaux détaillé (libellé, catégorie, montant). & n $\rightarrow$ 1 \texttt{Projet} \\
+			\rowcolor{gray!8}
+			\texttt{Scenario} & Hypothèse de financement et de projection. & n $\rightarrow$ 1 \texttt{Projet} \\
+			\hline
+		\end{tabular}
+	\end{table}
+
+	\vspace{0.2cm}
+	Deux règles structurantes complètent ce schéma. D'une part, la séparation \texttt{Projet}/\texttt{Scenario} rend la comparaison de montages financiers native. D'autre part, les colonnes de surcharge du projet (\texttt{taux\_frais\_override}, \texttt{taux\_imposition\_override}) valent \texttt{NULL} par défaut : la valeur applicable est alors celle de la zone, ce qui garantit qu'une mise à jour du préréglage se propage aux biens non surchargés.
+
+	% ══════════════════════════════════════════════════════════════════════════════
+	\mainsection{Exigences techniques et non fonctionnelles}
+
+	\subsection{Socle technique}
+
+	\begin{table}[H]
+		\centering
+		\small
+		\renewcommand{\arraystretch}{1.40}
+		\begin{tabular}{|>{\raggedright\arraybackslash}p{4.5cm}|>{\raggedright\arraybackslash}p{10.5cm}|}
+			\hline
+			\rowcolor{eccblue!15}
+			\textbf{\color{eccblue}Composant} & \textbf{\color{eccblue}Choix retenu} \\
+			\hline
+			\rowcolor{white}
+			Backend & Flask 3 (Python 3.12), app factory, blueprints. \\
+			\rowcolor{gray!8}
+			Persistance & SQLAlchemy + migrations Alembic ; SQLite en local, PostgreSQL en déploiement. \\
+			\rowcolor{white}
+			Authentification & Flask-Login, mots de passe hachés (Werkzeug). \\
+			\rowcolor{gray!8}
+			Formulaires & Flask-WTF avec protection CSRF. \\
+			\rowcolor{white}
+			Interface & Jinja2 + Bootstrap 5 ; graphiques Chart.js. \\
+			\rowcolor{gray!8}
+			Moteur de calcul & Module Python pur (\texttt{app/core}), sans dépendance Flask, testé par pytest. \\
+			\rowcolor{white}
+			Exports & WeasyPrint (PDF), openpyxl (Excel). \\
+			\hline
+		\end{tabular}
+	\end{table}
+
+	\subsection{Exigences non fonctionnelles}
+	\begin{itemize}
+		\item \textbf{Fiabilité des calculs} : le moteur financier est couvert par des tests unitaires adossés à des valeurs de référence externes ; l'écart toléré est nul aux arrondis d'affichage près.
+		\item \textbf{Sécurité} : mots de passe hachés, protection CSRF sur tous les formulaires, cloisonnement strict des dossiers par conseiller.
+		\item \textbf{Portabilité} : l'application tourne en local sur le poste du conseiller (SQLite, \texttt{flask run}) et se déploie sans modification de code derrière Gunicorn avec PostgreSQL (configuration par variables d'environnement).
+		\item \textbf{Langue et devise} : interface en français ; montants affichés dans la devise de la zone du bien.
+	\end{itemize}
+
+	\subsection{Livrables et calendrier}
+	Le calendrier détaillé figure dans la feuille de route (document séparé). Les livrables finaux du 21 août 2026 sont : le code source complet prêt à l'exécution dans un dépôt Git, le guide d'utilisation orienté conseil client, le script de démonstration, et le rapport final.
+
+	\vspace{0.6cm}
+
+	\begin{tcolorbox}[colback=eccblue!5,colframe=eccblue!60,boxrule=0.6pt,arc=2pt,
+		left=8pt,right=8pt,top=6pt,bottom=6pt]
+		\small
+		\textbf{\color{eccblue}Critère d'acceptation global.} Un conseiller doit pouvoir, en moins de dix minutes et sans assistance : créer un dossier client, saisir un bien dans la zone Maroc, construire un scénario cash et un scénario crédit, les comparer à l'écran et remettre l'export PDF au client.
+	\end{tcolorbox}
+
+\end{document}

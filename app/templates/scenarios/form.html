@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% from "_form_helpers.html" import render_field %}
+
+{% block title %}{{ titre }} — RentImmo{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{{ url_for('clients.detail', client_id=projet.client_id) }}">{{ projet.client.nom }}</a></li>
+    <li class="breadcrumb-item"><a href="{{ url_for('projets.detail', projet_id=projet.id) }}">{{ projet.nom }}</a></li>
+    <li class="breadcrumb-item active">Scénario</li>
+  </ol>
+</nav>
+
+<h3 class="mb-4">{{ titre }}</h3>
+
+<form method="post" novalidate>
+  {{ form.hidden_tag() }}
+  <div class="row">
+    <div class="col-lg-6">
+      <div class="card shadow-sm mb-4">
+        <div class="card-header fw-semibold">Financement</div>
+        <div class="card-body">
+          {{ render_field(form.nom) }}
+          {{ render_field(form.mode) }}
+          {{ render_field(form.apport) }}
+          <div class="row">
+            <div class="col-md-6">{{ render_field(form.taux_interet) }}</div>
+            <div class="col-md-6">{{ render_field(form.taux_assurance) }}</div>
+          </div>
+          {{ render_field(form.duree_annees) }}
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-6">
+      <div class="card shadow-sm mb-4">
+        <div class="card-header fw-semibold">Hypothèses de projection</div>
+        <div class="card-body">
+          {{ render_field(form.horizon_annees) }}
+          <div class="row">
+            <div class="col-md-6">{{ render_field(form.revalorisation_loyer_pct) }}</div>
+            <div class="col-md-6">{{ render_field(form.revalorisation_bien_pct) }}</div>
+            <div class="col-md-6">{{ render_field(form.frais_revente_pct) }}</div>
+            <div class="col-md-6">{{ render_field(form.taux_actualisation) }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="d-flex gap-2">
+    {{ form.submit(class="btn btn-primary") }}
+    <a href="{{ url_for('projets.detail', projet_id=projet.id) }}" class="btn btn-outline-secondary">Annuler</a>
+  </div>
+</form>
+{% endblock %}

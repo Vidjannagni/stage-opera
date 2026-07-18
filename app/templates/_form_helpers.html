@@ -1,0 +1,13 @@
+{% macro render_field(field, placeholder="") %}
+<div class="mb-3">
+  {{ field.label(class="form-label") }}
+  {% set css = "form-select" if field.type == "SelectField" else "form-control" %}
+  {{ field(class=css + (" is-invalid" if field.errors else ""), placeholder=placeholder) }}
+  {% for error in field.errors %}
+  <div class="invalid-feedback">{{ error }}</div>
+  {% endfor %}
+  {% if field.description %}
+  <div class="form-text">{{ field.description }}</div>
+  {% endif %}
+</div>
+{% endmacro %}
