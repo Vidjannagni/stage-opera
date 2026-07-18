@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="p-5 mb-4 rounded-3 hero">
+  <div class="container-fluid py-4">
+    <h1 class="display-5 fw-bold">Analyser la rentabilité d'un investissement immobilier</h1>
+    <p class="col-lg-8 fs-5 mb-0">
+      Support de conseil client : coût d'acquisition, rendement locatif,
+      financement, cash-flow, TRI et VAN — paramétrable par zone de marché
+      (Maroc par défaut).
+    </p>
+  </div>
+</div>
+
+<div class="row g-4">
+  {% for titre, texte, semaine in [
+    ("Acquisition", "Prix du bien, frais selon la zone, budget travaux.", 2),
+    ("Rendement locatif", "Rendement brut, net et net-net selon loyer et charges.", 2),
+    ("Financement", "Simulation du prêt : apport, taux, durée, mensualités.", 2),
+    ("Comparaison de scénarios", "Cash vs crédit, taux et durées variables, côte à côte.", 3),
+    ("Indicateurs de décision", "Cash-flow, TRI, VAN pour éclairer la décision.", 2),
+    ("Restitution et export", "Tableaux, graphiques et exports PDF / Excel.", 4)
+  ] %}
+  <div class="col-md-4">
+    <div class="card h-100 shadow-sm">
+      <div class="card-body">
+        <h5 class="card-title text-primary">{{ titre }}</h5>
+        <p class="card-text">{{ texte }}</p>
+      </div>
+      <div class="card-footer bg-transparent small text-muted">
+        Disponible en semaine {{ semaine }}
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

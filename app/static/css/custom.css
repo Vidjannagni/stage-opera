@@ -1,0 +1,16 @@
+/* Charte RentImmo — reprise du thème des documents Choubel Consulting */
+:root {
+  --ecc-blue: #005291;
+  --ecc-navy: #0c1930;
+  --ecc-accent: #00bcaa;
+}
+
+.bg-navy { background-color: var(--ecc-navy); }
+.text-accent { color: var(--ecc-accent); }
+
+.hero {
+  background: linear-gradient(135deg, var(--ecc-navy) 0%, var(--ecc-blue) 100%);
+  color: #fff;
+}
+
+.card .card-title { color: var(--ecc-blue); }

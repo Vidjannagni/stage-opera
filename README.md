@@ -1,0 +1,59 @@
+# RentImmo — Outil d'analyse de rentabilité d'investissement immobilier
+
+Application Flask de conseil en investissement immobilier développée pour
+**Choubel Consulting** par René DANSOU et Marius HOUNKPETOHOU
+(projet de 6 semaines, 13 juillet – 21 août 2026).
+
+Fonctionnalités cibles : coût d'acquisition et travaux, rendement locatif
+(brut / net / net-net), simulation de financement, comparaison de scénarios,
+cash-flow, TRI, VAN, exports PDF / Excel. **Paramétrable par zone de marché**
+(Maroc par défaut, France, zone personnalisée) : frais d'acquisition,
+fiscalité et devise s'actualisent selon la zone.
+
+## Installation (local)
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+
+cp .env.example .env          # puis adapter SECRET_KEY
+
+flask --app run.py db upgrade      # crée la base (SQLite dans instance/)
+flask --app run.py seed-zones      # charge les zones de marché par défaut
+```
+
+## Lancement
+
+```bash
+flask --app run.py run        # http://127.0.0.1:5000
+```
+
+## Tests
+
+```bash
+pytest tests/ -v
+```
+
+## Déploiement (optionnel)
+
+Le même code se déploie derrière Gunicorn avec PostgreSQL :
+
+```bash
+export DATABASE_URL=postgresql://user:password@host:5432/rentimmo
+export FLASK_ENV=prod
+gunicorn "app:create_app()"
+```
+
+## Structure
+
+```
+app/
+├── core/        # moteur de calcul financier (Python pur, testé)
+├── models/      # User, Client, Projet, Scenario, ZonePreset, LigneTravaux
+├── blueprints/  # auth, clients, projets, scenarios, exports
+├── templates/   # Jinja2 + Bootstrap 5
+└── static/      # CSS, JS (Chart.js)
+data/zones.json  # préréglages des zones de marché
+tests/           # tests pytest du moteur et des routes
+```

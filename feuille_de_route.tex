@@ -1,0 +1,353 @@
+\documentclass[11pt,a4paper]{article}
+
+% ─── Encodage & langue ────────────────────────────────────────────────────────
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[french]{babel}
+\setlength{\headheight}{15pt}
+\setlength{\headsep}{18pt} 
+
+% ─── Mise en page ─────────────────────────────────────────────────────────────
+\usepackage[left=1.65cm, right=1.65cm, top=1.95cm, bottom=2.55cm]{geometry}
+\usepackage{setspace}
+\setstretch{1.05}
+\setlength{\parindent}{1.5em}
+\setlength{\parskip}{0.18em plus 0.06em minus 0.03em}
+
+% ─── Mathématiques & Graphiques ───────────────────────────────────────────────
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{tabularx}
+\usepackage{xcolor}
+\usepackage{colortbl}
+\usepackage{caption}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,decorations.pathmorphing,patterns,calc,fadings}
+
+% ─── Mise en forme ────────────────────────────────────────────────────────────
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{tocloft}
+\usepackage{enumitem}
+\usepackage{indentfirst}
+\setlist[itemize,1]{label=\textbullet, leftmargin=1.7em, itemsep=0.20em, topsep=0.30em}
+\usepackage{hyperref}
+\usepackage{bookmark}
+\usepackage[most]{tcolorbox}
+
+% ─── Couleurs (thème bleu) ────────────────────────────────────────────────────
+\definecolor{eccblue}{RGB}{0,82,145}
+\definecolor{linkblue}{RGB}{0,0,250}
+\definecolor{darkgray}{RGB}{80,80,80}
+\definecolor{navy}{RGB}{12,25,48}
+\definecolor{accent}{RGB}{0,188,170}
+\definecolor{smoke}{RGB}{160,170,185}
+\definecolor{headergray}{gray}{0.88}
+
+\newcommand{\coverSerif}{\fontfamily{ptm}\selectfont}
+\newcommand{\coverSans}{\fontfamily{phv}\selectfont}
+
+\hypersetup{
+	colorlinks=true, linkcolor=linkblue, urlcolor=linkblue,
+	citecolor=linkblue, filecolor=linkblue,
+	pdftitle={Outil d'analyse de rentabilité d'investissement immobilier},
+	pdfauthor={René DANSOU, Marius HOUNKPETOHOU}
+}
+
+% ─── Habillage des sections (style rapport) ──────────────────────────────────
+\newcounter{manualbookmark}
+\makeatletter
+\newcommand{\mainsection}[1]{%
+	\clearpage
+	\thispagestyle{empty}%
+	\refstepcounter{section}%
+	\setcounter{subsection}{0}%
+	\stepcounter{manualbookmark}%
+	\phantomsection%
+	\pdfbookmark[1]{\thesection\space #1}{sec-\themanualbookmark}%
+	\addcontentsline{toc}{section}{\protect\numberline{\thesection}#1}%
+	\markboth{\thesection. #1}{\thesection. #1}%
+	\vspace*{0.10cm}%
+	\noindent\hspace*{-1.25cm}%
+	\begin{tikzpicture}[x=1cm,y=1cm]
+		\shade[inner color=eccblue!18,outer color=eccblue!82]
+		(0.90,0.10) circle (1.45);
+		\node[anchor=west,font=\fontsize{9}{10}\selectfont,color=white]
+		at (0.18,1.02) {Section};
+		\node[font=\bfseries\fontsize{36}{36}\selectfont,color=white]
+		at (0.92,0.10) {\thesection};
+		\fill[eccblue!80] (1.70,-0.16) rectangle (16.05,0.08);
+		\node[text width=13.6cm,align=center,
+		font=\bfseries\itshape\fontsize{19}{23}\selectfont,color=black]
+		at (8.90,-0.98) {#1};
+		\draw[eccblue!55,line width=0.50pt] (1.60,-1.95) -- (16.00,-1.95);
+	\end{tikzpicture}\par
+	\vspace{0.8cm}%
+}
+\makeatother
+
+% ─── En-têtes et pieds de page ────────────────────────────────────────────────
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\scriptsize\leftmark}
+\fancyhead[R]{\scriptsize\thepage}
+\fancyfoot[L]{\fontsize{8}{9}\selectfont\color{darkgray} \textit{René DANSOU \& Marius HOUNKPETOHOU}}
+\fancyfoot[C]{\fontsize{9}{10}\selectfont\bfseries\color{eccblue} \thepage}
+\fancyfoot[R]{\fontsize{8}{9}\selectfont\color{darkgray} \textit{Choubel Consulting}}
+\renewcommand{\headrulewidth}{1.0pt}
+\renewcommand{\footrulewidth}{0.8pt}
+
+% ─── Table des matières ───────────────────────────────────────────────────────
+\renewcommand{\contentsname}{Table des matières}
+\renewcommand{\cfttoctitlefont}{\hfill\LARGE\bfseries\itshape\color{black}}
+\renewcommand{\cftaftertoctitle}{\hfill\par\vspace{0.85cm}}
+\renewcommand{\cftsecfont}{\small\color{eccblue}\bfseries}
+\renewcommand{\cftsecpagefont}{\small\bfseries\color{black}}
+\renewcommand{\cftdotsep}{2.5}
+
+\makeatletter
+\newcommand{\printstyledtoc}{%
+	\clearpage
+	\pagestyle{empty}%
+	\thispagestyle{empty}%
+	\phantomsection%
+	\pdfbookmark[1]{Table des matières}{toc}%
+	\vspace*{0.58cm}%
+	\noindent
+	\begin{tikzpicture}[baseline]
+		\fill[gray!28] (0,0.09) rectangle (0.62\linewidth,0.50);
+		\node[anchor=east,font=\LARGE\bfseries\itshape,color=black]
+		at (\linewidth,0.30) {Table des matières};
+		\draw[black,line width=0.55pt] (0,0.00) -- (\linewidth,0.00);
+	\end{tikzpicture}\par
+	\vspace{0.82cm}%
+	{\hypersetup{linkcolor=linkblue,linktoc=section}\@starttoc{toc}}%
+	\clearpage
+	\pagestyle{fancy}}%
+\makeatother
+
+% ══════════════════════════════════════════════════════════════════════════════
+\begin{document}
+	\hypersetup{pageanchor=false}
+	\thispagestyle{empty}
+	
+	% ─── Page de garde ────────────────────────────────────────────────────────────
+	\begin{titlepage}
+		\thispagestyle{empty}
+		\begin{tikzpicture}[remember picture,overlay]
+			
+			% Fond profond
+			\fill[navy] (current page.south west) rectangle (current page.north east);
+			
+			% Voiles sobres pour lisibilité
+			\fill[navy,opacity=0.35]
+			(current page.north west)
+			rectangle ([yshift=14.8cm]current page.south west -| current page.east);
+			\fill[navy,path fading=north]
+			([yshift=14.8cm]current page.south west)
+			rectangle ([yshift=21cm]current page.south west -| current page.east);
+			
+			% Logo de l'école (En haut à gauche) - Corrigé
+			\node[anchor=north west, inner sep=0pt] 
+			at ([xshift=2.4cm,yshift=-2cm]current page.north west) 
+			{\includegraphics[height=2.5cm,keepaspectratio]{logo.jpg}};
+			
+			% Logo Choubel Consulting (En haut à droite)
+			\node[anchor=north east, inner sep=0pt] 
+			at ([xshift=-2.4cm,yshift=-2cm]current page.north east) 
+			{\includegraphics[height=2.5cm,keepaspectratio]{WhatsApp Image 2026-07-10 at 16.00.06.jpeg}};
+			
+			% Type du document
+			\node[anchor=south west,
+			font=\coverSerif\fontsize{10.5}{12}\selectfont\bfseries,
+			text=white, fill=eccblue, fill opacity=0.85, text opacity=1,
+			inner xsep=6pt, inner ysep=4pt, rounded corners=2pt]
+			at ([xshift=2.2cm,yshift=20.8cm]current page.south west)
+			{Document de cadrage et feuille de route};
+			
+			% Titre principal
+			\node[anchor=south west, text width=15cm,
+			font=\coverSerif\bfseries\fontsize{30}{36}\selectfont, text=white, inner sep=0pt]
+			at ([xshift=2.4cm,yshift=15.6cm]current page.south west)
+			{Outil d'analyse de rentabilité \\ d'investissement immobilier};
+			
+			% Sous-titre
+			\node[anchor=south west, text width=15cm,
+			font=\coverSerif\fontsize{16}{20}\selectfont, text=accent, inner sep=0pt]
+			at ([xshift=2.4cm,yshift=14.2cm]current page.south west)
+			{Application Flask -- Support de conseil client};
+			
+			% Bloc bas : auteurs
+			\node[anchor=north west, font=\coverSerif\fontsize{7.5}{9.5}\selectfont, text=accent]
+			at ([xshift=2.4cm,yshift=11.5cm]current page.south west)
+			{RÉALISÉ PAR};
+			
+			\node[anchor=north west, text width=10cm,
+			font=\coverSerif\fontsize{12}{16}\selectfont, text=white, inner sep=0pt]
+			at ([xshift=2.4cm,yshift=10.8cm]current page.south west)
+			{\textbf{DANSOU} René\\
+				\textbf{HOUNKPETOHOU} Marius};
+			
+			\draw[smoke!30,line width=0.4pt]
+			([xshift=11.5cm,yshift=11.7cm]current page.south west)
+			-- ([xshift=11.5cm,yshift=9.6cm]current page.south west);
+			
+			% Bloc bas : dates
+			\node[anchor=north west, font=\coverSerif\fontsize{7.5}{9.5}\selectfont, text=accent]
+			at ([xshift=12.8cm,yshift=11.5cm]current page.south west)
+			{PÉRIODE DU PROJET};
+			
+			\node[anchor=north west, font=\coverSerif\fontsize{11}{14}\selectfont, text=white]
+			at ([xshift=12.8cm,yshift=10.8cm]current page.south west)
+			{13 juillet -- 21 août 2026};
+			
+			% Signal discret (décoration TikZ)
+			\begin{scope}[shift={([xshift=10.5cm,yshift=3.2cm]current page.south west)},
+				accent,line width=0.7pt,opacity=0.22]
+				\foreach \a/\p in {0.6/0, 0.45/40, 0.75/80, 0.35/120} {
+					\draw plot[domain=-4.5:4.5,samples=80,smooth]
+					(\x,{\a*sin(200*\x+\p)});
+				}
+			\end{scope}
+			
+			% Pied de page de la couverture
+			\draw[smoke!25,line width=0.3pt]
+			([xshift=2.4cm,yshift=1.8cm]current page.south west)
+			-- ([xshift=-2.4cm,yshift=1.8cm]current page.south east);
+			
+			\node[anchor=south west, font=\coverSans\fontsize{7.5}{9}\selectfont, text=smoke!60]
+			at ([xshift=2.4cm,yshift=1.0cm]current page.south west)
+			{Projet de 6 semaines};
+			
+		\end{tikzpicture}
+	\end{titlepage}
+	
+	\hypersetup{pageanchor=true}
+	\pagenumbering{arabic}
+	\setcounter{page}{1}
+	
+	% ─── Table des matières ───────────────────────────────────────────────────────
+	\printstyledtoc
+	
+	% ══════════════════════════════════════════════════════════════════════════════
+	\mainsection{Contexte et objectifs}
+	
+	Ce projet vise à concevoir un outil d'aide à la décision pour les investisseurs immobiliers, destiné à être utilisé comme support de conseil face aux clients. Développée avec le framework \textbf{Flask} (Python), l'application permettra de modéliser le coût d'acquisition et les travaux, de calculer le rendement locatif net et le TRI, de comparer plusieurs scénarios de financement, et de produire des restitutions visuelles exploitables en rendez-vous client.
+	
+	\vspace{0.5cm}
+	
+	\begin{table}[H]
+		\centering
+		\small
+		\renewcommand{\arraystretch}{1.40}
+		\begin{tabular}{|>{\raggedright\arraybackslash}p{4.5cm}|>{\raggedright\arraybackslash}p{10.5cm}|}
+			\hline
+			\rowcolor{eccblue!15}
+			\textbf{\color{eccblue}Module fonctionnel} & \textbf{\color{eccblue}Contenu} \\
+			\hline
+			\rowcolor{white}
+			Acquisition & Prix du bien, frais de notaire, budget travaux. \\
+			\rowcolor{gray!8}
+			Rendement locatif & Calcul du rendement brut, net et net-net selon le loyer et les charges. \\
+			\rowcolor{white}
+			Financement & Simulation du prêt (apport, taux, durée) et des mensualités. \\
+			\rowcolor{gray!8}
+			Comparaison de scénarios & Mise en parallèle de plusieurs hypothèses (cash, crédit, taux/durées variables). \\
+			\rowcolor{white}
+			Indicateurs de décision & Cash-flow, TRI, VAN, pour éclairer la décision d'investissement. \\
+			\rowcolor{gray!8}
+			Restitution et export & Tableaux et graphiques de synthèse, export PDF/Excel pour le client. \\
+			\hline
+		\end{tabular}
+	\end{table}
+	
+	\vspace{0.2cm}
+	Le projet est réalisé par René DANSOU et Marius HOUNKPETOHOU sur une période de six semaines, du lundi 13 juillet 2026 au vendredi 21 août 2026.
+	
+	% ══════════════════════════════════════════════════════════════════════════════
+	\mainsection{Feuille de route hebdomadaire}
+	
+	Afin de garantir le respect des délais et une progression structurée, le développement est découpé selon le planning suivant :
+	
+	\vspace{0.5cm}
+	
+	\begin{table}[H]
+		\centering
+		\footnotesize
+		\renewcommand{\arraystretch}{1.45}
+		\begin{tabular}{|>{\centering\arraybackslash}p{2.1cm}|>{\raggedright\arraybackslash}p{3.0cm}|>{\raggedright\arraybackslash}p{5.5cm}|>{\raggedright\arraybackslash}p{4.2cm}|}
+			\hline
+			\rowcolor{eccblue!15}
+			\textbf{\color{eccblue}Semaine} & \textbf{\color{eccblue}Objectif principal} & \textbf{\color{eccblue}Tâches clés} & \textbf{\color{eccblue}Livrable} \\
+			\hline
+			\rowcolor{white}
+			\textbf{Semaine 1} \newline 13--19/07 & Cadrage et spécifications & Cahier des charges, variables et formules de calcul, modèle de données, wireframes, initialisation Flask et Git. & Cahier des charges, schéma de données, squelette Flask \\ 
+			\hline
+			\rowcolor{gray!8}
+			\textbf{Semaine 2} \newline 20--26/07 & Moteur de calcul & Fonctions financières (mensualité, rendement, cash-flow, TRI, VAN), tests unitaires, routes Flask, modèles SQLAlchemy. & Moteur de calcul testé, backend connecté \\ 
+			\hline
+			\rowcolor{white}
+			\textbf{Semaine 3} \newline 27/07--02/08 & Interface et restitution & Formulaires de saisie, pages de résultats, graphiques Chart.js, comparaison de scénarios. & Interface fonctionnelle avec graphiques \\ 
+			\hline
+			\rowcolor{gray!8}
+			\textbf{Semaine 4} \newline 03--09/08 & Fonctionnalités avancées & Comparateur multi-scénarios, module travaux détaillé, export PDF/Excel, sauvegarde de profils clients. & Version enrichie avec exports \\ 
+			\hline
+			\rowcolor{white}
+			\textbf{Semaine 5} \newline 10--16/08 & Tests et retours & Tests sur cas réels, corrections, retours utilisateurs, guide d'utilisation, script de démonstration. & Version stabilisée, documentation \\ 
+			\hline
+			\rowcolor{gray!8}
+			\textbf{Semaine 6} \newline 17--21/08 & Finalisation et remise & Retouches finales, packaging, rapport final, constitution du dossier de remise. & \textbf{Remise du projet le 21/08/2026} \\
+			\hline
+		\end{tabular}
+	\end{table}
+	
+	% ══════════════════════════════════════════════════════════════════════════════
+	\mainsection{Rapport hebdomadaire et livraison}
+	
+	\subsection{Modèle de rapport hebdomadaire}
+	Chaque semaine fait l'objet d'un rapport transmis le dimanche soir (19/07, 26/07, 02/08, 09/08, 16/08), le dernier étant intégré au dossier de remise du 21 août. Chaque rapport suit la structure suivante :
+	
+	\vspace{0.4cm}
+	
+	\begin{table}[H]
+		\centering
+		\small
+		\renewcommand{\arraystretch}{1.4}
+		\begin{tabular}{|>{\raggedright\arraybackslash}p{4.5cm}|>{\raggedright\arraybackslash}p{10.5cm}|}
+			\hline
+			\rowcolor{eccblue!15}
+			\textbf{\color{eccblue}Rubrique} & \textbf{\color{eccblue}Contenu attendu} \\
+			\hline
+			\rowcolor{white}
+			Objectifs prévus & Ce qui était planifié pour la semaine. \\
+			\rowcolor{gray!8}
+			Travail réalisé & Les tâches effectivement accomplies. \\
+			\rowcolor{white}
+			Difficultés rencontrées & Les blocages techniques ou méthodologiques. \\
+			\rowcolor{gray!8}
+			Résultats obtenus & Les livrables produits durant la semaine. \\
+			\rowcolor{white}
+			Écarts par rapport au planning & Les décalages éventuels et leur justification. \\
+			\rowcolor{gray!8}
+			Prochaines étapes & Le plan pour la semaine suivante. \\
+			\hline
+		\end{tabular}
+	\end{table}
+	
+	\vspace{0.5cm}
+	
+	\subsection{Livraison finale}
+	Le dossier remis le \textbf{vendredi 21 août 2026} comprendra :
+	
+	\begin{itemize}
+		\item Le \textbf{code source complet} de l'application Flask, dans un dépôt Git prêt à l'exécution.
+		\item Un \textbf{guide d'utilisation} orienté conseil client.
+		\item Un \textbf{script de démonstration} illustrant un cas d'usage face à un investisseur.
+		\item Le \textbf{rapport final} synthétisant la démarche suivie, les résultats obtenus et les perspectives d'amélioration.
+	\end{itemize}
+	
+\end{document}
