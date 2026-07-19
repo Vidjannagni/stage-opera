@@ -1,0 +1,48 @@
+\documentclass[11pt,a4paper]{article}
+\input{_preambule}
+\hypersetup{pdftitle={Rapport hebdomadaire -- Semaine 4},
+	pdfauthor={René DANSOU, Marius HOUNKPETOHOU}}
+
+\begin{document}
+\couverture{Rapport hebdomadaire n\textsuperscript{o}~4}
+	{Travaux détaillés \\ et exports client}
+	{Outil d'analyse de rentabilité d'investissement immobilier}
+	{PÉRIODE COUVERTE}{3 -- 9 août 2026}
+	{Semaine 4 sur 6 — transmis le dimanche 9 août 2026}
+
+% ══════════════════════════════════════════════════════════════════════════════
+\mainsection{Objectifs prévus et travail réalisé}
+
+La semaine 4 devait enrichir l'application des fonctionnalités « avancées » de la feuille de route : module de travaux détaillé, exports PDF et Excel, sauvegarde des dossiers clients. L'ensemble est livré, complété par la duplication de scénarios.
+
+\subsection{Module de travaux détaillé}
+La page d'un projet permet de chiffrer les travaux poste par poste (libellé, catégorie, montant). La règle de gestion retenue est simple et affichée à l'écran : \textbf{dès qu'un poste existe, le budget travaux du projet est la somme des postes} ; la suppression d'un poste réajuste le budget. Le conseiller peut ainsi justifier le chiffre global devant son client, ligne par ligne, et le détail est repris dans le rapport PDF.
+
+\subsection{Export PDF}
+Chaque scénario s'exporte en un \textbf{rapport PDF} aux couleurs du cabinet (généré par WeasyPrint à partir des mêmes gabarits que l'application, sans double maintenance) : indicateurs clés en tuiles, coût d'acquisition avec détail des travaux, financement, exploitation, rendements, projection année par année. Les \textbf{conventions de calcul sont imprimées dans le document} — périmètre des charges, fiscalité au taux effectif, travaux intégrés au coût d'acquisition — ainsi qu'une mention précisant que le document ne constitue pas un conseil financier réglementé : le conseiller ne peut pas être contredit sur un chiffre dont la convention est écrite sous le tableau.
+
+\subsection{Export Excel et duplication}
+L'export \textbf{Excel} produit un classeur à quatre feuilles — hypothèses complètes, indicateurs, projection annuelle, amortissement mensuel (omise pour un achat comptant) — pour les clients qui souhaitent retravailler les chiffres. Enfin, la \textbf{duplication de scénario} crée une variante pré-remplie, prête à modifier, sans toucher à l'original : c'est le support naturel du « et si on mettait plus d'apport ? » en rendez-vous.
+
+% ══════════════════════════════════════════════════════════════════════════════
+\mainsection{Difficultés, écarts et prochaines étapes}
+
+\subsection{Difficultés rencontrées}
+La génération PDF a demandé une attention particulière à l'\textbf{environnement d'exécution} : WeasyPrint s'appuie sur des bibliothèques système (rendu de texte et d'images) dont la présence conditionne le fonctionnement. L'import est différé au moment de l'export et la procédure d'installation documentée, afin que l'application reste utilisable même sur un poste où l'export PDF ne serait pas encore configuré.
+
+Sur le module travaux, la question de la \textbf{cohérence entre budget global et détail} a été tranchée en faveur d'une règle unique (la somme des postes fait foi dès qu'il en existe), plutôt qu'une double saisie source d'incohérences ; le cas de la suppression du dernier poste, qui doit ramener le budget à zéro et non le figer, a été identifié par les tests et traité explicitement.
+
+\subsection{Écarts par rapport au planning}
+Aucun écart : les livrables sont conformes, avec 40 tests au vert dont le cloisonnement des exports (un conseiller ne peut pas exporter le scénario d'un autre). L'avance acquise est maintenue.
+
+\subsection{Prochaines étapes --- semaine 5}
+Phase de consolidation prévue au planning : tests sur cas réels (dont un dossier en zone France vérifiable à la main), cas limites, jeu de données de démonstration, guide d'utilisation orienté conseil client et script de démonstration.
+
+\vspace{0.6cm}
+\begin{tcolorbox}[colback=eccblue!5,colframe=eccblue!60,boxrule=0.6pt,arc=2pt,
+	left=8pt,right=8pt,top=6pt,bottom=6pt]
+	\small
+	\textbf{\color{eccblue}En résumé.} L'application couvre désormais tout le périmètre fonctionnel du cahier des charges : de la saisie du bien jusqu'au document remis au client. La semaine 5 sera consacrée à éprouver l'outil sur des cas réels et à préparer sa prise en main.
+\end{tcolorbox}
+
+\end{document}

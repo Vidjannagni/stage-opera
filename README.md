@@ -12,6 +12,14 @@ fiscalité et devise s'actualisent selon la zone.
 
 ## Installation (local)
 
+Le plus simple — installe, migre, seed et lance en une commande :
+
+```bash
+./lancer.sh          # ou ./lancer.sh --demo pour inclure le jeu de démonstration
+```
+
+Ou manuellement :
+
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
@@ -42,6 +50,13 @@ flask --app run.py demo-data  # connexion : demo@choubel.com / demo1234
 - `docs/script_demonstration.md` — déroulé de démonstration face à un investisseur.
 - `cahier_des_charges.pdf` — périmètre, formules et conventions de calcul.
 - `feuille_de_route.pdf` — planning des six semaines.
+- `rapports/` — rapports hebdomadaires 2 à 5 et rapport final (LaTeX + PDF).
+
+## Dossier de remise
+
+```bash
+./outils/preparer_remise.sh   # produit remise/RentImmo_dossier_remise.zip
+```
 
 ## Tests
 

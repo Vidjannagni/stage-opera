@@ -1,0 +1,204 @@
+% Préambule commun aux rapports RentImmo — même charte que la feuille de route.
+% Usage : \input{_preambule} puis \couverture{badge}{titre}{sous-titre}{label période}{période}{pied}
+
+% ─── Encodage & langue ────────────────────────────────────────────────────────
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[french]{babel}
+\setlength{\headheight}{15pt}
+\setlength{\headsep}{18pt}
+
+% ─── Mise en page ─────────────────────────────────────────────────────────────
+\usepackage[left=1.65cm, right=1.65cm, top=1.95cm, bottom=2.55cm]{geometry}
+\usepackage{setspace}
+\setstretch{1.05}
+\setlength{\parindent}{1.5em}
+\setlength{\parskip}{0.18em plus 0.06em minus 0.03em}
+
+% ─── Mathématiques & Graphiques ───────────────────────────────────────────────
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\graphicspath{{../}}
+\usepackage{float}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{tabularx}
+\usepackage{xcolor}
+\usepackage{colortbl}
+\usepackage{caption}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,decorations.pathmorphing,patterns,calc,fadings}
+
+% ─── Mise en forme ────────────────────────────────────────────────────────────
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{tocloft}
+\usepackage{enumitem}
+\usepackage{indentfirst}
+\setlist[itemize,1]{label=\textbullet, leftmargin=1.7em, itemsep=0.20em, topsep=0.30em}
+\usepackage{hyperref}
+\usepackage{bookmark}
+\usepackage[most]{tcolorbox}
+
+% ─── Couleurs (thème bleu) ────────────────────────────────────────────────────
+\definecolor{eccblue}{RGB}{0,82,145}
+\definecolor{linkblue}{RGB}{0,0,250}
+\definecolor{darkgray}{RGB}{80,80,80}
+\definecolor{navy}{RGB}{12,25,48}
+\definecolor{accent}{RGB}{0,188,170}
+\definecolor{smoke}{RGB}{160,170,185}
+\definecolor{headergray}{gray}{0.88}
+
+\newcommand{\coverSerif}{\fontfamily{ptm}\selectfont}
+\newcommand{\coverSans}{\fontfamily{phv}\selectfont}
+
+\hypersetup{colorlinks=true, linkcolor=linkblue, urlcolor=linkblue,
+	citecolor=linkblue, filecolor=linkblue}
+
+% ─── Habillage des sections (style rapport) ──────────────────────────────────
+\newcounter{manualbookmark}
+\makeatletter
+\newcommand{\mainsection}[1]{%
+	\clearpage
+	\thispagestyle{empty}%
+	\refstepcounter{section}%
+	\setcounter{subsection}{0}%
+	\stepcounter{manualbookmark}%
+	\phantomsection%
+	\pdfbookmark[1]{\thesection\space #1}{sec-\themanualbookmark}%
+	\addcontentsline{toc}{section}{\protect\numberline{\thesection}#1}%
+	\markboth{\thesection. #1}{\thesection. #1}%
+	\vspace*{0.10cm}%
+	\noindent\hspace*{-1.25cm}%
+	\begin{tikzpicture}[x=1cm,y=1cm]
+		\shade[inner color=eccblue!18,outer color=eccblue!82]
+		(0.90,0.10) circle (1.45);
+		\node[anchor=west,font=\fontsize{9}{10}\selectfont,color=white]
+		at (0.18,1.02) {Section};
+		\node[font=\bfseries\fontsize{36}{36}\selectfont,color=white]
+		at (0.92,0.10) {\thesection};
+		\fill[eccblue!80] (1.70,-0.16) rectangle (16.05,0.08);
+		\node[text width=13.6cm,align=center,
+		font=\bfseries\itshape\fontsize{19}{23}\selectfont,color=black]
+		at (8.90,-0.98) {#1};
+		\draw[eccblue!55,line width=0.50pt] (1.60,-1.95) -- (16.00,-1.95);
+	\end{tikzpicture}\par
+	\vspace{0.8cm}%
+}
+\makeatother
+
+% ─── En-têtes et pieds de page ────────────────────────────────────────────────
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\scriptsize\leftmark}
+\fancyhead[R]{\scriptsize\thepage}
+\fancyfoot[L]{\fontsize{8}{9}\selectfont\color{darkgray} \textit{René DANSOU \& Marius HOUNKPETOHOU}}
+\fancyfoot[C]{\fontsize{9}{10}\selectfont\bfseries\color{eccblue} \thepage}
+\fancyfoot[R]{\fontsize{8}{9}\selectfont\color{darkgray} \textit{Choubel Consulting}}
+\renewcommand{\headrulewidth}{1.0pt}
+\renewcommand{\footrulewidth}{0.8pt}
+
+% ─── Table des matières ───────────────────────────────────────────────────────
+\renewcommand{\contentsname}{Table des matières}
+\renewcommand{\cfttoctitlefont}{\hfill\LARGE\bfseries\itshape\color{black}}
+\renewcommand{\cftaftertoctitle}{\hfill\par\vspace{0.85cm}}
+\renewcommand{\cftsecfont}{\small\color{eccblue}\bfseries}
+\renewcommand{\cftsecpagefont}{\small\bfseries\color{black}}
+\renewcommand{\cftdotsep}{2.5}
+
+\makeatletter
+\newcommand{\printstyledtoc}{%
+	\clearpage
+	\pagestyle{empty}%
+	\thispagestyle{empty}%
+	\phantomsection%
+	\pdfbookmark[1]{Table des matières}{toc}%
+	\vspace*{0.58cm}%
+	\noindent
+	\begin{tikzpicture}[baseline]
+		\fill[gray!28] (0,0.09) rectangle (0.62\linewidth,0.50);
+		\node[anchor=east,font=\LARGE\bfseries\itshape,color=black]
+		at (\linewidth,0.30) {Table des matières};
+		\draw[black,line width=0.55pt] (0,0.00) -- (\linewidth,0.00);
+	\end{tikzpicture}\par
+	\vspace{0.82cm}%
+	{\hypersetup{linkcolor=linkblue,linktoc=section}\@starttoc{toc}}%
+	\clearpage
+	\pagestyle{fancy}}%
+\makeatother
+
+% ─── Insertion d'images tolérante (logos optionnels) ─────────────────────────
+\newcommand{\safelogo}[2]{%
+	\IfFileExists{#1}{\includegraphics[height=#2,keepaspectratio]{#1}}{\phantom{\rule{0pt}{#2}}}}
+
+% ─── Page de garde paramétrable ───────────────────────────────────────────────
+% #1 badge · #2 titre principal · #3 sous-titre · #4 label période · #5 période · #6 pied
+\newcommand{\couverture}[6]{%
+	\hypersetup{pageanchor=false}%
+	\begin{titlepage}
+		\thispagestyle{empty}
+		\begin{tikzpicture}[remember picture,overlay]
+			\fill[navy] (current page.south west) rectangle (current page.north east);
+			\fill[navy,opacity=0.35]
+			(current page.north west)
+			rectangle ([yshift=14.8cm]current page.south west -| current page.east);
+			\fill[navy,path fading=north]
+			([yshift=14.8cm]current page.south west)
+			rectangle ([yshift=21cm]current page.south west -| current page.east);
+			\node[anchor=north west, inner sep=0pt]
+			at ([xshift=2.4cm,yshift=-2cm]current page.north west)
+			{\safelogo{logo.jpg}{2.5cm}};
+			\node[anchor=north east, inner sep=0pt]
+			at ([xshift=-2.4cm,yshift=-2cm]current page.north east)
+			{\safelogo{WhatsApp Image 2026-07-10 at 16.00.06.jpeg}{2.5cm}};
+			\node[anchor=south west,
+			font=\coverSerif\fontsize{10.5}{12}\selectfont\bfseries,
+			text=white, fill=eccblue, fill opacity=0.85, text opacity=1,
+			inner xsep=6pt, inner ysep=4pt, rounded corners=2pt]
+			at ([xshift=2.2cm,yshift=20.8cm]current page.south west)
+			{#1};
+			\node[anchor=south west, text width=15cm,
+			font=\coverSerif\bfseries\fontsize{30}{36}\selectfont, text=white, inner sep=0pt]
+			at ([xshift=2.4cm,yshift=15.6cm]current page.south west)
+			{#2};
+			\node[anchor=south west, text width=15cm,
+			font=\coverSerif\fontsize{16}{20}\selectfont, text=accent, inner sep=0pt]
+			at ([xshift=2.4cm,yshift=14.2cm]current page.south west)
+			{#3};
+			\node[anchor=north west, font=\coverSerif\fontsize{7.5}{9.5}\selectfont, text=accent]
+			at ([xshift=2.4cm,yshift=11.5cm]current page.south west)
+			{RÉALISÉ PAR};
+			\node[anchor=north west, text width=10cm,
+			font=\coverSerif\fontsize{12}{16}\selectfont, text=white, inner sep=0pt]
+			at ([xshift=2.4cm,yshift=10.8cm]current page.south west)
+			{\textbf{DANSOU} René\\
+				\textbf{HOUNKPETOHOU} Marius};
+			\draw[smoke!30,line width=0.4pt]
+			([xshift=11.5cm,yshift=11.7cm]current page.south west)
+			-- ([xshift=11.5cm,yshift=9.6cm]current page.south west);
+			\node[anchor=north west, font=\coverSerif\fontsize{7.5}{9.5}\selectfont, text=accent]
+			at ([xshift=12.8cm,yshift=11.5cm]current page.south west)
+			{#4};
+			\node[anchor=north west, font=\coverSerif\fontsize{11}{14}\selectfont, text=white]
+			at ([xshift=12.8cm,yshift=10.8cm]current page.south west)
+			{#5};
+			\begin{scope}[shift={([xshift=10.5cm,yshift=3.2cm]current page.south west)},
+				accent,line width=0.7pt,opacity=0.22]
+				\foreach \a/\p in {0.6/0, 0.45/40, 0.75/80, 0.35/120} {
+					\draw plot[domain=-4.5:4.5,samples=80,smooth]
+					(\x,{\a*sin(200*\x+\p)});
+				}
+			\end{scope}
+			\draw[smoke!25,line width=0.3pt]
+			([xshift=2.4cm,yshift=1.8cm]current page.south west)
+			-- ([xshift=-2.4cm,yshift=1.8cm]current page.south east);
+			\node[anchor=south west, font=\coverSans\fontsize{7.5}{9}\selectfont, text=smoke!60]
+			at ([xshift=2.4cm,yshift=1.0cm]current page.south west)
+			{#6};
+		\end{tikzpicture}
+	\end{titlepage}
+	\hypersetup{pageanchor=true}%
+	\pagenumbering{arabic}%
+	\setcounter{page}{1}%
+	\printstyledtoc}

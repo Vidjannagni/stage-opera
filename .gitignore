@@ -23,6 +23,9 @@ instance/
 *.fdb_latexmk
 *.fls
 
+# Dossier de remise généré
+remise/
+
 # Éditeurs / OS
 .vscode/
 .idea/
