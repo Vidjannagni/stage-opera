@@ -29,6 +29,20 @@ flask --app run.py seed-zones      # charge les zones de marché par défaut
 flask --app run.py run        # http://127.0.0.1:5000
 ```
 
+Pour découvrir l'outil avec un dossier pré-rempli (client, bien à Casablanca,
+trois scénarios) :
+
+```bash
+flask --app run.py demo-data  # connexion : demo@choubel.com / demo1234
+```
+
+## Documentation
+
+- `docs/guide_utilisation.md` — guide du conseiller, dans l'ordre d'un rendez-vous.
+- `docs/script_demonstration.md` — déroulé de démonstration face à un investisseur.
+- `cahier_des_charges.pdf` — périmètre, formules et conventions de calcul.
+- `feuille_de_route.pdf` — planning des six semaines.
+
 ## Tests
 
 ```bash
