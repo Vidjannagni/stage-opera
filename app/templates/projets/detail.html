@@ -73,6 +73,67 @@
   </div>
 </div>
 
+{# ── Travaux détaillés ───────────────────────────────────────────────── #}
+<div class="card shadow-sm mb-4">
+  <div class="card-header fw-semibold d-flex justify-content-between">
+    <span>Travaux détaillés</span>
+    <span class="text-muted small">Si des postes existent, le budget travaux du projet est leur somme.</span>
+  </div>
+  <div class="card-body">
+    {% set lignes = projet.lignes_travaux.all() %}
+    {% if lignes %}
+    <div class="table-responsive mb-3">
+      <table class="table table-sm align-middle mb-0">
+        <thead class="table-light">
+          <tr><th>Poste</th><th>Catégorie</th><th class="text-end">Montant</th><th></th></tr>
+        </thead>
+        <tbody>
+          {% for ligne in lignes %}
+          <tr>
+            <td>{{ ligne.libelle }}</td>
+            <td class="text-muted">{{ ligne.categorie or "—" }}</td>
+            <td class="text-end">{{ ligne.montant | montant }} {{ projet.zone.devise }}</td>
+            <td class="text-end">
+              <form method="post" action="{{ url_for('projets.supprimer_travaux', ligne_id=ligne.id) }}" class="d-inline">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button class="btn btn-sm btn-outline-danger" aria-label="Supprimer {{ ligne.libelle }}">×</button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+          <tr class="fw-bold">
+            <td colspan="2">Total travaux</td>
+            <td class="text-end">{{ projet.budget_travaux | montant }} {{ projet.zone.devise }}</td>
+            <td></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p class="text-muted small mb-3">Aucun poste détaillé — le budget travaux global du projet s'applique
+      ({{ projet.budget_travaux | montant }} {{ projet.zone.devise }}).</p>
+    {% endif %}
+    <form method="post" action="{{ url_for('projets.ajouter_travaux', projet_id=projet.id) }}" class="row g-2 align-items-end">
+      {{ form_travaux.hidden_tag() }}
+      <div class="col-md-4">
+        {{ form_travaux.libelle.label(class="form-label small") }}
+        {{ form_travaux.libelle(class="form-control form-control-sm") }}
+      </div>
+      <div class="col-md-3">
+        {{ form_travaux.categorie.label(class="form-label small") }}
+        {{ form_travaux.categorie(class="form-select form-select-sm") }}
+      </div>
+      <div class="col-md-3">
+        {{ form_travaux.montant.label(class="form-label small") }}
+        {{ form_travaux.montant(class="form-control form-control-sm") }}
+      </div>
+      <div class="col-md-2">
+        {{ form_travaux.submit_travaux(class="btn btn-sm btn-outline-primary w-100") }}
+      </div>
+    </form>
+  </div>
+</div>
+
 <h5 class="mb-3">Scénarios de financement</h5>
 {% set scenarios = projet.scenarios.all() %}
 {% if scenarios %}

@@ -13,22 +13,19 @@
 </div>
 
 <div class="row g-4">
-  {% for titre, texte, semaine in [
-    ("Acquisition", "Prix du bien, frais selon la zone, budget travaux.", 2),
-    ("Rendement locatif", "Rendement brut, net et net-net selon loyer et charges.", 2),
-    ("Financement", "Simulation du prêt : apport, taux, durée, mensualités.", 2),
-    ("Comparaison de scénarios", "Cash vs crédit, taux et durées variables, côte à côte.", 3),
-    ("Indicateurs de décision", "Cash-flow, TRI, VAN pour éclairer la décision.", 2),
-    ("Restitution et export", "Tableaux, graphiques et exports PDF / Excel.", 4)
+  {% for titre, texte in [
+    ("Acquisition", "Prix du bien, frais selon la zone, budget travaux détaillé par postes."),
+    ("Rendement locatif", "Rendement brut, net et net-net selon loyer et charges."),
+    ("Financement", "Simulation du prêt : apport, taux, durée, mensualités, amortissement."),
+    ("Comparaison de scénarios", "Cash vs crédit, taux et durées variables, côte à côte."),
+    ("Indicateurs de décision", "Cash-flow, TRI, VAN avec graphiques de projection."),
+    ("Restitution et export", "Rapport PDF et classeur Excel remis au client.")
   ] %}
   <div class="col-md-4">
     <div class="card h-100 shadow-sm">
       <div class="card-body">
         <h5 class="card-title text-primary">{{ titre }}</h5>
         <p class="card-text">{{ texte }}</p>
-      </div>
-      <div class="card-footer bg-transparent small text-muted">
-        Disponible en semaine {{ semaine }}
       </div>
     </div>
   </div>

@@ -5,9 +5,9 @@ from flask_login import current_user, login_required
 from ...core.acquisition import cout_acquisition, frais_acquisition
 from ...core.rendement import rendements
 from ...extensions import db
-from ...models import Client, Projet, ZonePreset
+from ...models import Client, LigneTravaux, Projet, ZonePreset
 from ..clients import client_du_conseiller
-from .forms import ProjetForm
+from .forms import LigneTravauxForm, ProjetForm
 
 bp = Blueprint("projets", __name__)
 
@@ -90,8 +90,52 @@ def detail(projet_id: int):
     rdts = rendements(projet.loyer_mensuel, charges, cout_total, projet.taux_imposition)
     return render_template(
         "projets/detail.html", projet=projet, frais=frais,
-        cout_total=cout_total, rdts=rdts,
+        cout_total=cout_total, rdts=rdts, form_travaux=LigneTravauxForm(),
     )
+
+
+def _synchroniser_budget_travaux(projet: Projet) -> None:
+    """Si des postes détaillés existent, le budget travaux est leur somme."""
+    lignes = projet.lignes_travaux.all()
+    if lignes:
+        projet.budget_travaux = sum(l.montant for l in lignes)
+
+
+@bp.route("/<int:projet_id>/travaux", methods=["POST"])
+@login_required
+def ajouter_travaux(projet_id: int):
+    projet = projet_du_conseiller(projet_id)
+    form = LigneTravauxForm()
+    if form.validate_on_submit():
+        db.session.add(
+            LigneTravaux(
+                projet_id=projet.id, libelle=form.libelle.data,
+                categorie=form.categorie.data, montant=form.montant.data,
+            )
+        )
+        db.session.flush()
+        _synchroniser_budget_travaux(projet)
+        db.session.commit()
+        flash("Poste de travaux ajouté — budget travaux actualisé.", "success")
+    else:
+        flash("Poste invalide : libellé et montant sont requis.", "warning")
+    return redirect(url_for("projets.detail", projet_id=projet.id))
+
+
+@bp.route("/travaux/<int:ligne_id>/supprimer", methods=["POST"])
+@login_required
+def supprimer_travaux(ligne_id: int):
+    ligne = db.session.get(LigneTravaux, ligne_id)
+    if ligne is None or ligne.projet.client.user_id != current_user.id:
+        abort(404)
+    projet = ligne.projet
+    db.session.delete(ligne)
+    db.session.flush()
+    # Après suppression, le budget suit la somme restante (0 si plus aucun poste)
+    projet.budget_travaux = sum(l.montant for l in projet.lignes_travaux.all())
+    db.session.commit()
+    flash("Poste de travaux supprimé — budget travaux actualisé.", "info")
+    return redirect(url_for("projets.detail", projet_id=projet.id))
 
 
 @bp.route("/<int:projet_id>/modifier", methods=["GET", "POST"])

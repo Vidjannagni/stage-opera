@@ -65,3 +65,20 @@ class ProjetForm(FlaskForm):
     )
 
     submit = SubmitField("Enregistrer")
+
+
+class LigneTravauxForm(FlaskForm):
+    libelle = StringField("Poste", validators=[DataRequired(), Length(max=160)])
+    categorie = SelectField(
+        "Catégorie",
+        choices=[
+            ("Gros œuvre", "Gros œuvre"),
+            ("Second œuvre", "Second œuvre"),
+            ("Électricité / Plomberie", "Électricité / Plomberie"),
+            ("Cuisine / Salle de bain", "Cuisine / Salle de bain"),
+            ("Décoration", "Décoration"),
+            ("Autre", "Autre"),
+        ],
+    )
+    montant = FloatField("Montant", validators=[DataRequired(), NumberRange(min=0.01)])
+    submit_travaux = SubmitField("Ajouter le poste")

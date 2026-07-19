@@ -134,6 +134,29 @@ def apercu(projet_id: int):
     return jsonify(calculer_scenario(projet, brouillon))
 
 
+CHAMPS_DUPLIQUES = (
+    "mode", "apport", "taux_interet", "taux_assurance", "duree_annees",
+    "horizon_annees", "revalorisation_loyer_pct", "revalorisation_bien_pct",
+    "frais_revente_pct", "taux_actualisation",
+)
+
+
+@bp.route("/<int:scenario_id>/dupliquer", methods=["POST"])
+@login_required
+def dupliquer(scenario_id: int):
+    """Copie un scénario pour tester une variante sans perdre l'original."""
+    original = scenario_du_conseiller(scenario_id)
+    copie = Scenario(
+        projet_id=original.projet_id,
+        nom=f"{original.nom} (variante)",
+        **{champ: getattr(original, champ) for champ in CHAMPS_DUPLIQUES},
+    )
+    db.session.add(copie)
+    db.session.commit()
+    flash(f"Scénario dupliqué : « {copie.nom} » — modifiez la variante.", "success")
+    return redirect(url_for("scenarios.modifier", scenario_id=copie.id))
+
+
 @bp.route("/<int:scenario_id>/supprimer", methods=["POST"])
 @login_required
 def supprimer(scenario_id: int):

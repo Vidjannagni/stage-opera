@@ -17,7 +17,17 @@
   <h2 class="mb-0">{{ scenario.nom }}
     <span class="badge bg-secondary fs-6 align-middle">{{ "Crédit" if scenario.mode == "credit" else "Cash" }}</span>
   </h2>
-  <a href="{{ url_for('scenarios.modifier', scenario_id=scenario.id) }}" class="btn btn-outline-secondary">Modifier les hypothèses</a>
+  <div class="d-flex gap-2">
+    <a href="{{ url_for('exports.scenario_pdf', scenario_id=scenario.id) }}" class="btn btn-outline-danger">
+      Export PDF</a>
+    <a href="{{ url_for('exports.scenario_excel', scenario_id=scenario.id) }}" class="btn btn-outline-success">
+      Export Excel</a>
+    <form method="post" action="{{ url_for('scenarios.dupliquer', scenario_id=scenario.id) }}" class="d-inline">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button class="btn btn-outline-secondary">Dupliquer</button>
+    </form>
+    <a href="{{ url_for('scenarios.modifier', scenario_id=scenario.id) }}" class="btn btn-outline-secondary">Modifier</a>
+  </div>
 </div>
 
 {# ── Indicateurs clés ─────────────────────────────────────────────────── #}
