@@ -1,0 +1,48 @@
+\documentclass[11pt,a4paper]{article}
+\input{_preambule}
+\hypersetup{pdftitle={Rapport hebdomadaire -- Semaine 3},
+	pdfauthor={René DANSOU, Marius HOUNKPETOHOU}}
+
+\begin{document}
+\couverture{Rapport hebdomadaire n\textsuperscript{o}~3}
+	{Interface, graphiques \\ et comparaison de scénarios}
+	{Outil d'analyse de rentabilité d'investissement immobilier}
+	{PÉRIODE COUVERTE}{27 juillet -- 2 août 2026}
+	{Semaine 3 sur 6 — transmis le dimanche 2 août 2026}
+
+% ══════════════════════════════════════════════════════════════════════════════
+\mainsection{Objectifs prévus et travail réalisé}
+
+Cette troisième semaine était consacrée à la restitution : rendre les calculs de la semaine 2 lisibles et manipulables en rendez-vous client. Les trois volets prévus — formulaires de saisie, graphiques, comparaison de scénarios — sont livrés.
+
+\subsection{Graphiques de restitution}
+La page de résultats d'un scénario comporte désormais trois graphiques Chart.js : le \textbf{cash-flow annuel et cumulé} (barres et courbe sur un axe unique, même unité), le \textbf{capital restant dû} année par année en mode crédit, et la \textbf{décomposition du coût d'acquisition} (prix, frais, travaux). La palette de couleurs, dérivée de la charte du cabinet, a été \textbf{validée par un outil de contrôle d'accessibilité} : séparation suffisante des teintes pour les principales formes de daltonisme, ordre d'attribution fixe des couleurs, et chaque graphique doublé d'un tableau chiffré afin qu'aucune information ne repose sur la couleur seule. Le capital restant dû annuel a nécessité une évolution du moteur : le tableau d'amortissement est désormais construit une seule fois par calcul de scénario, puis échantillonné par année.
+
+\subsection{Comparaison de scénarios}
+Depuis la page d'un projet, le conseiller coche 2 à 4 scénarios et obtient un écran de comparaison : tableau d'indicateurs côte à côte (investissement initial, mensualité, cash-flow, rendement net-net, VAN, TRI) et courbes de cash-flow cumulé superposées, chaque colonne du tableau portant la pastille de couleur de sa courbe. C'est l'écran d'arbitrage prévu au cahier des charges — cash contre crédit, durées et taux variables.
+
+\subsection{Formulaires dynamiques}
+Le formulaire projet affiche un encart qui s'actualise au changement de zone (devise, taux de frais, imposition par défaut) et pré-remplit les libellés des champs de surcharge. Le formulaire scénario comporte un \textbf{aperçu instantané} : à chaque saisie, mensualité, cash-flow mensuel, TRI et VAN sont recalculés via un point d'accès JSON dédié, sans enregistrement ni rechargement de page — l'exigence « toute modification d'hypothèse actualise les résultats sans ressaisie » du cahier des charges est ainsi tenue au sens fort.
+
+% ══════════════════════════════════════════════════════════════════════════════
+\mainsection{Difficultés, écarts et prochaines étapes}
+
+\subsection{Difficultés rencontrées}
+Le sujet le plus délicat n'a pas été technique mais de \textbf{rigueur graphique} : un outil destiné à convaincre en rendez-vous ne peut pas se permettre des graphiques ambigus. Nous avons appliqué des règles strictes — un seul axe vertical par graphique, couleurs attribuées dans un ordre fixe et contrôlées pour le daltonisme, légende systématique dès deux séries, tableaux en regard de chaque graphique — quitte à écarter des idées séduisantes mais trompeuses (double axe, jauges).
+
+Le calcul à la volée posait par ailleurs une question de \textbf{sécurité} : le point d'accès d'aperçu accepte des données arbitraires. Il est protégé par la session et le jeton CSRF, ne persiste rien, borne les valeurs reçues et retombe sur des valeurs par défaut saines en cas d'entrée invalide — comportements couverts par les tests.
+
+\subsection{Écarts par rapport au planning}
+Aucun écart : les livrables de la semaine sont conformes à la feuille de route, avec 34 tests au vert à l'issue de la semaine. L'avance prise en semaine 2 est conservée.
+
+\subsection{Prochaines étapes --- semaine 4}
+Fonctionnalités avancées prévues au planning : module de travaux détaillé par postes, exports PDF et Excel remis au client, et duplication de scénarios pour tester des variantes sans perdre l'original.
+
+\vspace{0.6cm}
+\begin{tcolorbox}[colback=eccblue!5,colframe=eccblue!60,boxrule=0.6pt,arc=2pt,
+	left=8pt,right=8pt,top=6pt,bottom=6pt]
+	\small
+	\textbf{\color{eccblue}En résumé.} L'application est désormais utilisable en situation de conseil : saisie rapide, indicateurs recalculés à chaque frappe, graphiques rigoureux et comparaison de montages côte à côte. La semaine 4 la dotera des documents remis au client.
+\end{tcolorbox}
+
+\end{document}

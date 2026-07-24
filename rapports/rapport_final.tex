@@ -1,0 +1,83 @@
+\documentclass[11pt,a4paper]{article}
+\input{_preambule}
+\hypersetup{pdftitle={Rapport final -- Outil d'analyse de rentabilité d'investissement immobilier},
+	pdfauthor={René DANSOU, Marius HOUNKPETOHOU}}
+
+\begin{document}
+\couverture{Rapport final de projet}
+	{Outil d'analyse de rentabilité \\ d'investissement immobilier}
+	{Application Flask « RentImmo » -- Bilan du projet et perspectives}
+	{REMISE}{21 août 2026}
+	{Projet de 6 semaines — 13 juillet au 21 août 2026 — Choubel Consulting}
+
+% ══════════════════════════════════════════════════════════════════════════════
+\mainsection{Contexte, objectifs et résultat}
+
+Le cabinet Choubel Consulting accompagne des investisseurs immobiliers et avait besoin d'un support d'analyse homogène, utilisable en direct face au client. Le projet, mené sur six semaines par René DANSOU et Marius HOUNKPETOHOU, visait à livrer une application web \textbf{Flask} couvrant la chaîne complète du conseil : coût d'acquisition et travaux, rendement locatif, financement, comparaison de scénarios, indicateurs de décision (cash-flow, TRI, VAN) et restitution PDF/Excel.
+
+\textbf{Le résultat est conforme au cahier des charges, livré dans les délais.} L'application « RentImmo » permet à un conseiller de créer un dossier client, saisir un bien, construire et comparer des scénarios de financement, et remettre au client un rapport aux couleurs du cabinet — le tout en moins de dix minutes, critère d'acceptation fixé au cadrage et tenu par le jeu de démonstration livré.
+
+Le choix structurant du projet, arbitré dès la semaine 1, est le \textbf{paramétrage par zone de marché} : chaque zone porte ses taux de frais d'acquisition, son taux d'imposition effectif et sa devise ; le \textbf{Maroc est la zone par défaut} (MAD), un préréglage France et une zone personnalisée complètent l'offre, et tout calcul s'actualise au changement de zone. Ce mécanisme rend l'outil utilisable sur plusieurs marchés sans modification de code.
+
+\vspace{0.4cm}
+\begin{table}[H]
+	\centering
+	\small
+	\renewcommand{\arraystretch}{1.40}
+	\begin{tabular}{|>{\raggedright\arraybackslash}p{4.5cm}|>{\raggedright\arraybackslash}p{10.5cm}|}
+		\hline
+		\rowcolor{eccblue!15}
+		\textbf{\color{eccblue}Livrable} & \textbf{\color{eccblue}État à la remise} \\
+		\hline
+		\rowcolor{white}
+		Code source & Dépôt Git prêt à l'exécution, un commit propre par semaine, 45 tests au vert. \\
+		\rowcolor{gray!8}
+		Cahier des charges & Rédigé et versionné (périmètre, formules, conventions, modèle de données). \\
+		\rowcolor{white}
+		Guide d'utilisation & Rédigé dans l'ordre d'un rendez-vous de conseil. \\
+		\rowcolor{gray!8}
+		Script de démonstration & Déroulé minuté de 10 minutes, jeu de données rejouable (\texttt{flask demo-data}). \\
+		\rowcolor{white}
+		Rapports hebdomadaires & Cinq rapports transmis chaque dimanche, plus le présent rapport final. \\
+		\hline
+	\end{tabular}
+\end{table}
+
+% ══════════════════════════════════════════════════════════════════════════════
+\mainsection{Démarche et réalisation technique}
+
+\subsection{Méthode de travail}
+La règle posée en semaine 1 — \textit{aucune ligne de logique financière avant que les conventions de calcul ne soient écrites} — a structuré tout le projet : cadrage et formules d'abord, moteur ensuite, interface enfin. Le dépôt Git suit la feuille de route (un commit par semaine), chaque semaine s'achevant sur une suite de tests au vert. Les conventions sensibles (périmètre des charges du rendement net, travaux intégrés au coût d'acquisition, assurance sur capital initial, fiscalité au taux effectif) sont documentées dans le code, affichées dans l'interface et imprimées dans les exports.
+
+\subsection{Architecture}
+L'application suit le schéma \textit{app factory} de Flask avec des blueprints par domaine (authentification, clients, projets, scénarios, exports). Le \textbf{moteur financier est un module Python pur}, sans dépendance à Flask, testé isolément contre des valeurs de référence externes ; les résultats ne sont jamais stockés mais recalculés à chaque affichage, ce qui rend toute incohérence entre hypothèses et indicateurs structurellement impossible. La persistance repose sur SQLAlchemy avec migrations (SQLite en local, PostgreSQL en déploiement par simple variable d'environnement) ; l'interface sur Jinja2, Bootstrap et Chart.js, avec un aperçu recalculé à chaque saisie via un point d'accès JSON ; les exports sur WeasyPrint (PDF) et openpyxl (Excel). La sécurité couvre mots de passe hachés, protection CSRF généralisée et \textbf{cloisonnement strict des dossiers par conseiller}, vérifié par les tests.
+
+\subsection{Validation}
+La suite de 45 tests couvre trois niveaux : le \textbf{moteur} (mensualité confrontée au centime aux simulateurs de référence, TRI annulant la VAN, cas limites — taux nul, flux sans solution) ; les \textbf{parcours d'intégration} (inscription $\rightarrow$ client $\rightarrow$ projet $\rightarrow$ scénario $\rightarrow$ export, cloisonnement entre comptes) ; et des \textbf{cas réels} recalculés à la main, dont un dossier France dimensionné pour une vérification exacte et le changement de zone d'un projet, exigence centrale du cadrage. Le lancement derrière Gunicorn a été vérifié pour le déploiement.
+
+% ══════════════════════════════════════════════════════════════════════════════
+\mainsection{Enseignements et perspectives}
+
+\subsection{Difficultés et enseignements}
+Trois enseignements ressortent du projet. D'abord, \textbf{les conventions comptent plus que les formules} : la plupart des arbitrages délicats (périmètre du rendement net, traitement des travaux, champs vides contre valeurs héritées de la zone) étaient des questions de définition, pas de code ; les écrire tôt a évité les incohérences. Ensuite, \textbf{la vérification croisée fonctionne dans les deux sens} : un test de cas réel a échoué parce que la valeur de référence calculée à la main était fausse — le moteur était juste ; le principe « chaque chiffre vérifié deux fois » a prouvé sa valeur en corrigeant le vérificateur lui-même. Enfin, la \textbf{rigueur graphique} est un sujet à part entière pour un outil de conseil : palette contrôlée pour l'accessibilité, un seul axe par graphique, tableaux en regard de chaque figure.
+
+\subsection{Point d'attention à la remise}
+Les \textbf{valeurs par défaut des zones de marché} (Maroc : frais 7\,\%, imposition effective 15\,\% ; France : frais 7,5\,\%, imposition 30\,\%) sont des valeurs de travail documentées comme telles ; leur validation formelle par le cabinet est la première action recommandée après la remise. Les champs de surcharge par projet permettent tout ajustement immédiat sans attendre cette validation.
+
+\subsection{Perspectives d'évolution}
+\begin{itemize}
+	\item \textbf{Fiscalité par régimes} : remplacer le taux effectif par une modélisation des régimes (au Maroc comme en France), l'architecture par zone s'y prêtant directement.
+	\item \textbf{Administration des zones} : écran de gestion des préréglages (aujourd'hui seedés depuis un fichier), avec historisation des taux.
+	\item \textbf{Comparaison inter-biens} : étendre le comparateur, aujourd'hui limité aux scénarios d'un même bien, à des biens différents d'un même client.
+	\item \textbf{Déploiement mutualisé} : hébergement en ligne du cabinet (la configuration PostgreSQL/Gunicorn est prête), avec sauvegardes et HTTPS.
+	\item \textbf{Export de la comparaison} : décliner le rapport PDF sur l'écran de comparaison multi-scénarios.
+\end{itemize}
+
+\vspace{0.6cm}
+\begin{tcolorbox}[colback=eccblue!5,colframe=eccblue!60,boxrule=0.6pt,arc=2pt,
+	left=8pt,right=8pt,top=6pt,bottom=6pt]
+	\small
+	\textbf{\color{eccblue}Conclusion.} Le projet livre, dans les délais, un outil de conseil complet, testé et documenté, dont les choix de conception — zones de marché paramétrables, moteur pur recalculé, conventions écrites — le rendent immédiatement utilisable en rendez-vous et durablement extensible.
+\end{tcolorbox}
+
+\end{document}

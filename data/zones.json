@@ -1,0 +1,35 @@
+[
+  {
+    "nom": "Maroc",
+    "devise": "MAD",
+    "taux_enregistrement": 4.0,
+    "taux_publicite_fonciere": 1.5,
+    "taux_notaire": 1.0,
+    "taux_frais_divers": 0.5,
+    "taux_imposition_defaut": 15.0,
+    "par_defaut": true,
+    "personnalisable": false
+  },
+  {
+    "nom": "France",
+    "devise": "EUR",
+    "taux_enregistrement": 5.8,
+    "taux_publicite_fonciere": 0.1,
+    "taux_notaire": 1.2,
+    "taux_frais_divers": 0.4,
+    "taux_imposition_defaut": 30.0,
+    "par_defaut": false,
+    "personnalisable": false
+  },
+  {
+    "nom": "Personnalisée",
+    "devise": "EUR",
+    "taux_enregistrement": 0.0,
+    "taux_publicite_fonciere": 0.0,
+    "taux_notaire": 0.0,
+    "taux_frais_divers": 0.0,
+    "taux_imposition_defaut": 0.0,
+    "par_defaut": false,
+    "personnalisable": true
+  }
+]

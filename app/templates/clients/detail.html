@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %}{{ client.nom }} — RentImmo{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{{ url_for('clients.liste') }}">Clients</a></li>
+    <li class="breadcrumb-item active">{{ client.nom }}</li>
+  </ol>
+</nav>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h2 class="mb-0">{{ client.nom }}</h2>
+  <div>
+    <a href="{{ url_for('projets.nouveau', client_id=client.id) }}" class="btn btn-primary">+ Nouveau projet</a>
+    <a href="{{ url_for('clients.modifier', client_id=client.id) }}" class="btn btn-outline-secondary">Modifier</a>
+  </div>
+</div>
+
+<p class="text-muted">
+  {{ client.email or "" }}{% if client.email and client.telephone %} · {% endif %}{{ client.telephone or "" }}
+</p>
+{% if client.notes %}<p>{{ client.notes }}</p>{% endif %}
+
+<h5 class="mt-4 mb-3">Projets d'investissement</h5>
+{% set projets = client.projets.all() %}
+{% if projets %}
+<div class="table-responsive">
+  <table class="table table-hover align-middle">
+    <thead class="table-light">
+      <tr><th>Projet</th><th>Zone</th><th>Prix du bien</th><th>Loyer mensuel</th><th>Scénarios</th></tr>
+    </thead>
+    <tbody>
+      {% for projet in projets %}
+      <tr>
+        <td><a href="{{ url_for('projets.detail', projet_id=projet.id) }}" class="fw-semibold">{{ projet.nom }}</a></td>
+        <td>{{ projet.zone.nom }}</td>
+        <td>{{ "{:,.0f}".format(projet.prix_bien).replace(",", " ") }} {{ projet.zone.devise }}</td>
+        <td>{{ "{:,.0f}".format(projet.loyer_mensuel).replace(",", " ") }} {{ projet.zone.devise }}</td>
+        <td>{{ projet.scenarios.count() }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<p class="text-muted">Aucun projet pour ce client.</p>
+{% endif %}
+
+<form method="post" action="{{ url_for('clients.supprimer', client_id=client.id) }}" class="mt-5"
+      onsubmit="return confirm('Supprimer ce dossier client et tous ses projets ?');">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <button class="btn btn-sm btn-outline-danger">Supprimer le dossier</button>
+</form>
+{% endblock %}

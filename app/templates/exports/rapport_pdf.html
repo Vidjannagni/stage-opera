@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Rapport d'analyse — {{ projet.nom }}</title>
+<style>
+  @page {
+    size: A4;
+    margin: 2cm 1.8cm 2.2cm 1.8cm;
+    @bottom-left { content: "Choubel Consulting — RentImmo"; font-size: 8pt; color: #777; }
+    @bottom-right { content: "Page " counter(page) "/" counter(pages); font-size: 8pt; color: #777; }
+  }
+  body { font-family: "DejaVu Sans", sans-serif; font-size: 10pt; color: #212529; }
+  h1 { font-size: 19pt; color: #005291; margin: 0 0 2px 0; }
+  h2 { font-size: 12.5pt; color: #005291; border-bottom: 1.5pt solid #005291;
+       padding-bottom: 3px; margin: 22px 0 8px 0; }
+  .entete { display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 3pt solid #0c1930; padding-bottom: 10px; }
+  .entete img { height: 52px; }
+  .sous-titre { color: #555; font-size: 10.5pt; }
+  .meta { margin-top: 8px; color: #555; font-size: 9pt; }
+  table { width: 100%; border-collapse: collapse; margin-top: 6px; }
+  th, td { padding: 4px 8px; border-bottom: 0.5pt solid #dee2e6; text-align: left; }
+  th { background: #eaf1f7; color: #005291; font-size: 9pt; }
+  td.nombre, th.nombre { text-align: right; }
+  tr.total td { font-weight: bold; border-top: 1pt solid #005291; }
+  .indicateurs { display: flex; gap: 10px; margin-top: 10px; }
+  .tuile { flex: 1; border: 0.75pt solid #cfd8e3; border-radius: 4px;
+           padding: 8px 10px; text-align: center; }
+  .tuile .libelle { font-size: 8pt; color: #666; text-transform: uppercase; }
+  .tuile .valeur { font-size: 13pt; font-weight: bold; color: #0c1930; margin-top: 2px; }
+  .positif { color: #1c7a43; }
+  .negatif { color: #b02a37; }
+  .convention { font-size: 8pt; color: #777; margin-top: 4px; font-style: italic; }
+  .saut { page-break-before: always; }
+</style>
+</head>
+<body>
+
+<div class="entete">
+  <div>
+    <h1>Analyse de rentabilité locative</h1>
+    <div class="sous-titre">{{ projet.nom }} — scénario « {{ scenario.nom }} »</div>
+    <div class="meta">
+      Client : <strong>{{ projet.client.nom }}</strong> ·
+      Zone de marché : <strong>{{ projet.zone.nom }} ({{ r.devise }})</strong> ·
+      Édité le {{ date_generation }}
+    </div>
+  </div>
+  <img src="WhatsApp%20Image%202026-07-10%20at%2016.00.06.jpeg" alt="Choubel Consulting">
+</div>
+
+<div class="indicateurs">
+  <div class="tuile">
+    <div class="libelle">Cash-flow mensuel</div>
+    <div class="valeur {{ 'positif' if r.indicateurs.cashflow_mensuel >= 0 else 'negatif' }}">
+      {{ r.indicateurs.cashflow_mensuel | montant }} {{ r.devise }}</div>
+  </div>
+  <div class="tuile">
+    <div class="libelle">TRI ({{ r.projection.horizon_annees }} ans)</div>
+    <div class="valeur">
+      {%- if r.indicateurs.tri is not none %}{{ "%.2f" | format(r.indicateurs.tri) }} %{% else %}—{% endif -%}
+    </div>
+  </div>
+  <div class="tuile">
+    <div class="libelle">VAN ({{ "%.1f" | format(scenario.taux_actualisation) }} %)</div>
+    <div class="valeur {{ 'positif' if r.indicateurs.van >= 0 else 'negatif' }}">
+      {{ r.indicateurs.van | montant }} {{ r.devise }}</div>
+  </div>
+  <div class="tuile">
+    <div class="libelle">Rendement net-net</div>
+    <div class="valeur">{{ "%.2f" | format(r.rendements.net_net) }} %</div>
+  </div>
+</div>
+
+<h2>1. Coût d'acquisition</h2>
+<table>
+  <tr><td>Prix du bien</td><td class="nombre">{{ r.acquisition.prix | montant }} {{ r.devise }}</td></tr>
+  <tr><td>Frais d'acquisition ({{ "%.1f" | format(r.acquisition.taux_frais_pct) }} % — zone {{ projet.zone.nom }})</td>
+      <td class="nombre">{{ r.acquisition.frais | montant }} {{ r.devise }}</td></tr>
+  <tr><td>Budget travaux</td><td class="nombre">{{ r.acquisition.travaux | montant }} {{ r.devise }}</td></tr>
+  <tr class="total"><td>Coût total d'acquisition</td><td class="nombre">{{ r.acquisition.cout_total | montant }} {{ r.devise }}</td></tr>
+</table>
+{% set lignes_travaux = projet.lignes_travaux.all() %}
+{% if lignes_travaux %}
+<table>
+  <tr><th>Poste de travaux</th><th>Catégorie</th><th class="nombre">Montant</th></tr>
+  {% for l in lignes_travaux %}
+  <tr><td>{{ l.libelle }}</td><td>{{ l.categorie or "—" }}</td>
+      <td class="nombre">{{ l.montant | montant }} {{ r.devise }}</td></tr>
+  {% endfor %}
+</table>
+{% endif %}
+
+<h2>2. Financement</h2>
+<table>
+  {% if scenario.mode == "credit" %}
+  <tr><td>Apport</td><td class="nombre">{{ r.financement.apport | montant }} {{ r.devise }}</td></tr>
+  <tr><td>Capital emprunté ({{ "%.2f" | format(scenario.taux_interet) }} % sur {{ scenario.duree_annees }} ans,
+      assurance {{ "%.2f" | format(scenario.taux_assurance) }} %)</td>
+      <td class="nombre">{{ r.financement.capital_emprunte | montant }} {{ r.devise }}</td></tr>
+  <tr><td>Mensualité (assurance incluse)</td>
+      <td class="nombre">{{ "%.2f" | format(r.financement.mensualite_totale) }} {{ r.devise }}</td></tr>
+  <tr><td>Coût des intérêts</td><td class="nombre">{{ r.financement.cout_interets | montant }} {{ r.devise }}</td></tr>
+  <tr><td>Coût de l'assurance</td><td class="nombre">{{ r.financement.cout_assurance | montant }} {{ r.devise }}</td></tr>
+  <tr class="total"><td>Coût total du crédit</td><td class="nombre">{{ r.financement.cout_total_credit | montant }} {{ r.devise }}</td></tr>
+  {% else %}
+  <tr><td>Achat comptant (aucun emprunt)</td>
+      <td class="nombre">{{ r.acquisition.cout_total | montant }} {{ r.devise }}</td></tr>
+  {% endif %}
+</table>
+
+<h2>3. Exploitation locative (année 1) et rendements</h2>
+<table>
+  <tr><td>Loyer annuel potentiel</td><td class="nombre">{{ r.exploitation.loyer_annuel | montant }} {{ r.devise }}</td></tr>
+  <tr><td>Vacance locative ({{ "%.1f" | format(projet.vacance_pct) }} %)</td>
+      <td class="nombre">−{{ r.exploitation.vacance | montant }} {{ r.devise }}</td></tr>
+  <tr><td>Charges totales (copropriété, assurance, gestion, entretien, taxe)</td>
+      <td class="nombre">−{{ r.exploitation.charges_totales | montant }} {{ r.devise }}</td></tr>
+  <tr><td>Impôt (taux effectif {{ "%.1f" | format(projet.taux_imposition) }} %)</td>
+      <td class="nombre">−{{ r.exploitation.impot_annuel | montant }} {{ r.devise }}</td></tr>
+  <tr class="total"><td>Cash-flow annuel (année 1)</td>
+      <td class="nombre">{{ r.indicateurs.cashflow_annuel | montant }} {{ r.devise }}</td></tr>
+</table>
+<table>
+  <tr><th>Rendement</th><th class="nombre">Valeur</th></tr>
+  <tr><td>Brut (loyers / coût d'acquisition)</td><td class="nombre">{{ "%.2f" | format(r.rendements.brut) }} %</td></tr>
+  <tr><td>Net de charges</td><td class="nombre">{{ "%.2f" | format(r.rendements.net) }} %</td></tr>
+  <tr><td>Net-net (après impôt au taux effectif)</td><td class="nombre">{{ "%.2f" | format(r.rendements.net_net) }} %</td></tr>
+</table>
+<div class="convention">
+  Conventions : travaux intégrés au coût d'acquisition ; fiscalité au taux effectif de la zone
+  (ajustable) ; vacance et frais de gestion inclus dans les charges ; indicateurs recalculés
+  à partir des hypothèses ci-dessus.
+</div>
+
+<h2 class="saut">4. Projection sur {{ r.projection.horizon_annees }} ans</h2>
+<table>
+  <tr>
+    <th>Année</th><th class="nombre">Loyer perçu</th><th class="nombre">Charges</th>
+    <th class="nombre">Impôt</th><th class="nombre">Annuités</th>
+    <th class="nombre">Revente</th><th class="nombre">Cash-flow</th><th class="nombre">Cumul</th>
+  </tr>
+  {% for l in r.projection.lignes %}
+  <tr>
+    <td>{{ l.annee }}</td>
+    <td class="nombre">{{ l.loyer | montant }}</td>
+    <td class="nombre">−{{ l.charges | montant }}</td>
+    <td class="nombre">−{{ l.impot | montant }}</td>
+    <td class="nombre">−{{ l.annuite | montant }}</td>
+    <td class="nombre">{{ l.revente | montant if l.revente else "—" }}</td>
+    <td class="nombre {{ 'positif' if (l.cashflow + l.revente) >= 0 else 'negatif' }}">
+      {{ (l.cashflow + l.revente) | montant }}</td>
+    <td class="nombre">{{ l.cumul | montant }}</td>
+  </tr>
+  {% endfor %}
+</table>
+<div class="convention">
+  Montants en {{ r.devise }}. Hypothèses de projection : loyer +{{ "%.1f" | format(scenario.revalorisation_loyer_pct) }} %/an,
+  bien +{{ "%.1f" | format(scenario.revalorisation_bien_pct) }} %/an, frais de revente
+  {{ "%.1f" | format(scenario.frais_revente_pct) }} % ; la dernière année intègre la revente
+  nette du capital restant dû. Document établi par Choubel Consulting à titre indicatif ;
+  il ne constitue pas un conseil en investissement financier réglementé.
+</div>
+
+</body>
+</html>

@@ -1,0 +1,47 @@
+\documentclass[11pt,a4paper]{article}
+\input{_preambule}
+\hypersetup{pdftitle={Rapport hebdomadaire -- Semaine 5},
+	pdfauthor={René DANSOU, Marius HOUNKPETOHOU}}
+
+\begin{document}
+\couverture{Rapport hebdomadaire n\textsuperscript{o}~5}
+	{Cas réels, stabilisation \\ et documentation}
+	{Outil d'analyse de rentabilité d'investissement immobilier}
+	{PÉRIODE COUVERTE}{10 -- 16 août 2026}
+	{Semaine 5 sur 6 — transmis le dimanche 16 août 2026}
+
+% ══════════════════════════════════════════════════════════════════════════════
+\mainsection{Objectifs prévus et travail réalisé}
+
+Semaine de consolidation : éprouver l'outil sur des cas réels, traiter les cas limites, et produire la documentation d'usage prévue à la livraison. Tous les objectifs sont atteints ; la suite de tests atteint \textbf{45 tests}, tous au vert.
+
+\subsection{Cas réels et cas limites}
+Deux dossiers de référence traversent l'application de bout en bout. Le \textbf{cas Maroc} (appartement à 1\,000\,000 MAD, zone par défaut) vérifie l'héritage des taux de la zone : frais à 7\,\%, imposition effective à 15\,\%, devise MAD. Le \textbf{cas France} est dimensionné pour être vérifiable à la main : apport calibré pour un capital emprunté de 200\,000 exactement, dont la mensualité à 4\,\% sur 20 ans (1\,211,96) est confrontée au centime aux simulateurs de référence, jusqu'au cash-flow annuel recalculé manuellement. Le \textbf{changement de zone d'un projet} — exigence centrale du cadrage — est testé explicitement : frais, imposition et devise s'actualisent.
+
+Les cas limites sont couverts : vacance locative totale (aucun loyer perçu, VAN négative cohérente), horizon de projection plus long que le prêt (les annuités s'arrêtent, le cash-flow remonte), prêt à taux zéro (mensualité linéaire, intérêts nuls), TRI sans solution (affichage explicite plutôt qu'un chiffre faux).
+
+\subsection{Démonstration et documentation}
+Une commande \texttt{flask demo-data} crée en une fois un dossier de démonstration complet et rejouable : client fictif, appartement à Casablanca avec travaux détaillés par postes, trois scénarios (crédit 20 ans, crédit 25 ans, achat comptant). Deux documents l'accompagnent : le \textbf{guide d'utilisation}, rédigé dans l'ordre d'un rendez-vous (du dossier client jusqu'à la remise du PDF, avec la lecture « en une phrase » de chaque indicateur), et le \textbf{script de démonstration}, déroulé minuté de dix minutes face à un investisseur, avec messages clés et parades aux questions fréquentes.
+
+% ══════════════════════════════════════════════════════════════════════════════
+\mainsection{Difficultés, écarts et prochaines étapes}
+
+\subsection{Difficultés rencontrées}
+Un enseignement de méthode mérite d'être consigné : lors de l'écriture du cas France, un test a échoué… parce que la \textbf{valeur attendue, calculée à la main, était fausse} — le moteur, lui, était juste. L'écart (quelques dirhams sur une multiplication mentale) a été retracé et la valeur de référence corrigée. C'est précisément le rôle de ces tests croisés : chaque chiffre est vérifié deux fois, par le code et par un calcul indépendant.
+
+Le point de vigilance restant est métier : les \textbf{valeurs par défaut des zones} (Maroc : frais 7\,\%, imposition 15\,\% ; France : frais 7,5\,\%, imposition 30\,\%) sont des valeurs de travail documentées comme telles. Leur validation formelle par le cabinet reste à conduire ; les champs de surcharge par projet permettent en attendant tout ajustement au cas par cas.
+
+\subsection{Écarts par rapport au planning}
+Aucun écart négatif. Le développement est achevé avec de l'avance, la semaine 6 pouvant être entièrement consacrée à la finalisation et à la remise.
+
+\subsection{Prochaines étapes --- semaine 6}
+Rédaction du rapport final, packaging du dépôt (script de lancement, procédure de déploiement), constitution du dossier de remise du \textbf{vendredi 21 août 2026}, et validation des taux de zones avec le cabinet.
+
+\vspace{0.6cm}
+\begin{tcolorbox}[colback=eccblue!5,colframe=eccblue!60,boxrule=0.6pt,arc=2pt,
+	left=8pt,right=8pt,top=6pt,bottom=6pt]
+	\small
+	\textbf{\color{eccblue}En résumé.} L'application est stabilisée : éprouvée sur des cas réels vérifiés à la main, robuste aux cas limites, livrée avec un jeu de démonstration rejouable, un guide d'utilisation et un script de rendez-vous. Le projet aborde sa dernière semaine sans dette technique ni fonctionnelle.
+\end{tcolorbox}
+
+\end{document}

@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% from "_form_helpers.html" import render_field %}
+
+{% block title %}{{ titre }} — RentImmo{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6">
+    <h3 class="mb-4">{{ titre }}</h3>
+    <form method="post" novalidate>
+      {{ form.hidden_tag() }}
+      {{ render_field(form.nom) }}
+      {{ render_field(form.email) }}
+      {{ render_field(form.telephone) }}
+      {{ render_field(form.notes) }}
+      <div class="d-flex gap-2 mt-4">
+        {{ form.submit(class="btn btn-primary") }}
+        <a href="{{ url_for('clients.liste') }}" class="btn btn-outline-secondary">Annuler</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

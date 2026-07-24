@@ -1,0 +1,364 @@
+\documentclass[11pt,a4paper]{article}
+
+% ─── Encodage & langue ────────────────────────────────────────────────────────
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[french]{babel}
+\setlength{\headheight}{15pt}
+\setlength{\headsep}{18pt}
+
+% ─── Mise en page ─────────────────────────────────────────────────────────────
+\usepackage[left=1.65cm, right=1.65cm, top=1.95cm, bottom=2.55cm]{geometry}
+\usepackage{setspace}
+\setstretch{1.05}
+\setlength{\parindent}{1.5em}
+\setlength{\parskip}{0.18em plus 0.06em minus 0.03em}
+
+% ─── Mathématiques & Graphiques ───────────────────────────────────────────────
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{tabularx}
+\usepackage{xcolor}
+\usepackage{colortbl}
+\usepackage{caption}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,decorations.pathmorphing,patterns,calc,fadings,positioning}
+
+% ─── Mise en forme ────────────────────────────────────────────────────────────
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{tocloft}
+\usepackage{enumitem}
+\usepackage{indentfirst}
+\setlist[itemize,1]{label=\textbullet, leftmargin=1.7em, itemsep=0.20em, topsep=0.30em}
+\usepackage{hyperref}
+\usepackage{bookmark}
+\usepackage[most]{tcolorbox}
+
+% ─── Couleurs (thème bleu) ────────────────────────────────────────────────────
+\definecolor{eccblue}{RGB}{0,82,145}
+\definecolor{linkblue}{RGB}{0,0,250}
+\definecolor{darkgray}{RGB}{80,80,80}
+\definecolor{navy}{RGB}{12,25,48}
+\definecolor{accent}{RGB}{0,188,170}
+\definecolor{smoke}{RGB}{160,170,185}
+\definecolor{headergray}{gray}{0.88}
+
+\newcommand{\coverSerif}{\fontfamily{ptm}\selectfont}
+\newcommand{\coverSans}{\fontfamily{phv}\selectfont}
+
+\hypersetup{
+	colorlinks=true, linkcolor=linkblue, urlcolor=linkblue,
+	citecolor=linkblue, filecolor=linkblue,
+	pdftitle={Rapport hebdomadaire -- Semaine 1},
+	pdfauthor={René DANSOU, Marius HOUNKPETOHOU}
+}
+
+% ─── Habillage des sections (style rapport) ──────────────────────────────────
+\newcounter{manualbookmark}
+\makeatletter
+\newcommand{\mainsection}[1]{%
+	\clearpage
+	\thispagestyle{empty}%
+	\refstepcounter{section}%
+	\setcounter{subsection}{0}%
+	\stepcounter{manualbookmark}%
+	\phantomsection%
+	\pdfbookmark[1]{\thesection\space #1}{sec-\themanualbookmark}%
+	\addcontentsline{toc}{section}{\protect\numberline{\thesection}#1}%
+	\markboth{\thesection. #1}{\thesection. #1}%
+	\vspace*{0.10cm}%
+	\noindent\hspace*{-1.25cm}%
+	\begin{tikzpicture}[x=1cm,y=1cm]
+		\shade[inner color=eccblue!18,outer color=eccblue!82]
+		(0.90,0.10) circle (1.45);
+		\node[anchor=west,font=\fontsize{9}{10}\selectfont,color=white]
+		at (0.18,1.02) {Section};
+		\node[font=\bfseries\fontsize{36}{36}\selectfont,color=white]
+		at (0.92,0.10) {\thesection};
+		\fill[eccblue!80] (1.70,-0.16) rectangle (16.05,0.08);
+		\node[text width=13.6cm,align=center,
+		font=\bfseries\itshape\fontsize{19}{23}\selectfont,color=black]
+		at (8.90,-0.98) {#1};
+		\draw[eccblue!55,line width=0.50pt] (1.60,-1.95) -- (16.00,-1.95);
+	\end{tikzpicture}\par
+	\vspace{0.8cm}%
+}
+\makeatother
+
+% ─── En-têtes et pieds de page ────────────────────────────────────────────────
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\scriptsize\leftmark}
+\fancyhead[R]{\scriptsize\thepage}
+\fancyfoot[L]{\fontsize{8}{9}\selectfont\color{darkgray} \textit{René DANSOU \& Marius HOUNKPETOHOU}}
+\fancyfoot[C]{\fontsize{9}{10}\selectfont\bfseries\color{eccblue} \thepage}
+\fancyfoot[R]{\fontsize{8}{9}\selectfont\color{darkgray} \textit{Choubel Consulting}}
+\renewcommand{\headrulewidth}{1.0pt}
+\renewcommand{\footrulewidth}{0.8pt}
+
+% ─── Table des matières ───────────────────────────────────────────────────────
+\renewcommand{\contentsname}{Table des matières}
+\renewcommand{\cfttoctitlefont}{\hfill\LARGE\bfseries\itshape\color{black}}
+\renewcommand{\cftaftertoctitle}{\hfill\par\vspace{0.85cm}}
+\renewcommand{\cftsecfont}{\small\color{eccblue}\bfseries}
+\renewcommand{\cftsecpagefont}{\small\bfseries\color{black}}
+\renewcommand{\cftdotsep}{2.5}
+
+\makeatletter
+\newcommand{\printstyledtoc}{%
+	\clearpage
+	\pagestyle{empty}%
+	\thispagestyle{empty}%
+	\phantomsection%
+	\pdfbookmark[1]{Table des matières}{toc}%
+	\vspace*{0.58cm}%
+	\noindent
+	\begin{tikzpicture}[baseline]
+		\fill[gray!28] (0,0.09) rectangle (0.62\linewidth,0.50);
+		\node[anchor=east,font=\LARGE\bfseries\itshape,color=black]
+		at (\linewidth,0.30) {Table des matières};
+		\draw[black,line width=0.55pt] (0,0.00) -- (\linewidth,0.00);
+	\end{tikzpicture}\par
+	\vspace{0.82cm}%
+	{\hypersetup{linkcolor=linkblue,linktoc=section}\@starttoc{toc}}%
+	\clearpage
+	\pagestyle{fancy}}%
+\makeatother
+
+% ─── Insertion d'images tolérante (logos optionnels) ─────────────────────────
+\newcommand{\safelogo}[2]{%
+	\IfFileExists{#1}{\includegraphics[height=#2,keepaspectratio]{#1}}{\phantom{\rule{0pt}{#2}}}}
+
+% ══════════════════════════════════════════════════════════════════════════════
+\begin{document}
+	\hypersetup{pageanchor=false}
+	\thispagestyle{empty}
+	
+	% ─── Page de garde ────────────────────────────────────────────────────────────
+	\begin{titlepage}
+		\thispagestyle{empty}
+		\begin{tikzpicture}[remember picture,overlay]
+			
+			% Fond profond
+			\fill[navy] (current page.south west) rectangle (current page.north east);
+			
+			% Voiles sobres pour lisibilité
+			\fill[navy,opacity=0.35]
+			(current page.north west)
+			rectangle ([yshift=14.8cm]current page.south west -| current page.east);
+			\fill[navy,path fading=north]
+			([yshift=14.8cm]current page.south west)
+			rectangle ([yshift=21cm]current page.south west -| current page.east);
+			
+			% Logo de l'école (En haut à gauche)
+			\node[anchor=north west, inner sep=0pt]
+			at ([xshift=2.4cm,yshift=-2cm]current page.north west)
+			{\safelogo{logo.jpg}{2.5cm}};
+			
+			% Logo Choubel Consulting (En haut à droite)
+			\node[anchor=north east, inner sep=0pt]
+			at ([xshift=-2.4cm,yshift=-2cm]current page.north east)
+			{\safelogo{WhatsApp Image 2026-07-10 at 16.00.06.jpeg}{2.5cm}};
+			
+			% Type du document
+			\node[anchor=south west,
+			font=\coverSerif\fontsize{10.5}{12}\selectfont\bfseries,
+			text=white, fill=eccblue, fill opacity=0.85, text opacity=1,
+			inner xsep=6pt, inner ysep=4pt, rounded corners=2pt]
+			at ([xshift=2.2cm,yshift=20.8cm]current page.south west)
+			{Rapport hebdomadaire n\textsuperscript{o}~1};
+			
+			% Titre principal
+			\node[anchor=south west, text width=15cm,
+			font=\coverSerif\bfseries\fontsize{30}{36}\selectfont, text=white, inner sep=0pt]
+			at ([xshift=2.4cm,yshift=15.6cm]current page.south west)
+			{Cadrage, spécifications \\ et initialisation technique};
+			
+			% Sous-titre
+			\node[anchor=south west, text width=15cm,
+			font=\coverSerif\fontsize{16}{20}\selectfont, text=accent, inner sep=0pt]
+			at ([xshift=2.4cm,yshift=14.2cm]current page.south west)
+			{Outil d'analyse de rentabilité d'investissement immobilier};
+			
+			% Bloc bas : auteurs
+			\node[anchor=north west, font=\coverSerif\fontsize{7.5}{9.5}\selectfont, text=accent]
+			at ([xshift=2.4cm,yshift=11.5cm]current page.south west)
+			{RÉALISÉ PAR};
+			
+			\node[anchor=north west, text width=10cm,
+			font=\coverSerif\fontsize{12}{16}\selectfont, text=white, inner sep=0pt]
+			at ([xshift=2.4cm,yshift=10.8cm]current page.south west)
+			{\textbf{DANSOU} René\\
+				\textbf{HOUNKPETOHOU} Marius};
+			
+			\draw[smoke!30,line width=0.4pt]
+			([xshift=11.5cm,yshift=11.7cm]current page.south west)
+			-- ([xshift=11.5cm,yshift=9.6cm]current page.south west);
+			
+			% Bloc bas : dates
+			\node[anchor=north west, font=\coverSerif\fontsize{7.5}{9.5}\selectfont, text=accent]
+			at ([xshift=12.8cm,yshift=11.5cm]current page.south west)
+			{PÉRIODE COUVERTE};
+			
+			\node[anchor=north west, font=\coverSerif\fontsize{11}{14}\selectfont, text=white]
+			at ([xshift=12.8cm,yshift=10.8cm]current page.south west)
+			{13 -- 19 juillet 2026};
+			
+			% Signal discret (décoration TikZ)
+			\begin{scope}[shift={([xshift=10.5cm,yshift=3.2cm]current page.south west)},
+				accent,line width=0.7pt,opacity=0.22]
+				\foreach \a/\p in {0.6/0, 0.45/40, 0.75/80, 0.35/120} {
+					\draw plot[domain=-4.5:4.5,samples=80,smooth]
+					(\x,{\a*sin(200*\x+\p)});
+				}
+			\end{scope}
+			
+			% Pied de page de la couverture
+			\draw[smoke!25,line width=0.3pt]
+			([xshift=2.4cm,yshift=1.8cm]current page.south west)
+			-- ([xshift=-2.4cm,yshift=1.8cm]current page.south east);
+			
+			\node[anchor=south west, font=\coverSans\fontsize{7.5}{9}\selectfont, text=smoke!60]
+			at ([xshift=2.4cm,yshift=1.0cm]current page.south west)
+			{Semaine 1 sur 6 — transmis le dimanche 19 juillet 2026};
+			
+		\end{tikzpicture}
+	\end{titlepage}
+	
+	\hypersetup{pageanchor=true}
+	\pagenumbering{arabic}
+	\setcounter{page}{1}
+	
+	% ─── Table des matières ───────────────────────────────────────────────────────
+	\printstyledtoc
+	
+	% ══════════════════════════════════════════════════════════════════════════════
+	\mainsection{Objectifs prévus et démarche}
+	
+	La feuille de route assignait à cette première semaine un objectif de \textbf{cadrage} : transformer une intention métier; aider un conseiller à trancher, devant un client, entre plusieurs opportunités d'investissement; en un ensemble de spécifications suffisamment précises pour être codées sans ambiguïté. Aucune ligne de logique financière ne devait être écrite avant que les conventions de calcul ne soient fixées et validées.
+	
+	Nous avons volontairement adopté une progression en trois temps : d'abord \textit{comprendre l'usage} (qui utilise l'outil, dans quelle situation, avec quelles données en main), ensuite \textit{formaliser le calcul} (quelles grandeurs, quelles formules, quelles hypothèses), enfin \textit{poser la structure technique} (modèle de données, arborescence Flask, dépôt Git). Cet ordre nous a paru le seul défendable : un modèle de données conçu avant les formules aurait figé des choix arbitraires.
+	
+	\vspace{0.5cm}
+	
+	\begin{table}[H]
+		\centering
+		\small
+		\renewcommand{\arraystretch}{1.40}
+		\begin{tabular}{|>{\raggedright\arraybackslash}p{4.5cm}|>{\raggedright\arraybackslash}p{7.6cm}|>{\centering\arraybackslash}p{2.6cm}|}
+			\hline
+			\rowcolor{eccblue!15}
+			\textbf{\color{eccblue}Objectif planifié} & \textbf{\color{eccblue}Critère de réussite retenu} & \textbf{\color{eccblue}Statut} \\
+			\hline
+			\rowcolor{white}
+			Cahier des charges & Périmètre, utilisateurs et exclusions écrits et arbitrés. & Atteint \\
+			\rowcolor{gray!8}
+			Variables et formules & Chaque indicateur défini par une formule unique et vérifiable. & Atteint \\
+			\rowcolor{white}
+			Modèle de données & Entités, relations et types fixés, cohérents avec les formules. & Atteint \\
+			\rowcolor{gray!8}
+			Wireframes & Parcours complet saisie $\rightarrow$ résultats $\rightarrow$ comparaison esquissé. & Atteint \\
+			\rowcolor{white}
+			Initialisation Flask et Git & Application lancée en local, dépôt versionné et structuré. & Atteint \\
+			\hline
+		\end{tabular}
+	\end{table}
+	
+	% ══════════════════════════════════════════════════════════════════════════════
+	\mainsection{Travail réalisé}
+	
+	\subsection{Cadrage fonctionnel}
+	Le cahier des charges a été rédigé autour d'un utilisateur unique et clairement identifié : le \textbf{conseiller}, en rendez-vous, disposant d'une annonce immobilière et de quelques hypothèses à tester en direct. Cette hypothèse d'usage a des conséquences fortes sur le produit : la saisie doit rester courte, les résultats immédiatement lisibles, et toute grandeur affichée doit pouvoir être justifiée oralement en une phrase.
+
+Un arbitrage structurant a par ailleurs été acté cette semaine : l'outil sera \textbf{paramétrable par zone de marché}. Chaque zone porte ses propres conventions; taux des frais d'acquisition (droits d'enregistrement, publicité foncière, honoraires du notaire), taux d'imposition effectif des revenus locatifs et devise; et l'ensemble des calculs s'actualise automatiquement selon la zone sélectionnée. Le \textbf{Maroc constitue la zone par défaut} (devise MAD), un préréglage France est fourni, et une zone personnalisée permet au conseiller de saisir librement ses taux. La fiscalité est ainsi traitée par un \textbf{taux effectif} configurable par zone, en cohérence avec les \textbf{exclusions} que nous avons fixées; pas de fiscalité détaillée par régime, pas de connexion à des bases d'annonces, pas de gestion locative; afin de protéger le périmètre des six semaines.
+	
+	\subsection{Formalisation du moteur de calcul}
+	Les indicateurs ont été définis mathématiquement avant toute implémentation. La mensualité d'un prêt à taux fixe suit la formule d'annuité constante, avec $C$ le capital emprunté, $t$ le taux périodique et $n$ le nombre de mensualités :
+	
+	\begin{equation*}
+		M \;=\; C\,\frac{t}{1-(1+t)^{-n}}, \qquad t=\frac{t_{\text{annuel}}}{12}, \qquad n = 12\,d.
+	\end{equation*}
+	
+	Le rendement locatif est décliné en trois niveaux, afin d'éviter la confusion fréquente entre un brut flatteur et une réalité nette :
+	
+	\begin{equation*}
+		R_{\text{brut}}=\frac{12\,L}{P_{\text{acq}}}, \qquad
+		R_{\text{net}}=\frac{12\,L-\mathcal{C}}{P_{\text{acq}}}, \qquad
+		R_{\text{net-net}}=\frac{(12\,L-\mathcal{C})(1-\tau)}{P_{\text{acq}}}, \qquad
+		P_{\text{acq}} = P + F_{\text{acq}} + T,
+	\end{equation*}
+
+	où $L$ est le loyer mensuel, $\mathcal{C}$ l'ensemble des charges annuelles (taxe foncière, copropriété, assurance, gestion, vacance, entretien), $P$ le prix du bien, $T$ le budget travaux, $F_{\text{acq}}$ les frais d'acquisition obtenus en appliquant au prix les taux de la zone de marché sélectionnée (droits d'enregistrement, publicité foncière, notaire), et $\tau$ le taux d'imposition effectif des revenus locatifs hérité de la zone. La décision d'investissement s'appuie enfin sur les flux actualisés, avec $F_k$ le cash-flow de l'année $k$ et $F_N$ intégrant le prix de revente net du capital restant dû :
+	
+	\begin{equation*}
+		\mathrm{VAN}=\sum_{k=0}^{N}\frac{F_k}{(1+a)^k},
+		\qquad
+		\mathrm{TRI} : \sum_{k=0}^{N}\frac{F_k}{(1+\mathrm{TRI})^k}=0 .
+	\end{equation*}
+	
+	Le TRI n'admettant pas de solution analytique, sa résolution numérique par la méthode de Newton-Raphson, avec repli sur une bissection bornée en cas de non-convergence, a été actée dès le cadrage : c'est un choix d'implémentation, mais il conditionne la robustesse de l'outil face à des flux à signes multiples.
+	
+	
+	\subsection{Modèle de données et structure technique}
+	Le modèle relationnel a été dérivé directement des formules ci-dessus, chaque variable devant appartenir à une entité et une seule.
+	
+	\vspace{0.4cm}
+	
+	\begin{table}[H]
+		\centering
+		\small
+		\renewcommand{\arraystretch}{1.40}
+		\begin{tabular}{|>{\raggedright\arraybackslash}p{3.4cm}|>{\raggedright\arraybackslash}p{7.4cm}|>{\raggedright\arraybackslash}p{4.2cm}|}
+			\hline
+			\rowcolor{eccblue!15}
+			\textbf{\color{eccblue}Entité} & \textbf{\color{eccblue}Rôle} & \textbf{\color{eccblue}Relations} \\
+			\hline
+			\rowcolor{white}
+			\texttt{Client} & Investisseur suivi par le conseiller. & 1 $\rightarrow$ n \texttt{Bien} \\
+			\rowcolor{gray!8}
+			\texttt{Bien} & Prix, surface, localisation, frais, travaux. & 1 $\rightarrow$ n \texttt{Scenario} \\
+			\rowcolor{white}
+			\texttt{Scenario} & Hypothèse de financement et d'exploitation. & 1 $\rightarrow$ 1 \texttt{Resultat} \\
+			\rowcolor{gray!8}
+			\texttt{Charge} & Poste de charge annuel, typé et récurrent. & n $\rightarrow$ 1 \texttt{Scenario} \\
+			\rowcolor{white}
+			\texttt{Resultat} & Indicateurs calculés et échéancier annuel. & Dérivé, recalculable \\
+			\rowcolor{gray!8}
+			\texttt{ZonePreset} & Zone de marché : taux des frais d'acquisition, taux d'imposition effectif et devise (Maroc par défaut). & 1 $\rightarrow$ n \texttt{Bien} \\
+			\hline
+		\end{tabular}
+	\end{table}
+	
+	\vspace{0.2cm}
+	Le choix structurant est ici la séparation entre \texttt{Bien} et \texttt{Scenario} : un même bien peut être confronté à plusieurs montages financiers, ce qui rend la comparaison de scénarios native plutôt qu'ajoutée après coup. L'entité \texttt{ZonePreset} matérialise quant à elle le paramétrage par zone de marché acté au cadrage : chaque bien hérite des taux et de la devise de sa zone, le conseiller pouvant les ajuster ponctuellement sans altérer le préréglage. Les résultats sont marqués comme dérivés et non comme données de référence, afin qu'aucune incohérence ne puisse survenir entre une hypothèse modifiée et un indicateur affiché.
+	
+	Côté technique, le squelette Flask a été initialisé selon un découpage en \textit{blueprints} (saisie, calcul, restitution), avec SQLAlchemy pour la persistance, une configuration séparée développement/production, et un dépôt Git structuré avec conventions de commits. Les wireframes des trois écrans principaux; formulaire de saisie, page de résultats, tableau comparatif; complètent l'ensemble et ont servi à vérifier que chaque champ du modèle avait bien une origine dans l'interface.
+	
+	% ══════════════════════════════════════════════════════════════════════════════
+	\mainsection{Difficultés, écarts et prochaines étapes}
+	
+	\subsection{Difficultés rencontrées}
+	La principale difficulté n'a pas été technique mais \textbf{définitionnelle}. La notion de « rendement net » recouvre, selon les sources professionnelles consultées, des périmètres de charges sensiblement différents ; publier un chiffre sans en expliciter la convention aurait exposé le conseiller à être contredit par son client. Nous avons donc tranché en documentant explicitement, pour chaque indicateur, les postes inclus et exclus, et en prévoyant l'affichage de cette convention à côté du résultat.
+	
+	Une seconde difficulté a porté sur le traitement des \textbf{travaux}. Les intégrer au prix d'acquisition ou les traiter comme un flux de la première année conduit à des TRI différents. Nous avons retenu l'intégration au coût d'acquisition, plus conforme à la lecture patrimoniale, tout en conservant dans le modèle la possibilité d'un étalement; décision reportée à la semaine 4, où le module travaux détaillé est planifié.
+	
+	\subsection{Écarts par rapport au planning}
+	\textbf{Aucun écart de calendrier n'est à signaler} : les cinq livrables prévus pour la semaine 1 sont produits. Un seul ajustement de contenu mérite d'être mentionné : les wireframes sont restés au stade de croquis fonctionnels plutôt que de maquettes finalisées, le temps ayant été volontairement réalloué à la formalisation des conventions de calcul. Ce choix ne pénalise pas la semaine 2, consacrée au moteur de calcul, et sera rattrapé naturellement en semaine 3.
+	
+	\subsection{Prochaines étapes - semaine 2}
+	Conformément à la feuille de route, la semaine du 20 au 26 juillet sera consacrée à la construction du moteur de calcul : implémentation des fonctions financières définies ci-dessus, écriture des \textbf{tests unitaires} adossés à des cas de référence calculés à la main, mise en place des modèles SQLAlchemy et des premières routes Flask. Le critère de réussite retenu est simple et vérifiable : sur un jeu de trois biens réels, l'écart entre les valeurs produites par l'application et celles obtenues manuellement doit être nul aux arrondis d'affichage près.
+	
+	\vspace{0.6cm}
+	
+	\begin{tcolorbox}[colback=eccblue!5,colframe=eccblue!60,boxrule=0.6pt,arc=2pt,
+		left=8pt,right=8pt,top=6pt,bottom=6pt]
+		\small
+		\textbf{\color{eccblue}En résumé.} La semaine 1 s'achève sur un socle stable : un périmètre borné, des formules écrites et arbitrées, un modèle de données qui en découle et une application Flask qui démarre. Le projet aborde la semaine 2 sans dette de conception, ce qui était précisément l'objectif de cette phase de cadrage.
+	\end{tcolorbox}
+	
+\end{document}

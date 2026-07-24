@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% from "_form_helpers.html" import render_field %}
+
+{% block title %}Connexion — RentImmo{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-5">
+    <div class="card shadow-sm">
+      <div class="card-body p-4">
+        <h3 class="card-title mb-4">Connexion</h3>
+        <form method="post" novalidate>
+          {{ form.hidden_tag() }}
+          {{ render_field(form.email) }}
+          {{ render_field(form.password) }}
+          <div class="d-grid mt-4">{{ form.submit(class="btn btn-primary") }}</div>
+        </form>
+        <p class="mt-3 mb-0 small text-muted">
+          Pas encore de compte ?
+          <a href="{{ url_for('auth.register') }}">Créer un compte consultant</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

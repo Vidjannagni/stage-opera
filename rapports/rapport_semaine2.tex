@@ -1,0 +1,47 @@
+\documentclass[11pt,a4paper]{article}
+\input{_preambule}
+\hypersetup{pdftitle={Rapport hebdomadaire -- Semaine 2},
+	pdfauthor={René DANSOU, Marius HOUNKPETOHOU}}
+
+\begin{document}
+\couverture{Rapport hebdomadaire n\textsuperscript{o}~2}
+	{Moteur de calcul \\ et backend connecté}
+	{Outil d'analyse de rentabilité d'investissement immobilier}
+	{PÉRIODE COUVERTE}{20 -- 26 juillet 2026}
+	{Semaine 2 sur 6 — transmis le dimanche 26 juillet 2026}
+
+% ══════════════════════════════════════════════════════════════════════════════
+\mainsection{Objectifs prévus et travail réalisé}
+
+La feuille de route assignait à cette deuxième semaine le cœur technique du projet : implémenter les fonctions financières spécifiées au cadrage, les couvrir de tests unitaires, et connecter le backend (modèles SQLAlchemy, routes Flask). L'ensemble de ces objectifs est atteint, et le périmètre a été complété par un livrable de rattrapage : le \textbf{cahier des charges} formel, dont la rédaction avait été résumée dans le rapport précédent sans donner lieu à un document autonome, a été rédigé et versionné (9 pages).
+
+\subsection{Moteur de calcul}
+Le module \texttt{app/core} est implémenté en Python pur, sans aucune dépendance à Flask, ce qui le rend testable isolément et réutilisable. Il couvre : le coût d'acquisition selon les taux de la zone de marché ; la mensualité à annuité constante (cas limite du taux nul inclus) avec tableau d'amortissement complet et capital restant dû ; l'assurance calculée sur le capital initial ; les trois rendements (brut, net, net-net) ; la VAN ; le TRI par Newton-Raphson avec repli sur une bissection bornée ; et l'orchestration complète d'un scénario, avec projection pluriannuelle intégrant vacance locative, revalorisations et revente nette du capital restant dû en dernière année.
+
+Chaque fonction est adossée à des \textbf{valeurs de référence externes} : par exemple, un crédit de 200\,000 à 4\,\% sur 20 ans doit produire une mensualité de 1\,211,96 — c'est vérifié au centime par les tests, de même que la propriété fondamentale du TRI (le taux trouvé annule la VAN des flux).
+
+\subsection{Backend et parcours métier}
+L'authentification des consultants (inscription, connexion, déconnexion) repose sur Flask-Login avec mots de passe hachés ; la protection CSRF est active sur tous les formulaires. Les CRUD des dossiers clients et des projets sont opérationnels, avec la logique d'héritage décidée au cadrage : chaque projet hérite des taux de sa zone (Maroc par défaut) et peut les surcharger sans altérer le préréglage. Les scénarios (cash ou crédit) disposent d'une page de résultats complète et d'un point d'accès JSON \texttt{resultats.json}, prévu dès cette semaine pour alimenter l'interface dynamique de la semaine 3. Enfin, le \textbf{cloisonnement} est strict : tout accès au dossier d'un autre conseiller renvoie une erreur 404, comportement couvert par les tests.
+
+% ══════════════════════════════════════════════════════════════════════════════
+\mainsection{Difficultés, écarts et prochaines étapes}
+
+\subsection{Difficultés rencontrées}
+La difficulté principale a porté sur la \textbf{robustesse du TRI}. Sur des flux à signes multiples, Newton-Raphson peut diverger ou sortir du domaine ; le repli sur une bissection bornée à $[-99{,}99\,\%,\ +1\,000\,\%]$, décidé au cadrage, a été confirmé à l'implémentation, et le cas « aucune solution exploitable » renvoie explicitement une absence de valeur plutôt qu'un chiffre trompeur.
+
+Deux points de convention ont par ailleurs été tranchés en cours de développement : l'\textbf{assurance emprunteur} est calculée sur le capital initial (convention la plus courante, documentée dans le code), et les \textbf{champs numériques laissés vides} dans les formulaires sont convertis en zéro plutôt qu'en valeur nulle en base — à l'exception des champs de surcharge de zone, où l'absence de valeur signifie précisément « hériter de la zone ». Cette distinction, source d'un bug corrigé en cours de semaine, est désormais explicitée dans le code des formulaires.
+
+\subsection{Écarts par rapport au planning}
+Aucun retard ; la semaine s'achève au contraire \textbf{en avance} sur la feuille de route, l'intégralité des objectifs étant livrée avec une couverture de 30 tests. Le seul écart est positif : la production du cahier des charges, livrable de la semaine 1 initialement résumé dans le rapport hebdomadaire, désormais rattrapé.
+
+\subsection{Prochaines étapes --- semaine 3}
+Conformément au planning : formulaires de saisie dynamiques (sélecteur de zone pré-remplissant taux et devise), pages de résultats enrichies de graphiques Chart.js, et comparaison de scénarios côte à côte en s'appuyant sur le point d'accès JSON déjà en place.
+
+\vspace{0.6cm}
+\begin{tcolorbox}[colback=eccblue!5,colframe=eccblue!60,boxrule=0.6pt,arc=2pt,
+	left=8pt,right=8pt,top=6pt,bottom=6pt]
+	\small
+	\textbf{\color{eccblue}En résumé.} Le moteur financier est complet, testé contre des références externes, et le parcours métier (compte $\rightarrow$ client $\rightarrow$ projet $\rightarrow$ scénario) fonctionne de bout en bout avec un cloisonnement strict des données. Le socle sur lequel reposeront l'interface et la restitution est acquis.
+\end{tcolorbox}
+
+\end{document}

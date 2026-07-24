@@ -1,0 +1,178 @@
+{% extends "base.html" %}
+
+{% block title %}{{ projet.nom }} — RentImmo{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{{ url_for('clients.liste') }}">Clients</a></li>
+    <li class="breadcrumb-item"><a href="{{ url_for('clients.detail', client_id=projet.client_id) }}">{{ projet.client.nom }}</a></li>
+    <li class="breadcrumb-item active">{{ projet.nom }}</li>
+  </ol>
+</nav>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h2 class="mb-0">{{ projet.nom }}</h2>
+  <div>
+    <a href="{{ url_for('scenarios.nouveau', projet_id=projet.id) }}" class="btn btn-primary">+ Nouveau scénario</a>
+    <a href="{{ url_for('projets.modifier', projet_id=projet.id) }}" class="btn btn-outline-secondary">Modifier</a>
+  </div>
+</div>
+
+<p class="text-muted">
+  Zone <strong>{{ projet.zone.nom }}</strong> ({{ projet.zone.devise }})
+  {% if projet.adresse %} · {{ projet.adresse }}{% endif %}
+  {% if projet.surface_m2 %} · {{ projet.surface_m2 }} m²{% endif %}
+</p>
+
+<div class="row g-3 mb-4">
+  <div class="col-md-3">
+    <div class="card text-center shadow-sm"><div class="card-body">
+      <div class="small text-muted">Prix du bien</div>
+      <div class="fs-5 fw-bold">{{ projet.prix_bien | montant }} {{ projet.zone.devise }}</div>
+    </div></div>
+  </div>
+  <div class="col-md-3">
+    <div class="card text-center shadow-sm"><div class="card-body">
+      <div class="small text-muted">Frais ({{ "%.1f" | format(projet.taux_frais_acquisition) }} %)</div>
+      <div class="fs-5 fw-bold">{{ frais | montant }} {{ projet.zone.devise }}</div>
+    </div></div>
+  </div>
+  <div class="col-md-3">
+    <div class="card text-center shadow-sm"><div class="card-body">
+      <div class="small text-muted">Travaux</div>
+      <div class="fs-5 fw-bold">{{ projet.budget_travaux | montant }} {{ projet.zone.devise }}</div>
+    </div></div>
+  </div>
+  <div class="col-md-3">
+    <div class="card text-center shadow-sm border-primary"><div class="card-body">
+      <div class="small text-muted">Coût total d'acquisition</div>
+      <div class="fs-5 fw-bold text-primary">{{ cout_total | montant }} {{ projet.zone.devise }}</div>
+    </div></div>
+  </div>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-md-4">
+    <div class="card text-center shadow-sm"><div class="card-body">
+      <div class="small text-muted">Rendement brut</div>
+      <div class="fs-4 fw-bold">{{ "%.2f" | format(rdts.brut) }} %</div>
+    </div></div>
+  </div>
+  <div class="col-md-4">
+    <div class="card text-center shadow-sm"><div class="card-body">
+      <div class="small text-muted">Rendement net</div>
+      <div class="fs-4 fw-bold">{{ "%.2f" | format(rdts.net) }} %</div>
+    </div></div>
+  </div>
+  <div class="col-md-4">
+    <div class="card text-center shadow-sm"><div class="card-body">
+      <div class="small text-muted">Rendement net-net (impôt {{ "%.1f" | format(projet.taux_imposition) }} %)</div>
+      <div class="fs-4 fw-bold">{{ "%.2f" | format(rdts.net_net) }} %</div>
+    </div></div>
+  </div>
+</div>
+
+{# ── Travaux détaillés ───────────────────────────────────────────────── #}
+<div class="card shadow-sm mb-4">
+  <div class="card-header fw-semibold d-flex justify-content-between">
+    <span>Travaux détaillés</span>
+    <span class="text-muted small">Si des postes existent, le budget travaux du projet est leur somme.</span>
+  </div>
+  <div class="card-body">
+    {% set lignes = projet.lignes_travaux.all() %}
+    {% if lignes %}
+    <div class="table-responsive mb-3">
+      <table class="table table-sm align-middle mb-0">
+        <thead class="table-light">
+          <tr><th>Poste</th><th>Catégorie</th><th class="text-end">Montant</th><th></th></tr>
+        </thead>
+        <tbody>
+          {% for ligne in lignes %}
+          <tr>
+            <td>{{ ligne.libelle }}</td>
+            <td class="text-muted">{{ ligne.categorie or "—" }}</td>
+            <td class="text-end">{{ ligne.montant | montant }} {{ projet.zone.devise }}</td>
+            <td class="text-end">
+              <form method="post" action="{{ url_for('projets.supprimer_travaux', ligne_id=ligne.id) }}" class="d-inline">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button class="btn btn-sm btn-outline-danger" aria-label="Supprimer {{ ligne.libelle }}">×</button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+          <tr class="fw-bold">
+            <td colspan="2">Total travaux</td>
+            <td class="text-end">{{ projet.budget_travaux | montant }} {{ projet.zone.devise }}</td>
+            <td></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p class="text-muted small mb-3">Aucun poste détaillé — le budget travaux global du projet s'applique
+      ({{ projet.budget_travaux | montant }} {{ projet.zone.devise }}).</p>
+    {% endif %}
+    <form method="post" action="{{ url_for('projets.ajouter_travaux', projet_id=projet.id) }}" class="row g-2 align-items-end">
+      {{ form_travaux.hidden_tag() }}
+      <div class="col-md-4">
+        {{ form_travaux.libelle.label(class="form-label small") }}
+        {{ form_travaux.libelle(class="form-control form-control-sm") }}
+      </div>
+      <div class="col-md-3">
+        {{ form_travaux.categorie.label(class="form-label small") }}
+        {{ form_travaux.categorie(class="form-select form-select-sm") }}
+      </div>
+      <div class="col-md-3">
+        {{ form_travaux.montant.label(class="form-label small") }}
+        {{ form_travaux.montant(class="form-control form-control-sm") }}
+      </div>
+      <div class="col-md-2">
+        {{ form_travaux.submit_travaux(class="btn btn-sm btn-outline-primary w-100") }}
+      </div>
+    </form>
+  </div>
+</div>
+
+<h5 class="mb-3">Scénarios de financement</h5>
+{% set scenarios = projet.scenarios.all() %}
+{% if scenarios %}
+<form method="get" action="{{ url_for('scenarios.comparer') }}">
+<div class="table-responsive">
+  <table class="table table-hover align-middle">
+    <thead class="table-light">
+      <tr><th></th><th>Scénario</th><th>Mode</th><th>Apport</th><th>Taux</th><th>Durée</th><th class="text-end">Actions</th></tr>
+    </thead>
+    <tbody>
+      {% for s in scenarios %}
+      <tr>
+        <td><input class="form-check-input" type="checkbox" name="ids" value="{{ s.id }}"
+                   aria-label="Sélectionner {{ s.nom }} pour la comparaison"></td>
+        <td class="fw-semibold">{{ s.nom }}</td>
+        <td>{{ "Crédit" if s.mode == "credit" else "Cash" }}</td>
+        <td>{{ s.apport | montant }} {{ projet.zone.devise }}</td>
+        <td>{% if s.mode == "credit" %}{{ "%.2f" | format(s.taux_interet) }} %{% else %}—{% endif %}</td>
+        <td>{% if s.mode == "credit" %}{{ s.duree_annees }} ans{% else %}—{% endif %}</td>
+        <td class="text-end">
+          <a href="{{ url_for('scenarios.resultats', scenario_id=s.id) }}" class="btn btn-sm btn-primary">Résultats</a>
+          <a href="{{ url_for('scenarios.modifier', scenario_id=s.id) }}" class="btn btn-sm btn-outline-secondary">Modifier</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% if scenarios | length >= 2 %}
+<button class="btn btn-outline-primary" type="submit">Comparer la sélection (2 à 4)</button>
+{% endif %}
+</form>
+{% else %}
+<p class="text-muted">Aucun scénario — créez-en un pour calculer cash-flow, TRI et VAN.</p>
+{% endif %}
+
+<form method="post" action="{{ url_for('projets.supprimer', projet_id=projet.id) }}" class="mt-5"
+      onsubmit="return confirm('Supprimer ce projet et tous ses scénarios ?');">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <button class="btn btn-sm btn-outline-danger">Supprimer le projet</button>
+</form>
+{% endblock %}

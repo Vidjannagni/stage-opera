@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+{% from "_form_helpers.html" import render_field %}
+
+{% block title %}{{ titre }} — RentImmo{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{{ url_for('clients.detail', client_id=projet.client_id) }}">{{ projet.client.nom }}</a></li>
+    <li class="breadcrumb-item"><a href="{{ url_for('projets.detail', projet_id=projet.id) }}">{{ projet.nom }}</a></li>
+    <li class="breadcrumb-item active">Scénario</li>
+  </ol>
+</nav>
+
+<h3 class="mb-4">{{ titre }}</h3>
+
+<form method="post" novalidate>
+  {{ form.hidden_tag() }}
+  <div class="row">
+    <div class="col-lg-6">
+      <div class="card shadow-sm mb-4">
+        <div class="card-header fw-semibold">Financement</div>
+        <div class="card-body">
+          {{ render_field(form.nom) }}
+          {{ render_field(form.mode) }}
+          {{ render_field(form.apport) }}
+          <div class="row">
+            <div class="col-md-6">{{ render_field(form.taux_interet) }}</div>
+            <div class="col-md-6">{{ render_field(form.taux_assurance) }}</div>
+          </div>
+          {{ render_field(form.duree_annees) }}
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-6">
+      <div class="card shadow-sm mb-4">
+        <div class="card-header fw-semibold">Hypothèses de projection</div>
+        <div class="card-body">
+          {{ render_field(form.horizon_annees) }}
+          <div class="row">
+            <div class="col-md-6">{{ render_field(form.revalorisation_loyer_pct) }}</div>
+            <div class="col-md-6">{{ render_field(form.revalorisation_bien_pct) }}</div>
+            <div class="col-md-6">{{ render_field(form.frais_revente_pct) }}</div>
+            <div class="col-md-6">{{ render_field(form.taux_actualisation) }}</div>
+          </div>
+        </div>
+      </div>
+      <div class="card shadow-sm mb-4 border-primary">
+        <div class="card-header fw-semibold">
+          Aperçu instantané <span class="text-muted small">(actualisé à chaque saisie)</span>
+        </div>
+        <div class="card-body">
+          <div class="row text-center" id="apercu" aria-live="polite">
+            <div class="col-6 col-md-3 mb-2">
+              <div class="small text-muted">Mensualité</div>
+              <div class="fw-bold" data-apercu="mensualite">—</div>
+            </div>
+            <div class="col-6 col-md-3 mb-2">
+              <div class="small text-muted">Cash-flow / mois</div>
+              <div class="fw-bold" data-apercu="cashflow">—</div>
+            </div>
+            <div class="col-6 col-md-3 mb-2">
+              <div class="small text-muted">TRI</div>
+              <div class="fw-bold" data-apercu="tri">—</div>
+            </div>
+            <div class="col-6 col-md-3 mb-2">
+              <div class="small text-muted">VAN</div>
+              <div class="fw-bold" data-apercu="van">—</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="d-flex gap-2">
+    {{ form.submit(class="btn btn-primary") }}
+    <a href="{{ url_for('projets.detail', projet_id=projet.id) }}" class="btn btn-outline-secondary">Annuler</a>
+  </div>
+</form>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // Recalcul à la volée via l'endpoint JSON, sans persistance ni ressaisie.
+  const URL_APERCU = {{ url_for('scenarios.apercu', projet_id=projet.id) | tojson }};
+  const CSRF = {{ csrf_token() | tojson }};
+  const DEVISE = {{ projet.zone.devise | tojson }};
+  const CHAMPS = ["mode", "apport", "taux_interet", "taux_assurance", "duree_annees",
+                  "horizon_annees", "revalorisation_loyer_pct", "revalorisation_bien_pct",
+                  "frais_revente_pct", "taux_actualisation"];
+  const fmt = (v) => new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 0 }).format(v);
+  const cellule = (nom) => document.querySelector(`[data-apercu="${nom}"]`);
+  let minuteur = null;
+
+  async function actualiserApercu() {
+    const donnees = {};
+    CHAMPS.forEach((c) => { donnees[c] = document.getElementById(c).value; });
+    try {
+      const reponse = await fetch(URL_APERCU, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-CSRFToken": CSRF },
+        body: JSON.stringify(donnees),
+      });
+      if (!reponse.ok) return;
+      const r = await reponse.json();
+      cellule("mensualite").textContent = donnees.mode === "credit"
+        ? `${fmt(r.financement.mensualite_totale)} ${DEVISE}` : "—";
+      const cf = r.indicateurs.cashflow_mensuel;
+      cellule("cashflow").textContent = `${fmt(cf)} ${DEVISE}`;
+      cellule("cashflow").className = "fw-bold " + (cf >= 0 ? "text-success" : "text-danger");
+      cellule("tri").textContent = r.indicateurs.tri !== null
+        ? `${r.indicateurs.tri.toFixed(2)} %` : "—";
+      const van = r.indicateurs.van;
+      cellule("van").textContent = `${fmt(van)} ${DEVISE}`;
+      cellule("van").className = "fw-bold " + (van >= 0 ? "text-success" : "text-danger");
+    } catch (e) { /* réseau indisponible : l'aperçu reste tel quel */ }
+  }
+
+  CHAMPS.forEach((c) => {
+    document.getElementById(c).addEventListener("input", () => {
+      clearTimeout(minuteur);
+      minuteur = setTimeout(actualiserApercu, 350);
+    });
+  });
+  actualiserApercu();
+</script>
+{% endblock %}
