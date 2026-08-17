@@ -18,9 +18,10 @@ export FLASK_APP=run.py
 .venv/bin/flask db upgrade
 .venv/bin/flask seed-zones
 
-if [ "${1:-}" = "--demo" ]; then
-  .venv/bin/flask demo-data
-fi
+case "${1:-}" in
+  --demo)       .venv/bin/flask demo-data ;;
+  --demo-reset) .venv/bin/flask demo-data --reset ;;
+esac
 
 echo "── RentImmo démarre sur http://127.0.0.1:5000 (Ctrl+C pour arrêter)"
 .venv/bin/flask run

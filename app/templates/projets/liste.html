@@ -1,33 +1,45 @@
 {% extends "base.html" %}
+{% from "_ui.html" import vide %}
 
-{% block title %}Projets — RentImmo{% endblock %}
+{% block title %}Dossiers — RentImmo{% endblock %}
 
 {% block content %}
-<h2 class="mb-4">Tous mes projets</h2>
+<div class="mb-4">
+  <h2 class="mb-1">Dossiers</h2>
+  <p class="text-muted mb-0">Tous les biens étudiés, du premier repérage à la livraison.</p>
+</div>
 
 {% if projets %}
-<div class="table-responsive">
-  <table class="table table-hover align-middle">
-    <thead class="table-light">
-      <tr><th>Projet</th><th>Client</th><th>Zone</th><th>Prix</th><th>Scénarios</th></tr>
-    </thead>
-    <tbody>
-      {% for projet in projets %}
-      <tr>
-        <td><a href="{{ url_for('projets.detail', projet_id=projet.id) }}" class="fw-semibold">{{ projet.nom }}</a></td>
-        <td><a href="{{ url_for('clients.detail', client_id=projet.client_id) }}">{{ projet.client.nom }}</a></td>
-        <td>{{ projet.zone.nom }}</td>
-        <td>{{ "{:,.0f}".format(projet.prix_bien).replace(",", " ") }} {{ projet.zone.devise }}</td>
-        <td>{{ projet.scenarios.count() }}</td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+<div class="card">
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead>
+        <tr>
+          <th>Dossier</th><th>Client</th><th>Type</th><th>Zone</th>
+          <th class="text-end">Prix</th><th>Étape</th><th class="text-end">Scénarios</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for projet in projets %}
+        <tr>
+          <td>
+            <a href="{{ url_for('projets.detail', projet_id=projet.id) }}" class="fw-semibold">{{ projet.nom }}</a>
+            {% if projet.adresse %}<div class="small text-muted">{{ projet.adresse }}</div>{% endif %}
+          </td>
+          <td><a href="{{ url_for('clients.detail', client_id=projet.client_id) }}">{{ projet.client.nom }}</a></td>
+          <td class="small">{{ "Locatif" if projet.est_locatif else "Terrain / revente" }}</td>
+          <td class="small">{{ projet.zone.nom }}</td>
+          <td class="text-end">{{ projet.prix_bien | montant }} {{ projet.zone.devise }}</td>
+          <td><span class="etiquette">{{ projet.statut_libelle }}</span></td>
+          <td class="text-end">{{ projet.scenarios.count() }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 </div>
 {% else %}
-<div class="text-center py-5 text-muted">
-  <p class="fs-5">Aucun projet. Créez d'abord un dossier client, puis ajoutez-y un projet.</p>
-  <a href="{{ url_for('clients.liste') }}" class="btn btn-primary">Voir mes clients</a>
-</div>
+  {{ vide("Aucun dossier. Ouvrez d'abord un client, puis ajoutez-y le bien à étudier.",
+          "Voir mes clients", url_for('clients.liste')) }}
 {% endif %}
 {% endblock %}

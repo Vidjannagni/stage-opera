@@ -1,8 +1,11 @@
 {% extends "base.html" %}
+{% from "_ui.html" import tuile %}
 
 {% block title %}{{ scenario.nom }} — Résultats — RentImmo{% endblock %}
 
 {% set devise = r.devise %}
+{% set locatif = projet.est_locatif %}
+{% set brief = projet.client.brief %}
 
 {% block content %}
 <nav aria-label="breadcrumb">
@@ -13,15 +16,19 @@
   </ol>
 </nav>
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-  <h2 class="mb-0">{{ scenario.nom }}
-    <span class="badge bg-secondary fs-6 align-middle">{{ "Crédit" if scenario.mode == "credit" else "Cash" }}</span>
-  </h2>
-  <div class="d-flex gap-2">
-    <a href="{{ url_for('exports.scenario_pdf', scenario_id=scenario.id) }}" class="btn btn-outline-danger">
-      Export PDF</a>
-    <a href="{{ url_for('exports.scenario_excel', scenario_id=scenario.id) }}" class="btn btn-outline-success">
-      Export Excel</a>
+<div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3">
+  <div>
+    <h2 class="mb-1">{{ scenario.nom }}
+      <span class="etiquette etiquette-sourde align-middle">{{ "Crédit" if scenario.mode == "credit" else "Cash" }}</span>
+    </h2>
+    <p class="text-muted mb-0">
+      {{ projet.nom }} · horizon {{ r.projection.horizon_annees }} ans
+      {% if not locatif %} · opération sans loyer{% endif %}
+    </p>
+  </div>
+  <div class="d-flex gap-2 flex-wrap">
+    <a href="{{ url_for('exports.scenario_pdf', scenario_id=scenario.id) }}" class="btn btn-outline-danger">Export PDF</a>
+    <a href="{{ url_for('exports.scenario_excel', scenario_id=scenario.id) }}" class="btn btn-outline-success">Export Excel</a>
     <form method="post" action="{{ url_for('scenarios.dupliquer', scenario_id=scenario.id) }}" class="d-inline">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <button class="btn btn-outline-secondary">Dupliquer</button>
@@ -30,57 +37,108 @@
   </div>
 </div>
 
-{# ── Indicateurs clés ─────────────────────────────────────────────────── #}
+{# ── Grille de lecture : l'objectif du client, pas un seuil universel ────── #}
+{% if brief %}
+<div class="rappel mb-4">
+  Objectif de {{ projet.client.nom }} : <strong>{{ brief.objectif_libelle }}</strong>
+  sur <strong>{{ brief.horizon_annees }} ans</strong>.
+  {% if brief.horizon_annees != r.projection.horizon_annees %}
+  Ce scénario est projeté sur {{ r.projection.horizon_annees }} ans —
+  l'écart d'horizon change la lecture des chiffres.
+  {% endif %}
+</div>
+{% endif %}
+
+{% if r.projection.delai_livraison_mois %}
+<div class="alert alert-warning py-2 small">
+  <strong>Achat sur plan :</strong> livraison dans {{ r.projection.delai_livraison_mois }} mois.
+  Jusque-là le bien ne produit ni loyer ni charges, alors que les annuités courent déjà.
+  Les indicateurs ci-dessous portent sur une année pleinement exploitée.
+</div>
+{% endif %}
+
+{# ── Indicateurs de tête : ceux que le cabinet regarde en premier ────────── #}
+<div class="titre-section">Ce que le dossier rapporte</div>
+<div class="row g-3 mb-3">
+  {% if locatif %}
+  <div class="col-md-6">
+    {{ tuile("Rendement net", "%.2f %%" | format(r.rendements.net), rang="primaire",
+             aide="Après charges, vacance et frais de gestion") }}
+  </div>
+  <div class="col-md-6">
+    {{ tuile("Cash-flow mensuel", (r.indicateurs.cashflow_mensuel | montant) ~ " " ~ devise,
+             rang="primaire",
+             ton=("positif" if r.indicateurs.cashflow_mensuel >= 0 else "negatif"),
+             aide="Ce que le client encaisse (ou débourse) chaque mois") }}
+  </div>
+  {% else %}
+  <div class="col-md-6">
+    {{ tuile("Valeur créée sur l'horizon", (r.indicateurs.valeur_creee | montant) ~ " " ~ devise,
+             rang="primaire",
+             ton=("positif" if r.indicateurs.valeur_creee >= 0 else "negatif"),
+             aide="Bénéfice net du coût d'entrée, revente comprise") }}
+  </div>
+  <div class="col-md-6">
+    {{ tuile("Plus-value à la revente", (r.revente.plus_value_brute | montant) ~ " " ~ devise,
+             rang="primaire",
+             ton=("positif" if r.revente.plus_value_brute >= 0 else "negatif"),
+             aide="Écart entre le prix de sortie et le prix d'achat") }}
+  </div>
+  {% endif %}
+</div>
+
 <div class="row g-3 mb-4">
+  {% if locatif %}
   <div class="col-6 col-lg-3">
-    <div class="card text-center shadow-sm h-100"><div class="card-body">
-      <div class="small text-muted">Cash-flow mensuel</div>
-      <div class="fs-4 fw-bold {{ 'text-success' if r.indicateurs.cashflow_mensuel >= 0 else 'text-danger' }}">
-        {{ r.indicateurs.cashflow_mensuel | montant }} {{ devise }}
-      </div>
-    </div></div>
+    {{ tuile("Rendement net-net", "%.2f %%" | format(r.rendements.net_net), rang="secondaire",
+             aide="Après impôt") }}
   </div>
   <div class="col-6 col-lg-3">
-    <div class="card text-center shadow-sm h-100"><div class="card-body">
-      <div class="small text-muted">TRI sur {{ r.projection.horizon_annees }} ans</div>
-      <div class="fs-4 fw-bold">
-        {% if r.indicateurs.tri is not none %}{{ "%.2f" | format(r.indicateurs.tri) }} %{% else %}—{% endif %}
-      </div>
-    </div></div>
+    {{ tuile("Valeur créée", (r.indicateurs.valeur_creee | montant) ~ " " ~ devise, rang="secondaire",
+             ton=("positif" if r.indicateurs.valeur_creee >= 0 else "negatif"),
+             aide="Sur %d ans, revente comprise" | format(r.projection.horizon_annees)) }}
+  </div>
+  {% else %}
+  <div class="col-6 col-lg-3">
+    {{ tuile("Coût d'entrée", (r.acquisition.cout_total | montant) ~ " " ~ devise, rang="secondaire",
+             aide="Prix, frais et construction") }}
   </div>
   <div class="col-6 col-lg-3">
-    <div class="card text-center shadow-sm h-100"><div class="card-body">
-      <div class="small text-muted">VAN ({{ "%.1f" | format(scenario.taux_actualisation) }} %)</div>
-      <div class="fs-4 fw-bold {{ 'text-success' if r.indicateurs.van >= 0 else 'text-danger' }}">
-        {{ r.indicateurs.van | montant }} {{ devise }}
-      </div>
-    </div></div>
+    {{ tuile("Prix de sortie", (r.revente.valeur_bien_horizon | montant) ~ " " ~ devise, rang="secondaire",
+             aide="Saisi" if r.revente.prix_revente_saisi else "Par revalorisation annuelle") }}
+  </div>
+  {% endif %}
+  <div class="col-6 col-lg-3">
+    {{ tuile("TRI", ("%.2f %%" | format(r.indicateurs.tri)) if r.indicateurs.tri is not none else "—",
+             rang="secondaire", aide="Rendement annuel de l'argent investi") }}
   </div>
   <div class="col-6 col-lg-3">
-    <div class="card text-center shadow-sm h-100"><div class="card-body">
-      <div class="small text-muted">Rendement net-net</div>
-      <div class="fs-4 fw-bold">{{ "%.2f" | format(r.rendements.net_net) }} %</div>
-    </div></div>
+    {{ tuile("VAN", (r.indicateurs.van | montant) ~ " " ~ devise, rang="secondaire",
+             ton=("positif" if r.indicateurs.van >= 0 else "negatif"),
+             aide="Actualisée à %.1f %%" | format(scenario.taux_actualisation)) }}
   </div>
 </div>
 
 <div class="row">
-  {# ── Acquisition & financement ──────────────────────────────────────── #}
+  {# ── Acquisition et financement ──────────────────────────────────────── #}
   <div class="col-lg-6">
-    <div class="card shadow-sm mb-4">
-      <div class="card-header fw-semibold">Acquisition</div>
+    <div class="card mb-4">
+      <div class="card-header">Acquisition</div>
       <table class="table table-sm mb-0">
         <tbody>
           <tr><td>Prix du bien</td><td class="text-end">{{ r.acquisition.prix | montant }} {{ devise }}</td></tr>
-          <tr><td>Frais d'acquisition ({{ "%.1f" | format(r.acquisition.taux_frais_pct) }} % — zone {{ projet.zone.nom }})</td>
-              <td class="text-end">{{ r.acquisition.frais | montant }} {{ devise }}</td></tr>
-          <tr><td>Travaux</td><td class="text-end">{{ r.acquisition.travaux | montant }} {{ devise }}</td></tr>
+          <tr>
+            <td>Frais d'acquisition ({{ "%.1f" | format(r.acquisition.taux_frais_pct) }} % — zone {{ projet.zone.nom }})</td>
+            <td class="text-end">{{ r.acquisition.frais | montant }} {{ devise }}</td>
+          </tr>
+          <tr><td>Travaux / construction</td><td class="text-end">{{ r.acquisition.travaux | montant }} {{ devise }}</td></tr>
           <tr class="fw-bold"><td>Coût total</td><td class="text-end">{{ r.acquisition.cout_total | montant }} {{ devise }}</td></tr>
         </tbody>
       </table>
     </div>
-    <div class="card shadow-sm mb-4">
-      <div class="card-header fw-semibold">Financement</div>
+
+    <div class="card mb-4">
+      <div class="card-header">Financement</div>
       <table class="table table-sm mb-0">
         <tbody>
           {% if scenario.mode == "credit" %}
@@ -98,41 +156,75 @@
     </div>
   </div>
 
-  {# ── Exploitation & rendements ──────────────────────────────────────── #}
+  {# ── Exploitation et sortie ──────────────────────────────────────────── #}
   <div class="col-lg-6">
-    <div class="card shadow-sm mb-4">
-      <div class="card-header fw-semibold">Exploitation (année 1)</div>
+    {% if locatif %}
+    <div class="card mb-4">
+      <div class="card-header">Exploitation (année pleine)</div>
       <table class="table table-sm mb-0">
         <tbody>
           <tr><td>Loyer annuel potentiel</td><td class="text-end">{{ r.exploitation.loyer_annuel | montant }} {{ devise }}</td></tr>
           <tr><td>Vacance locative</td><td class="text-end">−{{ r.exploitation.vacance | montant }} {{ devise }}</td></tr>
           <tr><td>Charges totales</td><td class="text-end">−{{ r.exploitation.charges_totales | montant }} {{ devise }}</td></tr>
-          <tr><td>Impôt (taux effectif {{ "%.1f" | format(projet.taux_imposition) }} %)</td>
-              <td class="text-end">−{{ r.exploitation.impot_annuel | montant }} {{ devise }}</td></tr>
-          <tr class="fw-bold"><td>Cash-flow annuel</td>
-              <td class="text-end {{ 'text-success' if r.indicateurs.cashflow_annuel >= 0 else 'text-danger' }}">
-                {{ r.indicateurs.cashflow_annuel | montant }} {{ devise }}</td></tr>
+          <tr>
+            <td>Impôt (taux effectif {{ "%.1f" | format(projet.taux_imposition) }} %)</td>
+            <td class="text-end">−{{ r.exploitation.impot_annuel | montant }} {{ devise }}</td>
+          </tr>
+          <tr class="fw-bold">
+            <td>Cash-flow annuel</td>
+            <td class="text-end {{ 'valeur-positive' if r.indicateurs.cashflow_annuel >= 0 else 'valeur-negative' }}">
+              {{ r.indicateurs.cashflow_annuel | montant }} {{ devise }}</td>
+          </tr>
         </tbody>
       </table>
     </div>
-    <div class="card shadow-sm mb-4">
-      <div class="card-header fw-semibold">Rendements</div>
+    {% endif %}
+
+    <div class="card mb-4">
+      <div class="card-header">Sortie à {{ r.projection.horizon_annees }} ans</div>
       <table class="table table-sm mb-0">
         <tbody>
-          <tr><td>Brut</td><td class="text-end">{{ "%.2f" | format(r.rendements.brut) }} %</td></tr>
-          <tr><td>Net de charges</td><td class="text-end">{{ "%.2f" | format(r.rendements.net) }} %</td></tr>
-          <tr><td>Net-net (après impôt)</td><td class="text-end">{{ "%.2f" | format(r.rendements.net_net) }} %</td></tr>
+          <tr>
+            <td>Valeur du bien
+              {% if r.revente.prix_revente_saisi %}<span class="etiquette etiquette-sourde">prix saisi</span>
+              {% else %}<span class="text-muted small">(revalorisation {{ "%.1f" | format(scenario.revalorisation_bien_pct) }} %/an)</span>{% endif %}
+            </td>
+            <td class="text-end">{{ r.revente.valeur_bien_horizon | montant }} {{ devise }}</td>
+          </tr>
+          <tr>
+            <td>Plus-value brute</td>
+            <td class="text-end {{ 'valeur-positive' if r.revente.plus_value_brute >= 0 else 'valeur-negative' }}">
+              {{ r.revente.plus_value_brute | montant }} {{ devise }}</td>
+          </tr>
+          <tr><td>Frais de revente ({{ "%.1f" | format(scenario.frais_revente_pct) }} %)</td>
+              <td class="text-end">−{{ r.revente.frais_revente | montant }} {{ devise }}</td></tr>
+          <tr><td>Capital restant dû</td><td class="text-end">−{{ r.revente.capital_restant_du | montant }} {{ devise }}</td></tr>
+          <tr class="fw-bold"><td>Encaissé à la revente</td>
+              <td class="text-end">{{ r.revente.revente_nette | montant }} {{ devise }}</td></tr>
         </tbody>
       </table>
     </div>
+
+    {% if locatif %}
+    <div class="card mb-4">
+      <div class="card-header">Rendements</div>
+      <table class="table table-sm mb-0">
+        <tbody>
+          <tr class="fw-semibold"><td>Net de charges</td><td class="text-end">{{ "%.2f" | format(r.rendements.net) }} %</td></tr>
+          <tr class="fw-semibold"><td>Net-net (après impôt)</td><td class="text-end">{{ "%.2f" | format(r.rendements.net_net) }} %</td></tr>
+          <tr><td class="text-muted">Brut</td><td class="text-end text-muted">{{ "%.2f" | format(r.rendements.brut) }} %</td></tr>
+        </tbody>
+      </table>
+    </div>
+    {% endif %}
   </div>
 </div>
 
-{# ── Graphiques ──────────────────────────────────────────────────────── #}
+{# ── Graphiques ──────────────────────────────────────────────────────────── #}
 <div class="row g-3 mb-4">
   <div class="{{ 'col-lg-5' if scenario.mode == 'credit' else 'col-lg-7' }}">
-    <div class="card shadow-sm h-100">
-      <div class="card-header fw-semibold">Cash-flow annuel et cumulé</div>
+    <div class="card h-100">
+      <div class="card-header">Cash-flow annuel et cumulé</div>
       <div class="card-body" style="height: 300px">
         <canvas id="chart-cashflow" role="img"
                 aria-label="Cash-flow annuel en barres et cumul en ligne, détail dans le tableau de projection ci-dessous"></canvas>
@@ -141,8 +233,8 @@
   </div>
   {% if scenario.mode == "credit" %}
   <div class="col-lg-4">
-    <div class="card shadow-sm h-100">
-      <div class="card-header fw-semibold">Capital restant dû</div>
+    <div class="card h-100">
+      <div class="card-header">Capital restant dû</div>
       <div class="card-body" style="height: 300px">
         <canvas id="chart-crd" role="img"
                 aria-label="Capital restant dû par année, détail dans le tableau de projection ci-dessous"></canvas>
@@ -151,8 +243,8 @@
   </div>
   {% endif %}
   <div class="{{ 'col-lg-3' if scenario.mode == 'credit' else 'col-lg-5' }}">
-    <div class="card shadow-sm h-100">
-      <div class="card-header fw-semibold">Coût d'acquisition</div>
+    <div class="card h-100">
+      <div class="card-header">Coût d'acquisition</div>
       <div class="card-body" style="height: 300px">
         <canvas id="chart-acquisition" role="img"
                 aria-label="Décomposition du coût d'acquisition, détail dans le tableau Acquisition ci-dessus"></canvas>
@@ -161,14 +253,12 @@
   </div>
 </div>
 
-{# ── Projection annuelle ─────────────────────────────────────────────── #}
-<div class="card shadow-sm mb-4">
-  <div class="card-header fw-semibold">
-    Projection sur {{ r.projection.horizon_annees }} ans
-  </div>
+{# ── Projection annuelle ─────────────────────────────────────────────────── #}
+<div class="card mb-4">
+  <div class="card-header">Projection sur {{ r.projection.horizon_annees }} ans</div>
   <div class="table-responsive">
     <table class="table table-sm table-striped mb-0">
-      <thead class="table-light">
+      <thead>
         <tr class="text-end">
           <th class="text-start">Année</th><th>Loyer perçu</th><th>Charges</th>
           <th>Impôt</th><th>Annuités</th><th>Revente</th><th>Cash-flow</th><th>Cumul</th>
@@ -176,14 +266,17 @@
       </thead>
       <tbody>
         {% for ligne in r.projection.lignes %}
-        <tr class="text-end">
-          <td class="text-start">{{ ligne.annee }}</td>
+        <tr class="text-end {{ 'ligne-attente' if ligne.part_exploitee == 0 }}">
+          <td class="text-start">
+            {{ ligne.annee }}
+            {% if ligne.part_exploitee == 0 %}<span class="small">en chantier</span>{% endif %}
+          </td>
           <td>{{ ligne.loyer | montant }}</td>
           <td>−{{ ligne.charges | montant }}</td>
           <td>−{{ ligne.impot | montant }}</td>
           <td>−{{ ligne.annuite | montant }}</td>
           <td>{{ ligne.revente | montant if ligne.revente else "—" }}</td>
-          <td class="{{ 'text-success' if (ligne.cashflow + ligne.revente) >= 0 else 'text-danger' }}">
+          <td class="{{ 'valeur-positive' if (ligne.cashflow + ligne.revente) >= 0 else 'valeur-negative' }}">
             {{ (ligne.cashflow + ligne.revente) | montant }}</td>
           <td>{{ ligne.cumul | montant }}</td>
         </tr>

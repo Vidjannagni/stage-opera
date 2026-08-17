@@ -3,8 +3,8 @@ from flask import Blueprint, abort, flash, redirect, render_template, url_for
 from flask_login import current_user, login_required
 
 from ...extensions import db
-from ...models import Client
-from .forms import ClientForm
+from ...models import Brief, Client
+from .forms import BriefForm, ClientForm
 
 bp = Blueprint("clients", __name__)
 
@@ -29,17 +29,15 @@ def liste():
 def nouveau():
     form = ClientForm()
     if form.validate_on_submit():
-        client = Client(
-            user_id=current_user.id,
-            nom=form.nom.data,
-            email=form.email.data,
-            telephone=form.telephone.data,
-            notes=form.notes.data,
-        )
+        client = Client(user_id=current_user.id)
+        form.populate_obj(client)
         db.session.add(client)
         db.session.commit()
-        flash(f"Dossier client « {client.nom} » créé.", "success")
-        return redirect(url_for("clients.detail", client_id=client.id))
+        flash(
+            f"Dossier « {client.nom} » créé — renseignez maintenant son brief "
+            "de recherche.", "success",
+        )
+        return redirect(url_for("clients.brief", client_id=client.id))
     return render_template("clients/form.html", form=form, titre="Nouveau dossier client")
 
 
@@ -48,6 +46,24 @@ def nouveau():
 def detail(client_id: int):
     client = client_du_conseiller(client_id)
     return render_template("clients/detail.html", client=client)
+
+
+@bp.route("/<int:client_id>/brief", methods=["GET", "POST"])
+@login_required
+def brief(client_id: int):
+    """Cahier de recherche : les critères recueillis au premier entretien."""
+    client = client_du_conseiller(client_id)
+    brief = client.brief
+    form = BriefForm(obj=brief)
+    if form.validate_on_submit():
+        if brief is None:
+            brief = Brief(client_id=client.id)
+            db.session.add(brief)
+        form.populate_obj(brief)
+        db.session.commit()
+        flash("Brief de recherche enregistré.", "success")
+        return redirect(url_for("clients.detail", client_id=client.id))
+    return render_template("clients/brief.html", form=form, client=client, brief=brief)
 
 
 @bp.route("/<int:client_id>/modifier", methods=["GET", "POST"])

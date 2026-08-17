@@ -1,16 +1,233 @@
-/* Charte RentImmo — reprise du thème des documents Choubel Consulting */
+/* ═══════════════════════════════════════════════════════════════════════════
+   RentImmo — habillage de Bootstrap 5 aux couleurs de Choubel Consulting.
+   Parti pris : sobriété. L'outil est projeté devant un client, la lisibilité
+   des chiffres prime sur l'effet visuel.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
 :root {
   --ecc-blue: #005291;
+  --ecc-blue-clair: #e7f0f7;
   --ecc-navy: #0c1930;
   --ecc-accent: #00bcaa;
+
+  --encre: #16202f;
+  --encre-douce: #5b6875;
+  --trait: #e3e8ee;
+  --fond: #f5f7fa;
+  --surface: #ffffff;
+
+  --positif: #157347;
+  --negatif: #b02a37;
+
+  --rayon: 10px;
+  --ombre: 0 1px 2px rgba(16, 32, 51, .06), 0 4px 16px rgba(16, 32, 51, .05);
 }
 
+body {
+  background-color: var(--fond);
+  color: var(--encre);
+  font-size: .95rem;
+}
+
+h1, h2, h3, h4, h5 { letter-spacing: -.015em; }
+
+/* ── Marque et navigation ───────────────────────────────────────────────── */
 .bg-navy { background-color: var(--ecc-navy); }
 .text-accent { color: var(--ecc-accent); }
+
+.navbar { box-shadow: inset 0 -1px 0 rgba(255, 255, 255, .08); }
+.navbar .nav-link { color: rgba(255, 255, 255, .72); font-weight: 500; }
+.navbar .nav-link:hover { color: #fff; }
+.navbar .nav-link.actif {
+  color: #fff;
+  box-shadow: inset 0 -2px 0 var(--ecc-accent);
+}
 
 .hero {
   background: linear-gradient(135deg, var(--ecc-navy) 0%, var(--ecc-blue) 100%);
   color: #fff;
 }
 
+/* ── Cartes et titres de section ────────────────────────────────────────── */
+.card {
+  border: 1px solid var(--trait);
+  border-radius: var(--rayon);
+  box-shadow: var(--ombre);
+}
+
+.card-header {
+  background-color: var(--surface);
+  border-bottom: 1px solid var(--trait);
+  font-size: .8rem;
+  font-weight: 600;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--encre-douce);
+}
+
 .card .card-title { color: var(--ecc-blue); }
+
+.titre-section {
+  font-size: .78rem;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--encre-douce);
+  margin-bottom: .85rem;
+}
+
+/* ── Tuiles d'indicateur ────────────────────────────────────────────────── */
+.stat {
+  background: var(--surface);
+  border: 1px solid var(--trait);
+  border-radius: var(--rayon);
+  box-shadow: var(--ombre);
+  padding: 1rem 1.1rem;
+  height: 100%;
+}
+
+.stat-libelle {
+  font-size: .74rem;
+  font-weight: 600;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  color: var(--encre-douce);
+}
+
+.stat-valeur {
+  font-size: 1.55rem;
+  font-weight: 700;
+  line-height: 1.25;
+  margin-top: .3rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.stat-aide {
+  font-size: .78rem;
+  color: var(--encre-douce);
+  margin-top: .15rem;
+}
+
+/* Hiérarchie voulue par le cabinet : rendement net et cash-flow d'abord. */
+.stat-primaire { border-left: 3px solid var(--ecc-blue); }
+.stat-secondaire { background: transparent; box-shadow: none; }
+.stat-secondaire .stat-valeur { font-size: 1.2rem; }
+
+.valeur-positive { color: var(--positif); }
+.valeur-negative { color: var(--negatif); }
+
+/* ── Déroulé du dossier : recherche → livraison ─────────────────────────── */
+.etapes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .35rem;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.etapes li {
+  flex: 1 1 0;
+  min-width: 92px;
+  font-size: .74rem;
+  font-weight: 600;
+  text-align: center;
+  color: var(--encre-douce);
+  background: var(--fond);
+  border: 1px solid var(--trait);
+  border-radius: 6px;
+  padding: .4rem .3rem;
+}
+
+.etapes li.faite {
+  background: var(--ecc-blue-clair);
+  border-color: #c8dcec;
+  color: var(--ecc-blue);
+}
+
+.etapes li.courante {
+  background: var(--ecc-blue);
+  border-color: var(--ecc-blue);
+  color: #fff;
+}
+
+/* ── Tableaux ───────────────────────────────────────────────────────────── */
+.table { --bs-table-bg: var(--surface); }
+
+.table > thead th {
+  font-size: .74rem;
+  font-weight: 600;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--encre-douce);
+  border-bottom: 1px solid var(--trait);
+}
+
+.table td, .table th { border-color: var(--trait); }
+.table .text-end, td.nombre { font-variant-numeric: tabular-nums; }
+
+.ligne-attente td { color: var(--encre-douce); font-style: italic; }
+
+/* ── Étiquettes ─────────────────────────────────────────────────────────── */
+.etiquette {
+  display: inline-block;
+  font-size: .72rem;
+  font-weight: 600;
+  letter-spacing: .03em;
+  padding: .18rem .55rem;
+  border-radius: 999px;
+  background: var(--ecc-blue-clair);
+  color: var(--ecc-blue);
+  border: 1px solid #cfe0ee;
+}
+
+.etiquette-sourde {
+  background: var(--fond);
+  color: var(--encre-douce);
+  border-color: var(--trait);
+}
+
+/* ── État vide ──────────────────────────────────────────────────────────── */
+.vide {
+  background: var(--surface);
+  border: 1px dashed #cdd6e0;
+  border-radius: var(--rayon);
+  padding: 2.5rem 1.5rem;
+  text-align: center;
+  color: var(--encre-douce);
+}
+
+.vide p { margin-bottom: 1rem; }
+
+/* ── Formulaires ────────────────────────────────────────────────────────── */
+.form-label { font-size: .84rem; font-weight: 600; color: var(--encre); }
+.form-text { font-size: .78rem; }
+
+.form-control, .form-select { border-color: #d3dae2; }
+
+.form-control:focus, .form-select:focus {
+  border-color: var(--ecc-blue);
+  box-shadow: 0 0 0 .2rem rgba(0, 82, 145, .12);
+}
+
+/* ── Fil d'Ariane ───────────────────────────────────────────────────────── */
+.breadcrumb { font-size: .84rem; margin-bottom: .75rem; }
+.breadcrumb a { color: var(--encre-douce); text-decoration: none; }
+.breadcrumb a:hover { color: var(--ecc-blue); text-decoration: underline; }
+
+/* ── Encart de rappel (objectif du client, conventions) ─────────────────── */
+.rappel {
+  background: var(--ecc-blue-clair);
+  border: 1px solid #cfe0ee;
+  border-radius: var(--rayon);
+  padding: .8rem 1rem;
+  font-size: .86rem;
+  color: #123a5c;
+}
+
+.rappel strong { color: var(--ecc-blue); }
+
+@media print {
+  .navbar, footer, .btn, form { display: none !important; }
+  body { background: #fff; }
+}

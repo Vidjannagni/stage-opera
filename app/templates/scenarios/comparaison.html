@@ -13,7 +13,16 @@
   </ol>
 </nav>
 
-<h2 class="mb-4">Comparaison de scénarios — {{ projet.nom }}</h2>
+<h2 class="mb-2">Comparaison de scénarios — {{ projet.nom }}</h2>
+
+<div class="rappel mb-4">
+  {% if projet.client.brief %}
+  Objectif de {{ projet.client.nom }} : <strong>{{ projet.client.brief.objectif_libelle }}</strong>
+  sur <strong>{{ projet.client.brief.horizon_annees }} ans</strong>.
+  {% endif %}
+  Aucun scénario n'est « meilleur » dans l'absolu : le classement dépend de
+  l'objectif du client et de son horizon.
+</div>
 
 {# ── Tableau comparatif (relief du graphique : toutes les valeurs y figurent) ── #}
 <div class="card shadow-sm mb-4">
@@ -32,6 +41,59 @@
         </tr>
       </thead>
       <tbody>
+        {# Ordre de lecture du cabinet : rendement net et cash-flow d'abord,
+           puis la valeur créée, et seulement ensuite TRI et VAN. #}
+        {% if projet.est_locatif %}
+        <tr class="table-light">
+          <td class="fw-semibold">Rendement net</td>
+          {% for c in comparaison %}<td class="text-end fw-bold">{{ "%.2f" | format(c.r.rendements.net) }} %</td>{% endfor %}
+        </tr>
+        <tr class="table-light">
+          <td class="fw-semibold">Cash-flow mensuel</td>
+          {% for c in comparaison %}
+          <td class="text-end fw-bold {{ 'valeur-positive' if c.r.indicateurs.cashflow_mensuel >= 0 else 'valeur-negative' }}">
+            {{ c.r.indicateurs.cashflow_mensuel | montant }} {{ devise }}</td>
+          {% endfor %}
+        </tr>
+        {% endif %}
+        <tr class="table-light">
+          <td class="fw-semibold">Valeur créée sur l'horizon</td>
+          {% for c in comparaison %}
+          <td class="text-end fw-bold {{ 'valeur-positive' if c.r.indicateurs.valeur_creee >= 0 else 'valeur-negative' }}">
+            {{ c.r.indicateurs.valeur_creee | montant }} {{ devise }}</td>
+          {% endfor %}
+        </tr>
+
+        <tr>
+          <td>Horizon de projection</td>
+          {% for c in comparaison %}<td class="text-end">{{ c.r.projection.horizon_annees }} ans</td>{% endfor %}
+        </tr>
+        {% if projet.est_locatif %}
+        <tr>
+          <td>Rendement net-net</td>
+          {% for c in comparaison %}<td class="text-end">{{ "%.2f" | format(c.r.rendements.net_net) }} %</td>{% endfor %}
+        </tr>
+        {% endif %}
+        <tr>
+          <td>Plus-value à la revente</td>
+          {% for c in comparaison %}<td class="text-end">{{ c.r.revente.plus_value_brute | montant }} {{ devise }}</td>{% endfor %}
+        </tr>
+        <tr>
+          <td>TRI sur l'horizon</td>
+          {% for c in comparaison %}
+          <td class="text-end">
+            {% if c.r.indicateurs.tri is not none %}{{ "%.2f" | format(c.r.indicateurs.tri) }} %{% else %}—{% endif %}
+          </td>
+          {% endfor %}
+        </tr>
+        <tr>
+          <td>VAN ({{ "%.1f" | format(comparaison[0].scenario.taux_actualisation) }} %)</td>
+          {% for c in comparaison %}
+          <td class="text-end {{ 'valeur-positive' if c.r.indicateurs.van >= 0 else 'valeur-negative' }}">
+            {{ c.r.indicateurs.van | montant }} {{ devise }}</td>
+          {% endfor %}
+        </tr>
+
         <tr>
           <td>Mode de financement</td>
           {% for c in comparaison %}<td class="text-end">{{ "Crédit" if c.scenario.mode == "credit" else "Cash" }}</td>{% endfor %}
@@ -51,32 +113,6 @@
           {% for c in comparaison %}<td class="text-end">
             {% if c.scenario.mode == "credit" %}{{ c.r.financement.cout_total_credit | montant }} {{ devise }}{% else %}—{% endif %}
           </td>{% endfor %}
-        </tr>
-        <tr>
-          <td>Cash-flow mensuel (année 1)</td>
-          {% for c in comparaison %}
-          <td class="text-end fw-semibold {{ 'text-success' if c.r.indicateurs.cashflow_mensuel >= 0 else 'text-danger' }}">
-            {{ c.r.indicateurs.cashflow_mensuel | montant }} {{ devise }}</td>
-          {% endfor %}
-        </tr>
-        <tr>
-          <td>Rendement net-net</td>
-          {% for c in comparaison %}<td class="text-end">{{ "%.2f" | format(c.r.rendements.net_net) }} %</td>{% endfor %}
-        </tr>
-        <tr>
-          <td>VAN ({{ "%.1f" | format(comparaison[0].scenario.taux_actualisation) }} %)</td>
-          {% for c in comparaison %}
-          <td class="text-end fw-semibold {{ 'text-success' if c.r.indicateurs.van >= 0 else 'text-danger' }}">
-            {{ c.r.indicateurs.van | montant }} {{ devise }}</td>
-          {% endfor %}
-        </tr>
-        <tr>
-          <td>TRI sur l'horizon</td>
-          {% for c in comparaison %}
-          <td class="text-end fw-bold">
-            {% if c.r.indicateurs.tri is not none %}{{ "%.2f" | format(c.r.indicateurs.tri) }} %{% else %}—{% endif %}
-          </td>
-          {% endfor %}
         </tr>
       </tbody>
     </table>

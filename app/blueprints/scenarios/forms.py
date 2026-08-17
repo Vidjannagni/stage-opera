@@ -42,6 +42,12 @@ class ScenarioForm(FlaskForm):
         "Revalorisation annuelle du bien (%)", default=1.5,
         validators=[Optional(), NumberRange(min=-10, max=20)], filters=[zero_si_vide],
     )
+    prix_revente = FloatField(
+        "Prix de revente à l'horizon",
+        validators=[Optional(), NumberRange(min=0)],
+        description="Prix connu ou négocié (construction-revente, lotissement). "
+                    "Laisser vide pour appliquer la revalorisation annuelle.",
+    )
     frais_revente_pct = FloatField(
         "Frais de revente (% de la valeur)", default=0.0,
         validators=[Optional(), NumberRange(min=0, max=20)], filters=[zero_si_vide],

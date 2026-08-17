@@ -130,6 +130,8 @@ def apercu(projet_id: int):
         revalorisation_bien_pct=_nombre(donnees, "revalorisation_bien_pct"),
         frais_revente_pct=_nombre(donnees, "frais_revente_pct"),
         taux_actualisation=_nombre(donnees, "taux_actualisation", 3.0),
+        # Vide = la valeur à l'horizon suit la revalorisation annuelle.
+        prix_revente=_nombre(donnees, "prix_revente") or None,
     )
     return jsonify(calculer_scenario(projet, brouillon))
 
@@ -137,7 +139,7 @@ def apercu(projet_id: int):
 CHAMPS_DUPLIQUES = (
     "mode", "apport", "taux_interet", "taux_assurance", "duree_annees",
     "horizon_annees", "revalorisation_loyer_pct", "revalorisation_bien_pct",
-    "frais_revente_pct", "taux_actualisation",
+    "frais_revente_pct", "taux_actualisation", "prix_revente",
 )
 
 

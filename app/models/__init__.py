@@ -74,7 +74,11 @@ class ZonePreset(db.Model):
 
 
 class Client(db.Model):
-    """Dossier client (investisseur) suivi par un conseiller."""
+    """Dossier client (investisseur) suivi par un conseiller.
+
+    Les champs `situation_professionnelle`, `nationalite` et `budget_disponible`
+    sont ceux que le cabinet recueille systématiquement au premier entretien.
+    """
 
     __tablename__ = "clients"
 
@@ -83,6 +87,9 @@ class Client(db.Model):
     nom = db.Column(db.String(120), nullable=False)
     email = db.Column(db.String(255))
     telephone = db.Column(db.String(40))
+    situation_professionnelle = db.Column(db.String(120))
+    nationalite = db.Column(db.String(80))
+    budget_disponible = db.Column(db.Float)
     notes = db.Column(db.Text)
     created_at = db.Column(db.DateTime(timezone=True), default=utcnow)
 
@@ -91,10 +98,84 @@ class Client(db.Model):
         "Projet", back_populates="client", lazy="dynamic",
         cascade="all, delete-orphan",
     )
+    brief = db.relationship(
+        "Brief", back_populates="client", uselist=False,
+        cascade="all, delete-orphan",
+    )
+
+
+class Brief(db.Model):
+    """Cahier de recherche : ce qui est recueilli au premier entretien.
+
+    Reprend, dans l'ordre, les critères énoncés par le cabinet. `objectif` et
+    `horizon_annees` sont décisifs : le cabinet ne fixe pas de seuil de
+    rentabilité, un même bien pouvant être bon pour un client et mauvais pour
+    un autre selon son horizon et le facteur temps.
+    """
+
+    __tablename__ = "briefs"
+
+    TYPES_BIEN = ("Terrain", "Villa", "Appartement", "Immeuble", "Autre")
+    STANDINGS = ("Économique", "Social", "Moyen standing", "Haut standing", "Luxe")
+    TYPES_ACQUISITION = (("existant", "Bien déjà construit"), ("vefa", "Achat sur plan (VEFA)"))
+    MODES_FINANCEMENT = (("comptant", "Paiement comptant"), ("pret", "Prêt bancaire"))
+    OBJECTIFS = (
+        ("revenu", "Revenu locatif régulier"),
+        ("plus_value", "Plus-value à la revente"),
+        ("patrimoine", "Constitution de patrimoine"),
+    )
+
+    id = db.Column(db.Integer, primary_key=True)
+    client_id = db.Column(
+        db.Integer, db.ForeignKey("clients.id"), nullable=False, unique=True
+    )
+
+    type_bien = db.Column(db.String(40), nullable=False, default="Appartement")
+    standing = db.Column(db.String(40))
+    zone_recherchee = db.Column(db.String(160))
+    superficie_min = db.Column(db.Float)
+    superficie_max = db.Column(db.Float)
+
+    # Détail demandé pour un appartement (laissé vide pour un terrain).
+    nb_chambres = db.Column(db.Integer)
+    nb_salles_bains = db.Column(db.Integer)
+    nb_salons = db.Column(db.Integer)
+    etage = db.Column(db.String(40))
+    orientation = db.Column(db.String(40))
+
+    commodites = db.Column(db.Text)
+    type_acquisition = db.Column(db.String(20), nullable=False, default="existant")
+    budget_min = db.Column(db.Float)
+    budget_max = db.Column(db.Float)
+    mode_financement = db.Column(db.String(20), nullable=False, default="pret")
+
+    objectif = db.Column(db.String(20), nullable=False, default="revenu")
+    horizon_annees = db.Column(db.Integer, nullable=False, default=10)
+
+    created_at = db.Column(db.DateTime(timezone=True), default=utcnow)
+
+    client = db.relationship("Client", back_populates="brief")
+
+    @property
+    def objectif_libelle(self) -> str:
+        return dict(self.OBJECTIFS).get(self.objectif, self.objectif)
+
+    @property
+    def type_acquisition_libelle(self) -> str:
+        return dict(self.TYPES_ACQUISITION).get(self.type_acquisition, self.type_acquisition)
+
+    @property
+    def mode_financement_libelle(self) -> str:
+        return dict(self.MODES_FINANCEMENT).get(self.mode_financement, self.mode_financement)
 
 
 class Projet(db.Model):
-    """Le bien étudié : acquisition, travaux et exploitation locative.
+    """Le bien étudié : acquisition, travaux et exploitation.
+
+    Deux types d'opération sont suivis par le cabinet :
+    - ``locatif``  : le bien est mis en location (loyer, charges, rendements) ;
+    - ``terrain``  : portage foncier ou construction-revente, sans loyer — la
+      valeur vient de la plus-value à la revente.
 
     Les taux hérités de la zone peuvent être surchargés au niveau du projet
     (colonnes *_override, NULL = utiliser la valeur de la zone).
@@ -102,17 +183,35 @@ class Projet(db.Model):
 
     __tablename__ = "projets"
 
+    TYPES_OPERATION = (
+        ("locatif", "Locatif (mise en location)"),
+        ("terrain", "Terrain / revente (plus-value)"),
+    )
+    STATUTS = (
+        ("recherche", "Recherche"),
+        ("presentation", "Présentation des biens"),
+        ("visites", "Visites"),
+        ("compromis", "Compromis signé"),
+        ("notaire", "Acte notarié"),
+        ("livraison", "Bien livré"),
+    )
+
     id = db.Column(db.Integer, primary_key=True)
     client_id = db.Column(db.Integer, db.ForeignKey("clients.id"), nullable=False)
     zone_id = db.Column(db.Integer, db.ForeignKey("zone_presets.id"), nullable=False)
     nom = db.Column(db.String(160), nullable=False)
     adresse = db.Column(db.String(255))
     surface_m2 = db.Column(db.Float)
+    type_operation = db.Column(db.String(20), nullable=False, default="locatif")
+    statut = db.Column(db.String(20), nullable=False, default="recherche")
 
     # Acquisition
     prix_bien = db.Column(db.Float, nullable=False, default=0.0)
     budget_travaux = db.Column(db.Float, nullable=False, default=0.0)
     taux_frais_override = db.Column(db.Float)  # % du prix ; NULL = taux de la zone
+    # VEFA : mois entre l'achat et la livraison. Aucun loyer n'est perçu
+    # pendant cette période (0 = bien déjà construit et disponible).
+    delai_livraison_mois = db.Column(db.Integer, nullable=False, default=0)
 
     # Exploitation
     loyer_mensuel = db.Column(db.Float, nullable=False, default=0.0)
@@ -150,6 +249,20 @@ class Projet(db.Model):
         if self.taux_imposition_override is not None:
             return self.taux_imposition_override
         return self.zone.taux_imposition_defaut
+
+    @property
+    def est_locatif(self) -> bool:
+        return self.type_operation == "locatif"
+
+    @property
+    def statut_libelle(self) -> str:
+        return dict(self.STATUTS).get(self.statut, self.statut)
+
+    @property
+    def statut_index(self) -> int:
+        """Position dans le déroulé recherche → livraison (pour l'affichage)."""
+        codes = [code for code, _ in self.STATUTS]
+        return codes.index(self.statut) if self.statut in codes else 0
 
 
 class LigneTravaux(db.Model):
@@ -194,6 +307,9 @@ class Scenario(db.Model):
     revalorisation_bien_pct = db.Column(db.Float, nullable=False, default=0.0)
     frais_revente_pct = db.Column(db.Float, nullable=False, default=0.0)
     taux_actualisation = db.Column(db.Float, nullable=False, default=3.0)
+    # Prix de revente connu ou négocié (construction-revente, lotissement…).
+    # NULL = la valeur à l'horizon est déduite de la revalorisation annuelle.
+    prix_revente = db.Column(db.Float)
 
     created_at = db.Column(db.DateTime(timezone=True), default=utcnow)
 

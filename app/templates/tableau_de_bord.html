@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% from "_ui.html" import tuile, vide %}
+
+{% block title %}Tableau de bord — RentImmo{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-4">
+  <div>
+    <h2 class="mb-1">Bonjour {{ current_user.nom }}</h2>
+    <p class="text-muted mb-0">Vos dossiers en cours, du premier entretien à la livraison.</p>
+  </div>
+  <a href="{{ url_for('clients.nouveau') }}" class="btn btn-primary">+ Nouveau dossier client</a>
+</div>
+
+{% if not clients %}
+  {{ vide("Aucun dossier pour le moment. Tout commence par un client et son brief de recherche.",
+          "Créer le premier dossier", url_for('clients.nouveau')) }}
+{% else %}
+
+<div class="row g-3 mb-4">
+  <div class="col-6 col-lg-3">{{ tuile("Clients suivis", clients | length) }}</div>
+  <div class="col-6 col-lg-3">{{ tuile("Dossiers étudiés", projets | length) }}</div>
+  <div class="col-6 col-lg-3">
+    {{ tuile("Dossiers livrés", projets | selectattr("statut", "equalto", "livraison") | list | length) }}
+  </div>
+  <div class="col-6 col-lg-3">
+    {{ tuile("Briefs à compléter", sans_brief | length,
+             aide="Critères de recherche non renseignés") }}
+  </div>
+</div>
+
+<div class="row g-4">
+  {# ── Avancement des dossiers ────────────────────────────────────────── #}
+  <div class="col-lg-5">
+    <div class="card h-100">
+      <div class="card-header">Avancement des dossiers</div>
+      <div class="card-body">
+        {% set total = projets | length %}
+        {% for libelle, nombre in par_statut %}
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <span class="small">{{ libelle }}</span>
+          <span class="d-flex align-items-center gap-2" style="width: 60%">
+            <span class="flex-grow-1 rounded" style="height: 6px; background: var(--trait)">
+              <span class="d-block rounded" style="height: 6px; width: {{ (100 * nombre / total) if total else 0 }}%;
+                           background: var(--ecc-blue)"></span>
+            </span>
+            <span class="small fw-semibold" style="width: 1.5rem; text-align: right">{{ nombre }}</span>
+          </span>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  {# ── Derniers dossiers ──────────────────────────────────────────────── #}
+  <div class="col-lg-7">
+    <div class="card h-100">
+      <div class="card-header">Derniers dossiers</div>
+      {% if derniers %}
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead>
+            <tr><th>Dossier</th><th>Client</th><th>Étape</th><th class="text-end">Scénarios</th></tr>
+          </thead>
+          <tbody>
+            {% for projet in derniers %}
+            <tr>
+              <td>
+                <a href="{{ url_for('projets.detail', projet_id=projet.id) }}" class="fw-semibold">{{ projet.nom }}</a>
+                <div class="small text-muted">{{ projet.zone.nom }}</div>
+              </td>
+              <td><a href="{{ url_for('clients.detail', client_id=projet.client_id) }}">{{ projet.client.nom }}</a></td>
+              <td><span class="etiquette">{{ projet.statut_libelle }}</span></td>
+              <td class="text-end">{{ projet.scenarios.count() }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="card-body text-muted small">
+        Aucun dossier étudié. Ouvrez un client puis ajoutez-y le bien à analyser.
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+{% if sans_brief %}
+<div class="rappel mt-4">
+  <strong>Briefs de recherche à compléter :</strong>
+  {% for client in sans_brief %}
+  <a href="{{ url_for('clients.brief', client_id=client.id) }}">{{ client.nom }}</a>{{ ", " if not loop.last }}
+  {% endfor %}
+  — sans objectif ni horizon, les indicateurs ne peuvent pas être interprétés.
+</div>
+{% endif %}
+
+{% endif %}
+{% endblock %}

@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "_ui.html" import vide %}
 
 {% block title %}{{ client.nom }} — RentImmo{% endblock %}
 
@@ -10,47 +11,133 @@
   </ol>
 </nav>
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-  <h2 class="mb-0">{{ client.nom }}</h2>
+<div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-4">
   <div>
-    <a href="{{ url_for('projets.nouveau', client_id=client.id) }}" class="btn btn-primary">+ Nouveau projet</a>
-    <a href="{{ url_for('clients.modifier', client_id=client.id) }}" class="btn btn-outline-secondary">Modifier</a>
+    <h2 class="mb-1">{{ client.nom }}</h2>
+    <p class="text-muted mb-0">
+      {{ client.situation_professionnelle or "Situation professionnelle non renseignée" }}
+      {% if client.nationalite %} · {{ client.nationalite }}{% endif %}
+      {% if client.budget_disponible %} · budget {{ client.budget_disponible | montant }}{% endif %}
+    </p>
+  </div>
+  <div class="d-flex gap-2">
+    <a href="{{ url_for('projets.nouveau', client_id=client.id) }}" class="btn btn-primary">+ Nouveau dossier</a>
+    <a href="{{ url_for('clients.modifier', client_id=client.id) }}" class="btn btn-outline-secondary">Modifier la fiche</a>
   </div>
 </div>
 
-<p class="text-muted">
-  {{ client.email or "" }}{% if client.email and client.telephone %} · {% endif %}{{ client.telephone or "" }}
-</p>
-{% if client.notes %}<p>{{ client.notes }}</p>{% endif %}
+{# ── Brief de recherche ──────────────────────────────────────────────────── #}
+<div class="card mb-4">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <span>Brief de recherche</span>
+    <a href="{{ url_for('clients.brief', client_id=client.id) }}" class="btn btn-sm btn-outline-primary">
+      {{ "Modifier" if client.brief else "Renseigner" }}</a>
+  </div>
+  <div class="card-body">
+    {% if client.brief %}
+    {% set b = client.brief %}
+    <div class="rappel mb-3">
+      Objectif : <strong>{{ b.objectif_libelle }}</strong> sur un horizon de
+      <strong>{{ b.horizon_annees }} ans</strong>. C'est la grille de lecture des
+      indicateurs de ses dossiers.
+    </div>
+    <div class="row g-3 small">
+      <div class="col-md-4">
+        <div class="titre-section mb-2">Le bien</div>
+        <div>{{ b.type_bien }}{% if b.standing %} — {{ b.standing }}{% endif %}</div>
+        {% if b.zone_recherchee %}<div class="text-muted">{{ b.zone_recherchee }}</div>{% endif %}
+        {% if b.superficie_min or b.superficie_max %}
+        <div class="text-muted">
+          {{ b.superficie_min | montant if b.superficie_min }}{% if b.superficie_min and b.superficie_max %} à {% endif %}{{ b.superficie_max | montant if b.superficie_max }} m²
+        </div>
+        {% endif %}
+        <div class="text-muted">{{ b.type_acquisition_libelle }}</div>
+      </div>
+      <div class="col-md-4">
+        <div class="titre-section mb-2">Distribution</div>
+        {% if b.type_bien == "Terrain" %}
+        <div class="text-muted">Sans objet pour un terrain.</div>
+        {% else %}
+        <div>
+          {{ b.nb_chambres or "—" }} chambre(s) · {{ b.nb_salles_bains or "—" }} SDB ·
+          {{ b.nb_salons or "—" }} salon(s)
+        </div>
+        {% if b.etage %}<div class="text-muted">Étage : {{ b.etage }}</div>{% endif %}
+        {% if b.orientation %}<div class="text-muted">Orientation : {{ b.orientation }}</div>{% endif %}
+        {% endif %}
+      </div>
+      <div class="col-md-4">
+        <div class="titre-section mb-2">Budget et financement</div>
+        <div>
+          {% if b.budget_min or b.budget_max %}
+          {{ b.budget_min | montant if b.budget_min }}{% if b.budget_min and b.budget_max %} à {% endif %}{{ b.budget_max | montant if b.budget_max }}
+          {% else %}Non précisé{% endif %}
+        </div>
+        <div class="text-muted">{{ b.mode_financement_libelle }}</div>
+      </div>
+      {% if b.commodites %}
+      <div class="col-12">
+        <div class="titre-section mb-2">Commodités souhaitées</div>
+        <div class="text-muted">{{ b.commodites }}</div>
+      </div>
+      {% endif %}
+    </div>
+    {% else %}
+    <p class="text-muted small mb-0">
+      Aucun brief. Renseignez les critères du premier entretien — notamment
+      l'objectif et l'horizon, sans lesquels les indicateurs ne se lisent pas.
+    </p>
+    {% endif %}
+  </div>
+</div>
 
-<h5 class="mt-4 mb-3">Projets d'investissement</h5>
+{% if client.notes %}
+<div class="card mb-4">
+  <div class="card-header">Notes de suivi</div>
+  <div class="card-body small mb-0">{{ client.notes }}</div>
+</div>
+{% endif %}
+
+{# ── Dossiers étudiés ────────────────────────────────────────────────────── #}
+<div class="titre-section">Dossiers étudiés</div>
 {% set projets = client.projets.all() %}
 {% if projets %}
-<div class="table-responsive">
-  <table class="table table-hover align-middle">
-    <thead class="table-light">
-      <tr><th>Projet</th><th>Zone</th><th>Prix du bien</th><th>Loyer mensuel</th><th>Scénarios</th></tr>
-    </thead>
-    <tbody>
-      {% for projet in projets %}
-      <tr>
-        <td><a href="{{ url_for('projets.detail', projet_id=projet.id) }}" class="fw-semibold">{{ projet.nom }}</a></td>
-        <td>{{ projet.zone.nom }}</td>
-        <td>{{ "{:,.0f}".format(projet.prix_bien).replace(",", " ") }} {{ projet.zone.devise }}</td>
-        <td>{{ "{:,.0f}".format(projet.loyer_mensuel).replace(",", " ") }} {{ projet.zone.devise }}</td>
-        <td>{{ projet.scenarios.count() }}</td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+<div class="card">
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead>
+        <tr>
+          <th>Dossier</th><th>Type</th><th>Zone</th>
+          <th class="text-end">Prix</th><th class="text-end">Loyer</th>
+          <th>Étape</th><th class="text-end">Scénarios</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for projet in projets %}
+        <tr>
+          <td><a href="{{ url_for('projets.detail', projet_id=projet.id) }}" class="fw-semibold">{{ projet.nom }}</a></td>
+          <td class="small">{{ "Locatif" if projet.est_locatif else "Terrain / revente" }}</td>
+          <td class="small">{{ projet.zone.nom }}</td>
+          <td class="text-end">{{ projet.prix_bien | montant }} {{ projet.zone.devise }}</td>
+          <td class="text-end">
+            {% if projet.est_locatif %}{{ projet.loyer_mensuel | montant }} {{ projet.zone.devise }}{% else %}—{% endif %}
+          </td>
+          <td><span class="etiquette">{{ projet.statut_libelle }}</span></td>
+          <td class="text-end">{{ projet.scenarios.count() }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 </div>
 {% else %}
-<p class="text-muted">Aucun projet pour ce client.</p>
+  {{ vide("Aucun bien étudié pour ce client.", "Ajouter un dossier",
+          url_for('projets.nouveau', client_id=client.id)) }}
 {% endif %}
 
 <form method="post" action="{{ url_for('clients.supprimer', client_id=client.id) }}" class="mt-5"
       onsubmit="return confirm('Supprimer ce dossier client et tous ses projets ?');">
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-  <button class="btn btn-sm btn-outline-danger">Supprimer le dossier</button>
+  <button class="btn btn-sm btn-outline-danger">Supprimer le dossier client</button>
 </form>
 {% endblock %}

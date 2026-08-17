@@ -3,32 +3,48 @@
 {% block content %}
 <div class="p-5 mb-4 rounded-3 hero">
   <div class="container-fluid py-4">
-    <h1 class="display-5 fw-bold">Analyser la rentabilité d'un investissement immobilier</h1>
-    <p class="col-lg-8 fs-5 mb-0">
-      Support de conseil client : coût d'acquisition, rendement locatif,
-      financement, cash-flow, TRI et VAN — paramétrable par zone de marché
-      (Maroc par défaut).
+    <h1 class="display-6 fw-bold">Du besoin du client à la recommandation chiffrée</h1>
+    <p class="col-lg-8 fs-5 mb-4">
+      Support de conseil pour l'accompagnement d'un investisseur immobilier :
+      brief de recherche, suivi du dossier jusqu'à la livraison, et analyse
+      chiffrée du bien retenu — paramétrable par zone de marché (Maroc par défaut).
     </p>
+    <a href="{{ url_for('auth.login') }}" class="btn btn-light fw-semibold">Se connecter</a>
+    <a href="{{ url_for('auth.register') }}" class="btn btn-outline-light">Créer un compte</a>
   </div>
 </div>
 
-<div class="row g-4">
-  {% for titre, texte in [
-    ("Acquisition", "Prix du bien, frais selon la zone, budget travaux détaillé par postes."),
-    ("Rendement locatif", "Rendement brut, net et net-net selon loyer et charges."),
-    ("Financement", "Simulation du prêt : apport, taux, durée, mensualités, amortissement."),
-    ("Comparaison de scénarios", "Cash vs crédit, taux et durées variables, côte à côte."),
-    ("Indicateurs de décision", "Cash-flow, TRI, VAN avec graphiques de projection."),
-    ("Restitution et export", "Rapport PDF et classeur Excel remis au client.")
+<div class="titre-section">Le déroulé d'un accompagnement</div>
+<div class="row g-4 mb-4">
+  {% for numero, titre, texte in [
+    ("1", "Brief de recherche",
+     "Type de bien, standing, superficie, commodités, zone, budget et financement — plus l'objectif et l'horizon du client."),
+    ("2", "Suivi du dossier",
+     "Recherche, présentation des biens, visites, compromis, acte notarié, livraison : chaque dossier affiche son étape."),
+    ("3", "Analyse du bien",
+     "Coût d'entrée réel, rendement net, cash-flow, plus-value et valeur créée à l'horizon retenu."),
+    ("4", "Scénarios de financement",
+     "Comptant ou crédit, durées et apports variables, achat sur plan : chaque montage se compare côte à côte."),
+    ("5", "Restitution",
+     "Rapport PDF aux couleurs du cabinet et classeur Excel remis au client à l'issue du rendez-vous."),
+    ("6", "Zones de marché",
+     "Frais d'acquisition, fiscalité et devise s'actualisent selon la zone : Maroc, France ou paramétrage libre.")
   ] %}
   <div class="col-md-4">
-    <div class="card h-100 shadow-sm">
+    <div class="card h-100">
       <div class="card-body">
-        <h5 class="card-title text-primary">{{ titre }}</h5>
-        <p class="card-text">{{ texte }}</p>
+        <span class="etiquette mb-2 d-inline-block">Étape {{ numero }}</span>
+        <h5 class="card-title">{{ titre }}</h5>
+        <p class="card-text small text-muted mb-0">{{ texte }}</p>
       </div>
     </div>
   </div>
   {% endfor %}
+</div>
+
+<div class="rappel">
+  <strong>Pas de seuil automatique.</strong> L'outil ne décrète jamais qu'un
+  investissement est bon ou mauvais : il présente les chiffres au regard de
+  l'objectif et de l'horizon du client, à qui revient l'arbitrage.
 </div>
 {% endblock %}

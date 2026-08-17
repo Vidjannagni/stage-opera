@@ -1,112 +1,149 @@
 # RentImmo — Guide d'utilisation
 
-*Outil d'analyse de rentabilité d'investissement immobilier — Choubel Consulting.*
-Ce guide s'adresse au **conseiller** ; il suit l'ordre d'un rendez-vous client réel.
+*Outil d'accompagnement de l'investisseur immobilier — Choubel Consulting.*
+Ce guide s'adresse au **conseiller** et suit l'ordre réel d'un accompagnement,
+du premier entretien à la remise du document.
 
 ---
 
 ## 1. Démarrage et connexion
 
-Lancez l'application (voir le README pour l'installation) puis ouvrez
-`http://127.0.0.1:5000`. Créez votre compte consultant (« Créer un compte ») ou
-connectez-vous. **Chaque conseiller ne voit que ses propres dossiers** : vos
-clients ne sont jamais visibles par un autre compte.
+Lancez l'application (voir le README) puis ouvrez `http://127.0.0.1:5000`.
+Créez votre compte consultant ou connectez-vous. **Chaque conseiller ne voit que
+ses propres dossiers.**
+
+Le **tableau de bord** affiche vos clients, l'avancement de vos dossiers et les
+briefs de recherche qu'il reste à renseigner.
 
 > Pour vous entraîner : `flask demo-data` crée un dossier complet
 > (connexion `demo@choubel.com` / `demo1234`).
 
-## 2. Créer le dossier client
+## 2. Ouvrir la fiche client
 
-**Clients → Nouveau dossier.** Seul le nom est obligatoire ; e-mail, téléphone
-et notes sont là pour votre suivi. Le dossier regroupera tous les biens étudiés
-pour ce client.
+**Clients → Nouveau dossier client.** Quatre informations sont recueillies
+systématiquement au premier entretien :
 
-## 3. Saisir le bien (projet)
+- le **nom** ;
+- la **situation professionnelle** (salarié, profession libérale, chef
+  d'entreprise, retraité…) ;
+- la **nationalité** — elle conditionne l'accès au crédit et le rapatriement des
+  fonds ;
+- le **budget disponible**.
 
-Depuis le dossier client : **+ Nouveau projet**.
+E-mail, téléphone et notes servent à votre suivi.
 
-- **Zone de marché** : c'est le réglage central. Le **Maroc** est présélectionné
-  (devise MAD) ; la France et une zone personnalisée sont disponibles. L'encart
-  bleu sous le sélecteur rappelle les taux appliqués — frais d'acquisition et
-  imposition — et **tous les calculs s'actualisent selon la zone choisie**.
-- **Acquisition** : prix du bien et budget travaux. Le champ « taux de frais »
-  ne se remplit que pour déroger au taux de la zone (laissez-le vide sinon).
-- **Exploitation** : loyer mensuel attendu, charges annuelles (copropriété,
-  assurance, entretien, taxe), frais de gestion et vacance locative en % du
-  loyer. En rendez-vous, ne remplissez que ce que vous connaissez : les champs
-  vides valent zéro.
+## 3. Renseigner le brief de recherche
 
-La page du projet affiche immédiatement le **coût total d'acquisition** et les
-**trois rendements** (brut, net, net-net), utilisables tels quels face au client :
+L'enregistrement de la fiche vous amène directement au **brief**, c'est-à-dire ce
+que le client recherche :
 
-- *brut* = loyers annuels / coût total d'acquisition ;
-- *net* = idem après charges, vacance et gestion ;
-- *net-net* = idem après impôt au taux effectif de la zone.
+- **type de bien** (terrain, villa, appartement, immeuble) et **standing**
+  (économique, social, moyen, haut standing, luxe) ;
+- **superficie** recherchée et **zone géographique** ;
+- pour un appartement : **chambres, salles de bains, salons, étage, orientation**
+  (ce bloc disparaît si vous choisissez « Terrain ») ;
+- **commodités** souhaitées : transports, écoles, commerces… ;
+- **type d'acquisition** : bien déjà construit ou achat sur plan (VEFA) ;
+- **budget** et **mode de financement** (comptant ou prêt bancaire).
 
-## 4. Détailler les travaux (facultatif)
+Deux réponses comptent particulièrement : l'**objectif** (revenu locatif,
+plus-value, constitution de patrimoine) et l'**horizon d'investissement**.
 
-Sur la page du projet, la carte **Travaux détaillés** permet de chiffrer poste
-par poste (catégorie + montant). Dès qu'un poste existe, **le budget travaux du
-projet devient la somme des postes** — utile pour justifier le chiffre devant
-le client. Supprimer un poste réajuste le budget.
+> **Pourquoi c'est décisif.** Il n'existe pas de seuil universel de rentabilité :
+> un même bien peut convenir à un client et pas à un autre. L'objectif et
+> l'horizon sont la grille de lecture de tous les chiffres qui suivront ; ils
+> sont rappelés en tête de chaque écran de résultats.
 
-## 5. Construire les scénarios de financement
+## 4. Créer le dossier du bien
 
-**+ Nouveau scénario** depuis le projet. Deux modes :
+Depuis la fiche client : **+ Nouveau dossier**.
 
-- **Crédit** : apport, taux d'intérêt, taux d'assurance, durée ;
-- **Cash** : achat comptant, aucun emprunt.
+- **Type d'opération** — le réglage à choisir en premier :
+  - *Locatif* : le bien sera mis en location ;
+  - *Terrain / revente* : la valeur vient de la plus-value, pas d'un loyer. Le
+    bloc d'exploitation locative disparaît.
+- **Zone de marché** : le Maroc est présélectionné (MAD) ; la France et une zone
+  personnalisée sont disponibles. L'encart bleu rappelle les taux appliqués, et
+  **tous les calculs s'actualisent selon la zone**.
+- **Où en est le dossier ?** : recherche, présentation, visites, compromis,
+  notaire, livraison. Le déroulé s'affiche en bandeau sur la page du dossier.
+- **Acquisition** : prix, budget travaux (ou coût de construction), et
+  **délai de livraison en mois** pour un achat sur plan.
+- **Exploitation** (locatif seulement) : loyer, charges, gestion, vacance,
+  entretien, taxe. En rendez-vous, ne remplissez que ce que vous connaissez :
+  les champs vides valent zéro.
 
-Les **hypothèses de projection** (horizon, revalorisation du loyer et du bien,
-frais de revente, taux d'actualisation) pilotent le TRI et la VAN.
+## 5. Détailler les travaux (facultatif)
 
-La carte **Aperçu instantané** recalcule mensualité, cash-flow, TRI et VAN
-**à chaque saisie** : faites varier l'apport ou la durée en direct devant le
-client avant même d'enregistrer.
+La carte **Travaux détaillés** permet de chiffrer poste par poste. Dès qu'un
+poste existe, **le budget devient la somme des postes** — utile pour justifier le
+chiffre devant le client.
 
-## 6. Lire la page de résultats
+## 6. Construire les scénarios
 
-Quatre indicateurs en tête de page :
+**+ Nouveau scénario** depuis le dossier. Deux modes : **crédit** (apport, taux,
+assurance, durée) ou **cash**.
+
+Les **hypothèses de projection** pilotent les indicateurs de sortie : horizon,
+revalorisation du loyer et du bien, frais de revente, taux d'actualisation. Le
+champ **Prix de revente à l'horizon** remplace la revalorisation annuelle quand
+le prix de sortie est connu ou négocié — c'est le cas d'une opération de
+construction-revente ou d'un lotissement.
+
+La carte **Aperçu instantané** recalcule cash-flow, valeur créée, mensualité,
+TRI et VAN **à chaque saisie**, avant même d'enregistrer.
+
+## 7. Lire la page de résultats
+
+Les indicateurs sont présentés dans l'ordre où le cabinet les regarde.
+
+**Pour un locatif :**
 
 | Indicateur | Lecture en une phrase |
 |---|---|
-| **Cash-flow mensuel** | Ce que le client débourse (rouge) ou encaisse (vert) chaque mois, tout compris. |
-| **TRI** | Le taux de rendement annuel de l'argent réellement investi, revente incluse. |
-| **VAN** | Ce que le projet rapporte en plus d'un placement au taux d'actualisation ; positive = créateur de valeur. |
-| **Rendement net-net** | Le rendement du bien après charges et impôt. |
+| **Rendement net** | Le rendement du bien après charges, vacance et gestion. |
+| **Cash-flow mensuel** | Ce que le client encaisse (vert) ou débourse (rouge) chaque mois. |
+| Rendement net-net | Le même, après impôt. |
+| Valeur créée | Le gain total sur l'horizon, revente comprise. |
+| TRI · VAN | Arguments de second rang, utiles pour comparer deux montages. |
 
-Suivent le détail chiffré (acquisition, financement, exploitation) et trois
-graphiques : cash-flow annuel et cumulé, capital restant dû, décomposition du
-coût d'acquisition. Le tableau de projection donne l'année par année.
+**Pour un terrain ou une revente :** la **valeur créée** et la **plus-value**
+passent en tête, les rendements locatifs disparaissent.
 
-**Dupliquer** crée une variante du scénario pour tester une autre hypothèse
-sans perdre l'original.
+Un encart **Achat sur plan** signale, le cas échéant, que le bien ne produit ni
+loyer ni charges jusqu'à sa livraison — alors que les annuités courent déjà. Les
+années concernées apparaissent en italique dans le tableau de projection, avec la
+mention « en chantier ».
 
-## 7. Comparer les scénarios
+**Dupliquer** crée une variante pour tester une autre hypothèse sans perdre
+l'original.
 
-Sur la page du projet, cochez 2 à 4 scénarios puis **Comparer la sélection** :
-tableau d'indicateurs côte à côte et courbes de cash-flow cumulé superposées.
-C'est l'écran de décision : le croisement des courbes montre à partir de quelle
-année un montage devient plus intéressant que l'autre.
+## 8. Comparer les scénarios
 
-## 8. Remettre un document au client
+Sur la page du dossier, cochez 2 à 4 scénarios puis **Comparer la sélection** :
+tableau côte à côte (dans le même ordre de lecture) et courbes de cash-flow
+cumulé superposées. Le croisement des courbes montre à partir de quelle année un
+montage devient plus intéressant que l'autre.
 
-Depuis la page de résultats d'un scénario :
+## 9. Remettre un document au client
 
-- **Export PDF** : rapport complet aux couleurs du cabinet, prêt à imprimer ou
-  envoyer — hypothèses, conventions de calcul et projection incluses.
-- **Export Excel** : classeur avec feuilles *Hypothèses*, *Indicateurs*,
-  *Projection* et *Amortissement* mensuel, pour les clients qui veulent
-  retravailler les chiffres.
+Depuis la page de résultats :
 
-## 9. Bonnes pratiques et limites
+- **Export PDF** : rapport aux couleurs du cabinet, rappelant l'objectif du
+  client, les hypothèses et les conventions de calcul ;
+- **Export Excel** : feuilles *Hypothèses*, *Indicateurs*, *Projection* et
+  *Amortissement*, pour les clients qui veulent retravailler les chiffres.
 
+## 10. Bonnes pratiques et limites
+
+- **L'outil ne conclut jamais à votre place.** Il n'affiche aucun verdict et
+  aucun seuil : il présente les chiffres au regard de l'objectif et de l'horizon
+  du client, à qui revient l'arbitrage.
 - Les **valeurs par défaut des zones** (frais, imposition) sont des valeurs de
-  travail : vérifiez-les avec le client quand sa situation est spécifique, et
-  utilisez les champs de surcharge du projet le cas échéant.
-- La fiscalité est traitée par **taux effectif** : l'outil ne modélise pas les
-  régimes fiscaux détaillés ni ne remplace un conseil fiscal.
+  travail : vérifiez-les quand la situation du client est spécifique, et
+  utilisez les champs de surcharge du dossier.
+- La fiscalité est traitée par **taux effectif** sur le revenu locatif.
+  **La plus-value de revente n'est pas imposée par l'outil** : à retraiter à la
+  main pour une opération de terrain.
 - Toute modification d'hypothèse **recalcule tout** : aucun chiffre affiché ne
   peut être obsolète.
-- Le rapport PDF rappelle explicitement les conventions — appuyez-vous dessus
-  si le client conteste un chiffre.

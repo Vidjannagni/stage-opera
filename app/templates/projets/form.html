@@ -8,38 +8,48 @@
   <ol class="breadcrumb">
     <li class="breadcrumb-item"><a href="{{ url_for('clients.liste') }}">Clients</a></li>
     <li class="breadcrumb-item"><a href="{{ url_for('clients.detail', client_id=client.id) }}">{{ client.nom }}</a></li>
-    <li class="breadcrumb-item active">Projet</li>
+    <li class="breadcrumb-item active">Dossier</li>
   </ol>
 </nav>
 
-<h3 class="mb-4">{{ titre }}</h3>
+<h3 class="mb-1">{{ titre }}</h3>
+<p class="text-muted mb-4">
+  Renseignez ce que vous savez : les champs laissés vides valent zéro.
+</p>
 
 <form method="post" novalidate>
   {{ form.hidden_tag() }}
   <div class="row">
     <div class="col-lg-6">
-      <div class="card shadow-sm mb-4">
-        <div class="card-header fw-semibold">Identification</div>
+      <div class="card mb-4">
+        <div class="card-header">Identification</div>
         <div class="card-body">
           {{ render_field(form.nom) }}
+          {{ render_field(form.type_operation) }}
           {{ render_field(form.adresse) }}
           {{ render_field(form.zone_id) }}
-          <div id="zone-info" class="alert alert-info py-2 small mb-3" role="status"></div>
-          {{ render_field(form.surface_m2) }}
+          <div id="zone-info" class="rappel mb-3" role="status"></div>
+          <div class="row">
+            <div class="col-md-6">{{ render_field(form.surface_m2) }}</div>
+            <div class="col-md-6">{{ render_field(form.statut) }}</div>
+          </div>
         </div>
       </div>
-      <div class="card shadow-sm mb-4">
-        <div class="card-header fw-semibold">Acquisition</div>
+
+      <div class="card mb-4">
+        <div class="card-header">Acquisition</div>
         <div class="card-body">
           {{ render_field(form.prix_bien) }}
           {{ render_field(form.budget_travaux) }}
+          {{ render_field(form.delai_livraison_mois) }}
           {{ render_field(form.taux_frais_override) }}
         </div>
       </div>
     </div>
+
     <div class="col-lg-6">
-      <div class="card shadow-sm mb-4">
-        <div class="card-header fw-semibold">Exploitation locative</div>
+      <div class="card mb-4" id="carte-exploitation">
+        <div class="card-header">Exploitation locative</div>
         <div class="card-body">
           {{ render_field(form.loyer_mensuel) }}
           <div class="row">
@@ -53,8 +63,24 @@
           {{ render_field(form.taux_imposition_override) }}
         </div>
       </div>
+
+      <div class="card mb-4" id="carte-terrain" hidden>
+        <div class="card-header">Opération sans loyer</div>
+        <div class="card-body">
+          <p class="mb-2 small">
+            Un terrain ou une opération de construction-revente ne produit pas de
+            loyer : toute la valeur vient de la <strong>plus-value à la revente</strong>.
+          </p>
+          <ul class="small text-muted mb-0">
+            <li>Le coût de construction se saisit dans <em>Budget travaux / construction</em>.</li>
+            <li>Le prix de sortie se saisit sur le scénario, champ <em>Prix de revente à l'horizon</em>.</li>
+            <li>Les charges annuelles éventuelles (taxe, gardiennage) restent saisissables ci-dessus.</li>
+          </ul>
+        </div>
+      </div>
     </div>
   </div>
+
   <div class="d-flex gap-2">
     {{ form.submit(class="btn btn-primary") }}
     <a href="{{ url_for('clients.detail', client_id=client.id) }}" class="btn btn-outline-secondary">Annuler</a>
@@ -87,5 +113,20 @@
 
   selectZone.addEventListener("change", actualiserZone);
   actualiserZone();
+
+  // Une opération de type terrain n'a pas d'exploitation locative à saisir.
+  const champOperation = document.getElementById("type_operation");
+  const carteExploitation = document.getElementById("carte-exploitation");
+  const carteTerrain = document.getElementById("carte-terrain");
+
+  function actualiserOperation() {
+    const terrain = champOperation.value === "terrain";
+    carteExploitation.hidden = terrain;
+    carteTerrain.hidden = !terrain;
+    if (terrain) document.getElementById("loyer_mensuel").value = 0;
+  }
+
+  champOperation.addEventListener("change", actualiserOperation);
+  actualiserOperation();
 </script>
 {% endblock %}

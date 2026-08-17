@@ -1,6 +1,9 @@
 {% extends "base.html" %}
+{% from "_ui.html" import tuile, etapes, vide %}
 
 {% block title %}{{ projet.nom }} — RentImmo{% endblock %}
+
+{% set devise = projet.zone.devise %}
 
 {% block content %}
 <nav aria-label="breadcrumb">
@@ -11,88 +14,100 @@
   </ol>
 </nav>
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-  <h2 class="mb-0">{{ projet.nom }}</h2>
+<div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3">
   <div>
+    <h2 class="mb-1">{{ projet.nom }}</h2>
+    <p class="text-muted mb-0">
+      <span class="etiquette etiquette-sourde">{{ "Locatif" if projet.est_locatif else "Terrain / revente" }}</span>
+      Zone <strong>{{ projet.zone.nom }}</strong> ({{ devise }})
+      {% if projet.adresse %} · {{ projet.adresse }}{% endif %}
+      {% if projet.surface_m2 %} · {{ projet.surface_m2 }} m²{% endif %}
+      {% if projet.delai_livraison_mois %} · livraison dans {{ projet.delai_livraison_mois }} mois{% endif %}
+    </p>
+  </div>
+  <div class="d-flex gap-2">
     <a href="{{ url_for('scenarios.nouveau', projet_id=projet.id) }}" class="btn btn-primary">+ Nouveau scénario</a>
     <a href="{{ url_for('projets.modifier', projet_id=projet.id) }}" class="btn btn-outline-secondary">Modifier</a>
   </div>
 </div>
 
-<p class="text-muted">
-  Zone <strong>{{ projet.zone.nom }}</strong> ({{ projet.zone.devise }})
-  {% if projet.adresse %} · {{ projet.adresse }}{% endif %}
-  {% if projet.surface_m2 %} · {{ projet.surface_m2 }} m²{% endif %}
-</p>
-
-<div class="row g-3 mb-4">
-  <div class="col-md-3">
-    <div class="card text-center shadow-sm"><div class="card-body">
-      <div class="small text-muted">Prix du bien</div>
-      <div class="fs-5 fw-bold">{{ projet.prix_bien | montant }} {{ projet.zone.devise }}</div>
-    </div></div>
-  </div>
-  <div class="col-md-3">
-    <div class="card text-center shadow-sm"><div class="card-body">
-      <div class="small text-muted">Frais ({{ "%.1f" | format(projet.taux_frais_acquisition) }} %)</div>
-      <div class="fs-5 fw-bold">{{ frais | montant }} {{ projet.zone.devise }}</div>
-    </div></div>
-  </div>
-  <div class="col-md-3">
-    <div class="card text-center shadow-sm"><div class="card-body">
-      <div class="small text-muted">Travaux</div>
-      <div class="fs-5 fw-bold">{{ projet.budget_travaux | montant }} {{ projet.zone.devise }}</div>
-    </div></div>
-  </div>
-  <div class="col-md-3">
-    <div class="card text-center shadow-sm border-primary"><div class="card-body">
-      <div class="small text-muted">Coût total d'acquisition</div>
-      <div class="fs-5 fw-bold text-primary">{{ cout_total | montant }} {{ projet.zone.devise }}</div>
-    </div></div>
+{# ── Avancement du dossier ───────────────────────────────────────────────── #}
+<div class="card mb-4">
+  <div class="card-body py-3">
+    {{ etapes(projet.STATUTS, projet.statut_index) }}
   </div>
 </div>
 
+{% if projet.client.brief %}
+<div class="rappel mb-4">
+  Objectif du client : <strong>{{ projet.client.brief.objectif_libelle }}</strong>
+  sur <strong>{{ projet.client.brief.horizon_annees }} ans</strong>.
+</div>
+{% endif %}
+
+{# ── Coût d'entrée ───────────────────────────────────────────────────────── #}
+<div class="titre-section">Coût d'entrée</div>
 <div class="row g-3 mb-4">
-  <div class="col-md-4">
-    <div class="card text-center shadow-sm"><div class="card-body">
-      <div class="small text-muted">Rendement brut</div>
-      <div class="fs-4 fw-bold">{{ "%.2f" | format(rdts.brut) }} %</div>
-    </div></div>
+  <div class="col-6 col-lg-3">{{ tuile("Prix du bien", (projet.prix_bien | montant) ~ " " ~ devise) }}</div>
+  <div class="col-6 col-lg-3">
+    {{ tuile("Frais d'acquisition", (frais | montant) ~ " " ~ devise,
+             aide="%.1f %% — zone %s" | format(projet.taux_frais_acquisition, projet.zone.nom)) }}
   </div>
-  <div class="col-md-4">
-    <div class="card text-center shadow-sm"><div class="card-body">
-      <div class="small text-muted">Rendement net</div>
-      <div class="fs-4 fw-bold">{{ "%.2f" | format(rdts.net) }} %</div>
-    </div></div>
+  <div class="col-6 col-lg-3">
+    {{ tuile("Travaux / construction", (projet.budget_travaux | montant) ~ " " ~ devise) }}
   </div>
-  <div class="col-md-4">
-    <div class="card text-center shadow-sm"><div class="card-body">
-      <div class="small text-muted">Rendement net-net (impôt {{ "%.1f" | format(projet.taux_imposition) }} %)</div>
-      <div class="fs-4 fw-bold">{{ "%.2f" | format(rdts.net_net) }} %</div>
-    </div></div>
+  <div class="col-6 col-lg-3">
+    {{ tuile("Coût total", (cout_total | montant) ~ " " ~ devise, rang="primaire") }}
   </div>
 </div>
 
-{# ── Travaux détaillés ───────────────────────────────────────────────── #}
-<div class="card shadow-sm mb-4">
-  <div class="card-header fw-semibold d-flex justify-content-between">
+{# ── Rendements : seulement si le bien produit un loyer ──────────────────── #}
+{% if projet.est_locatif %}
+<div class="titre-section">Rendements une fois le bien exploité</div>
+<div class="row g-3 mb-4">
+  <div class="col-md-4">
+    {{ tuile("Rendement net", "%.2f %%" | format(rdts.net), rang="primaire",
+             aide="Après charges, vacance et gestion") }}
+  </div>
+  <div class="col-md-4">
+    {{ tuile("Rendement net-net", "%.2f %%" | format(rdts.net_net), rang="primaire",
+             aide="Après impôt au taux effectif de %.1f %%" | format(projet.taux_imposition)) }}
+  </div>
+  <div class="col-md-4">
+    {{ tuile("Rendement brut", "%.2f %%" | format(rdts.brut), rang="secondaire",
+             aide="Loyers annuels rapportés au coût total") }}
+  </div>
+</div>
+{% else %}
+<div class="rappel mb-4">
+  Opération <strong>sans loyer</strong> : la valeur vient entièrement de la
+  plus-value. Créez un scénario et renseignez le prix de revente à l'horizon
+  pour obtenir la valeur créée et le TRI.
+</div>
+{% endif %}
+
+{# ── Travaux détaillés ───────────────────────────────────────────────────── #}
+<div class="card mb-4">
+  <div class="card-header d-flex justify-content-between align-items-center">
     <span>Travaux détaillés</span>
-    <span class="text-muted small">Si des postes existent, le budget travaux du projet est leur somme.</span>
+    <span class="text-muted text-lowercase fw-normal" style="letter-spacing: 0">
+      dès qu'un poste existe, le budget est leur somme
+    </span>
   </div>
   <div class="card-body">
     {% set lignes = projet.lignes_travaux.all() %}
     {% if lignes %}
     <div class="table-responsive mb-3">
       <table class="table table-sm align-middle mb-0">
-        <thead class="table-light">
+        <thead>
           <tr><th>Poste</th><th>Catégorie</th><th class="text-end">Montant</th><th></th></tr>
         </thead>
         <tbody>
           {% for ligne in lignes %}
           <tr>
             <td>{{ ligne.libelle }}</td>
-            <td class="text-muted">{{ ligne.categorie or "—" }}</td>
-            <td class="text-end">{{ ligne.montant | montant }} {{ projet.zone.devise }}</td>
+            <td class="text-muted small">{{ ligne.categorie or "—" }}</td>
+            <td class="text-end">{{ ligne.montant | montant }} {{ devise }}</td>
             <td class="text-end">
               <form method="post" action="{{ url_for('projets.supprimer_travaux', ligne_id=ligne.id) }}" class="d-inline">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
@@ -102,16 +117,18 @@
           </tr>
           {% endfor %}
           <tr class="fw-bold">
-            <td colspan="2">Total travaux</td>
-            <td class="text-end">{{ projet.budget_travaux | montant }} {{ projet.zone.devise }}</td>
+            <td colspan="2">Total</td>
+            <td class="text-end">{{ projet.budget_travaux | montant }} {{ devise }}</td>
             <td></td>
           </tr>
         </tbody>
       </table>
     </div>
     {% else %}
-    <p class="text-muted small mb-3">Aucun poste détaillé — le budget travaux global du projet s'applique
-      ({{ projet.budget_travaux | montant }} {{ projet.zone.devise }}).</p>
+    <p class="text-muted small mb-3">
+      Aucun poste détaillé — le budget global du dossier s'applique
+      ({{ projet.budget_travaux | montant }} {{ devise }}).
+    </p>
     {% endif %}
     <form method="post" action="{{ url_for('projets.ajouter_travaux', projet_id=projet.id) }}" class="row g-2 align-items-end">
       {{ form_travaux.hidden_tag() }}
@@ -134,45 +151,54 @@
   </div>
 </div>
 
-<h5 class="mb-3">Scénarios de financement</h5>
+{# ── Scénarios ───────────────────────────────────────────────────────────── #}
+<div class="titre-section">Scénarios de financement</div>
 {% set scenarios = projet.scenarios.all() %}
 {% if scenarios %}
 <form method="get" action="{{ url_for('scenarios.comparer') }}">
-<div class="table-responsive">
-  <table class="table table-hover align-middle">
-    <thead class="table-light">
-      <tr><th></th><th>Scénario</th><th>Mode</th><th>Apport</th><th>Taux</th><th>Durée</th><th class="text-end">Actions</th></tr>
-    </thead>
-    <tbody>
-      {% for s in scenarios %}
-      <tr>
-        <td><input class="form-check-input" type="checkbox" name="ids" value="{{ s.id }}"
-                   aria-label="Sélectionner {{ s.nom }} pour la comparaison"></td>
-        <td class="fw-semibold">{{ s.nom }}</td>
-        <td>{{ "Crédit" if s.mode == "credit" else "Cash" }}</td>
-        <td>{{ s.apport | montant }} {{ projet.zone.devise }}</td>
-        <td>{% if s.mode == "credit" %}{{ "%.2f" | format(s.taux_interet) }} %{% else %}—{% endif %}</td>
-        <td>{% if s.mode == "credit" %}{{ s.duree_annees }} ans{% else %}—{% endif %}</td>
-        <td class="text-end">
-          <a href="{{ url_for('scenarios.resultats', scenario_id=s.id) }}" class="btn btn-sm btn-primary">Résultats</a>
-          <a href="{{ url_for('scenarios.modifier', scenario_id=s.id) }}" class="btn btn-sm btn-outline-secondary">Modifier</a>
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+<div class="card mb-3">
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead>
+        <tr>
+          <th></th><th>Scénario</th><th>Mode</th>
+          <th class="text-end">Apport</th><th class="text-end">Taux</th>
+          <th class="text-end">Durée</th><th class="text-end">Horizon</th><th class="text-end">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for s in scenarios %}
+        <tr>
+          <td><input class="form-check-input" type="checkbox" name="ids" value="{{ s.id }}"
+                     aria-label="Sélectionner {{ s.nom }} pour la comparaison"></td>
+          <td class="fw-semibold">{{ s.nom }}</td>
+          <td>{{ "Crédit" if s.mode == "credit" else "Cash" }}</td>
+          <td class="text-end">{{ s.apport | montant }} {{ devise }}</td>
+          <td class="text-end">{% if s.mode == "credit" %}{{ "%.2f" | format(s.taux_interet) }} %{% else %}—{% endif %}</td>
+          <td class="text-end">{% if s.mode == "credit" %}{{ s.duree_annees }} ans{% else %}—{% endif %}</td>
+          <td class="text-end">{{ s.horizon_annees }} ans</td>
+          <td class="text-end">
+            <a href="{{ url_for('scenarios.resultats', scenario_id=s.id) }}" class="btn btn-sm btn-primary">Résultats</a>
+            <a href="{{ url_for('scenarios.modifier', scenario_id=s.id) }}" class="btn btn-sm btn-outline-secondary">Modifier</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 </div>
 {% if scenarios | length >= 2 %}
 <button class="btn btn-outline-primary" type="submit">Comparer la sélection (2 à 4)</button>
 {% endif %}
 </form>
 {% else %}
-<p class="text-muted">Aucun scénario — créez-en un pour calculer cash-flow, TRI et VAN.</p>
+  {{ vide("Aucun scénario — créez-en un pour obtenir cash-flow, valeur créée, TRI et VAN.",
+          "Créer un scénario", url_for('scenarios.nouveau', projet_id=projet.id)) }}
 {% endif %}
 
 <form method="post" action="{{ url_for('projets.supprimer', projet_id=projet.id) }}" class="mt-5"
-      onsubmit="return confirm('Supprimer ce projet et tous ses scénarios ?');">
+      onsubmit="return confirm('Supprimer ce dossier et tous ses scénarios ?');">
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-  <button class="btn btn-sm btn-outline-danger">Supprimer le projet</button>
+  <button class="btn btn-sm btn-outline-danger">Supprimer le dossier</button>
 </form>
 {% endblock %}

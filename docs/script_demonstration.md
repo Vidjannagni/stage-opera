@@ -1,65 +1,74 @@
 # RentImmo — Script de démonstration (≈ 10 minutes)
 
-*Cas d'usage : rendez-vous avec M. Alaoui, primo-investisseur, qui hésite entre
-crédit et achat comptant pour un appartement à Casablanca.*
+*Cas d'usage : accompagnement de M. Alaoui, chef d'entreprise marocain, budget
+1,5 M MAD, qui hésite entre un appartement locatif à Casablanca et un terrain en
+périphérie.*
 
-**Préparation (avant le rendez-vous)** : `flask demo-data` puis connexion avec
-`demo@choubel.com` / `demo1234`. Le dossier « M. Alaoui » contient déjà le bien
-et trois scénarios.
+**Préparation** : `flask demo-data` puis connexion `demo@choubel.com` /
+`demo1234`. Le dossier « M. Alaoui » contient son brief, deux biens et quatre
+scénarios.
 
 ---
 
-## Séquence 1 — Poser le décor (2 min)
+## Séquence 1 — Le besoin avant le bien (2 min)
 
-1. Ouvrir le dossier **M. Alaoui** → projet **« Appartement Gauthier — Casablanca »**.
-2. Montrer l'en-tête : zone **Maroc (MAD)** — « l'outil applique automatiquement
-   les frais et la fiscalité de votre marché ».
-3. Lire les cartes : prix 1 200 000, frais 84 000 (7 %), travaux 150 000,
-   **coût total 1 434 000 MAD**. Dérouler la carte **Travaux détaillés** :
-   « chaque poste est justifié, le budget est la somme ».
-4. Conclure sur les rendements : « brut ~7 %, mais ce qui compte pour vous,
-   c'est le net-net après charges et impôt ».
+1. Tableau de bord : « voici mes clients et où en est chaque dossier ».
+2. Ouvrir **M. Alaoui** : montrer la fiche — situation professionnelle,
+   nationalité, budget disponible. « Ce sont les quatre choses que nous
+   demandons systématiquement. »
+3. Dérouler le **brief de recherche** : type, standing, superficie, zone,
+   commodités, mode de financement.
+4. S'arrêter sur l'encart bleu : **objectif = revenu locatif, horizon 20 ans**.
 
-**Message clé : le vrai coût d'entrée n'est pas le prix affiché de l'annonce.**
+**Message clé : nous partons de votre besoin, pas d'un bien à vendre.**
 
-## Séquence 2 — Le scénario crédit (3 min)
+## Séquence 2 — Le coût d'entrée réel (2 min)
 
-1. Ouvrir **« Crédit 20 ans »** (apport 300 000, taux 4,9 %, assurance 0,35 %).
-2. Lire les quatre tuiles dans l'ordre : cash-flow mensuel, TRI, VAN, net-net.
-   Phrase type : « votre effort d'épargne mensuel est de X MAD ; en échange,
-   votre argent travaille à Y % par an, revente comprise ».
-3. Graphique **cash-flow cumulé** : montrer le point où la courbe repasse au
-   positif — « c'est l'année où le projet vous a remboursé votre effort ».
-4. Graphique **capital restant dû** : « chaque annuité construit votre
-   patrimoine, voici la dette qui fond ».
+1. Ouvrir **« Appartement Gauthier — Casablanca »**. Montrer le bandeau
+   d'avancement : le dossier en est à l'étape **Visites**.
+2. Lire les tuiles : prix 1 200 000, frais 84 000 (7 %), travaux 150 000,
+   **coût total 1 434 000 MAD**. Dérouler les **travaux détaillés** : « chaque
+   poste est justifié, le budget est leur somme ».
+3. Rendements : « le net est ce qui compte, le brut est un argument de vitrine ».
 
-## Séquence 3 — Jouer une variante en direct (2 min)
+**Message clé : le vrai coût d'entrée n'est pas le prix de l'annonce.**
 
-1. Cliquer **Dupliquer**, puis dans la variante changer l'apport (p. ex.
-   400 000) : l'**aperçu instantané** recalcule mensualité, cash-flow, TRI et
-   VAN à chaque frappe — sans enregistrer.
-2. Phrase type : « avec 100 000 d'apport en plus, votre cash-flow mensuel
-   s'améliore de X, mais votre TRI baisse : l'effet de levier diminue ».
-3. Enregistrer la variante si le client veut la garder, sinon quitter.
+## Séquence 3 — Le scénario crédit (2 min)
 
-**Message clé : on teste vos hypothèses en direct, pas de retour au bureau.**
+1. Ouvrir **« Crédit 20 ans »** (apport 300 000, taux 4,9 %).
+2. Lire les deux tuiles de tête **dans cet ordre** : rendement net, puis
+   cash-flow mensuel. « Votre effort d'épargne est de X MAD par mois. »
+3. Deuxième rang : valeur créée sur 20 ans, puis TRI et VAN — « les chiffres
+   qu'un banquier vous demandera ».
+4. Graphique du **cash-flow cumulé** : montrer l'année où la courbe repasse au
+   positif.
 
-## Séquence 4 — Crédit ou cash ? (2 min)
+## Séquence 4 — Jouer une variante en direct (1 min)
 
-1. Retour au projet ; cocher **Crédit 20 ans**, **Crédit 25 ans**, **Achat
-   cash** → **Comparer la sélection**.
-2. Tableau : montrer la ligne cash-flow (le cash est confortable) puis la ligne
-   TRI (le crédit rémunère mieux chaque dirham investi).
-3. Courbes superposées : commenter le croisement des trajectoires.
-4. Conclusion type : « le bon choix dépend de votre priorité — revenu immédiat
-   ou rendement du capital ; les chiffres sont là pour arbitrer ».
+1. **Dupliquer**, puis changer l'apport (400 000) : l'**aperçu instantané**
+   recalcule cash-flow, valeur créée, TRI et VAN à chaque frappe.
+2. Phrase type : « avec 100 000 d'apport en plus, votre cash-flow s'améliore,
+   mais votre TRI baisse : l'effet de levier diminue ».
 
-## Séquence 5 — Remise du document (1 min)
+## Séquence 5 — Crédit, cash… ou terrain ? (3 min)
 
-1. Ouvrir le scénario retenu → **Export PDF** : « vous repartez avec l'analyse
-   complète, hypothèses et conventions incluses ».
-2. Mentionner l'**export Excel** pour les clients qui veulent manipuler les
-   chiffres eux-mêmes.
+1. Cocher **Crédit 20 ans**, **Crédit 25 ans**, **Achat cash** → **Comparer**.
+   Commenter dans l'ordre du tableau : rendement net, cash-flow, valeur créée,
+   puis TRI et VAN.
+2. Revenir à la fiche client et ouvrir le second dossier :
+   **« Terrain 3 ha — périphérie »**, scénario **Portage 10 ans**.
+3. Montrer que l'écran a changé de nature : **aucun rendement locatif**, la
+   **valeur créée (15 000 000 MAD)** et la **plus-value** passent en tête.
+4. Phrase type : « ce terrain ne rapporte rien pendant dix ans, et c'est
+   pourtant lui qui crée le plus de valeur. Tout dépend de votre horizon. »
+
+**Message clé : le bon investissement dépend de votre objectif et du temps dont
+vous disposez — pas d'un seuil de rentabilité.**
+
+## Séquence 6 — Remise du document (1 min)
+
+**Export PDF** : « vous repartez avec l'analyse complète — votre objectif, les
+hypothèses et les conventions y figurent ». Mentionner l'**export Excel**.
 
 ---
 
@@ -67,11 +76,17 @@ et trois scénarios.
 
 - **« Vos frais de 7 %, ça vient d'où ? »** → Encart de la zone Maroc :
   enregistrement 4 %, conservation foncière 1,5 %, notaire 1 %, divers 0,5 % —
-  ajustables si votre dossier diffère.
+  ajustables si le dossier diffère.
+- **« À partir de quel rendement c'est intéressant ? »** → Il n'y a pas de
+  seuil. On regarde ce que l'opération vous fait gagner sur *votre* horizon.
+  C'est exactement la démonstration de la séquence 5.
 - **« Et si le bien reste vide ? »** → Modifier la vacance locative devant le
   client : tout se recalcule.
-- **« Et l'impôt ? »** → Taux effectif de la zone (15 % par défaut au Maroc),
-  remplaçable par le taux réel du client ; l'outil ne remplace pas un conseil
-  fiscal.
-- **« Puis-je comparer avec un bien en France ? »** → Créer un projet en zone
+- **« J'achète sur plan, quand est-ce que ça rapporte ? »** → Renseigner le
+  délai de livraison : l'outil met les années de chantier en attente, sans
+  loyer, alors que les mensualités courent déjà.
+- **« Et l'impôt ? »** → Taux effectif de la zone sur le revenu locatif (15 % au
+  Maroc), remplaçable par le taux réel. La plus-value de revente n'est pas
+  imposée par l'outil : à retraiter séparément.
+- **« Puis-je comparer avec un bien en France ? »** → Créer un dossier en zone
   France : frais 7,5 %, EUR, imposition 30 % appliqués automatiquement.

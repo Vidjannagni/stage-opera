@@ -5,15 +5,40 @@
 
 {% block content %}
 <div class="row justify-content-center">
-  <div class="col-md-6">
-    <h3 class="mb-4">{{ titre }}</h3>
+  <div class="col-lg-7">
+    <h3 class="mb-1">{{ titre }}</h3>
+    <p class="text-muted mb-4">
+      Les quatre premières informations sont celles recueillies systématiquement
+      au premier entretien.
+    </p>
+
     <form method="post" novalidate>
       {{ form.hidden_tag() }}
-      {{ render_field(form.nom) }}
-      {{ render_field(form.email) }}
-      {{ render_field(form.telephone) }}
-      {{ render_field(form.notes) }}
-      <div class="d-flex gap-2 mt-4">
+
+      <div class="card mb-4">
+        <div class="card-header">Identité et capacité</div>
+        <div class="card-body">
+          {{ render_field(form.nom) }}
+          {{ render_field(form.situation_professionnelle) }}
+          <div class="row">
+            <div class="col-md-6">{{ render_field(form.nationalite) }}</div>
+            <div class="col-md-6">{{ render_field(form.budget_disponible) }}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card mb-4">
+        <div class="card-header">Contact et suivi</div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-6">{{ render_field(form.email) }}</div>
+            <div class="col-md-6">{{ render_field(form.telephone) }}</div>
+          </div>
+          {{ render_field(form.notes) }}
+        </div>
+      </div>
+
+      <div class="d-flex gap-2">
         {{ form.submit(class="btn btn-primary") }}
         <a href="{{ url_for('clients.liste') }}" class="btn btn-outline-secondary">Annuler</a>
       </div>

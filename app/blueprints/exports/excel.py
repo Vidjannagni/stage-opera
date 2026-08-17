@@ -41,7 +41,12 @@ def construire_classeur(projet, scenario, r: dict, amortissement: list[dict]) ->
     en_credit = scenario.mode == "credit"
     _feuille_cles_valeurs(ws, [
         ("Client", projet.client.nom),
+        ("Objectif du client", projet.client.brief.objectif_libelle if projet.client.brief else "—"),
+        ("Horizon du client (années)", projet.client.brief.horizon_annees if projet.client.brief else "—"),
         ("Projet", projet.nom),
+        ("Type d'opération", "Locatif" if projet.est_locatif else "Terrain / revente"),
+        ("Étape du dossier", projet.statut_libelle),
+        ("Délai de livraison (mois)", projet.delai_livraison_mois),
         ("Zone de marché", f"{projet.zone.nom} ({devise})"),
         (f"Prix du bien ({devise})", projet.prix_bien, FORMAT_MONTANT),
         ("Taux de frais d'acquisition (%)", projet.taux_frais_acquisition, FORMAT_PCT),
@@ -64,26 +69,39 @@ def construire_classeur(projet, scenario, r: dict, amortissement: list[dict]) ->
         ("Revalorisation du loyer (%/an)", scenario.revalorisation_loyer_pct, FORMAT_PCT),
         ("Revalorisation du bien (%/an)", scenario.revalorisation_bien_pct, FORMAT_PCT),
         ("Frais de revente (%)", scenario.frais_revente_pct, FORMAT_PCT),
+        (f"Prix de revente saisi ({devise})", scenario.prix_revente or "—", FORMAT_MONTANT),
         ("Taux d'actualisation (%)", scenario.taux_actualisation, FORMAT_PCT),
     ])
 
     # ── Indicateurs ───────────────────────────────────────────────────────────
+    # Ordre de lecture du cabinet : rendement net et cash-flow d'abord, valeur
+    # créée ensuite, TRI et VAN en dernier.
     ws = wb.create_sheet("Indicateurs")
     tri = r["indicateurs"]["tri"]
-    _feuille_cles_valeurs(ws, [
+    locatif = r.get("type_operation", "locatif") == "locatif"
+    indicateurs: list[tuple] = []
+    if locatif:
+        indicateurs += [
+            ("Rendement net (%)", r["rendements"]["net"], FORMAT_PCT),
+            (f"Cash-flow mensuel ({devise})", r["indicateurs"]["cashflow_mensuel"], FORMAT_MONTANT),
+            (f"Cash-flow annuel ({devise})", r["indicateurs"]["cashflow_annuel"], FORMAT_MONTANT),
+            ("Rendement net-net (%)", r["rendements"]["net_net"], FORMAT_PCT),
+            ("Rendement brut (%)", r["rendements"]["brut"], FORMAT_PCT),
+        ]
+    indicateurs += [
+        (f"Valeur créée sur l'horizon ({devise})", r["indicateurs"]["valeur_creee"], FORMAT_MONTANT),
+        (f"Valeur du bien à l'horizon ({devise})", r["revente"]["valeur_bien_horizon"], FORMAT_MONTANT),
+        (f"Plus-value brute ({devise})", r["revente"]["plus_value_brute"], FORMAT_MONTANT),
+        (f"Encaissé à la revente ({devise})", r["revente"]["revente_nette"], FORMAT_MONTANT),
+        ("TRI (%)", tri if tri is not None else "Non calculable", FORMAT_PCT),
+        (f"VAN ({devise})", r["indicateurs"]["van"], FORMAT_MONTANT),
         (f"Coût total d'acquisition ({devise})", r["acquisition"]["cout_total"], FORMAT_MONTANT),
         (f"dont frais d'acquisition ({devise})", r["acquisition"]["frais"], FORMAT_MONTANT),
         (f"Capital emprunté ({devise})", r["financement"]["capital_emprunte"], FORMAT_MONTANT),
         (f"Mensualité totale ({devise})", r["financement"]["mensualite_totale"], FORMAT_MONTANT),
         (f"Coût total du crédit ({devise})", r["financement"]["cout_total_credit"], FORMAT_MONTANT),
-        ("Rendement brut (%)", r["rendements"]["brut"], FORMAT_PCT),
-        ("Rendement net (%)", r["rendements"]["net"], FORMAT_PCT),
-        ("Rendement net-net (%)", r["rendements"]["net_net"], FORMAT_PCT),
-        (f"Cash-flow mensuel ({devise})", r["indicateurs"]["cashflow_mensuel"], FORMAT_MONTANT),
-        (f"Cash-flow annuel ({devise})", r["indicateurs"]["cashflow_annuel"], FORMAT_MONTANT),
-        (f"VAN ({devise})", r["indicateurs"]["van"], FORMAT_MONTANT),
-        ("TRI (%)", tri if tri is not None else "Non calculable", FORMAT_PCT),
-    ])
+    ]
+    _feuille_cles_valeurs(ws, indicateurs)
 
     # ── Projection annuelle ───────────────────────────────────────────────────
     ws = wb.create_sheet("Projection")

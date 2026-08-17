@@ -43,6 +43,7 @@
             <div class="col-md-6">{{ render_field(form.frais_revente_pct) }}</div>
             <div class="col-md-6">{{ render_field(form.taux_actualisation) }}</div>
           </div>
+          {{ render_field(form.prix_revente) }}
         </div>
       </div>
       <div class="card shadow-sm mb-4 border-primary">
@@ -50,22 +51,24 @@
           Aperçu instantané <span class="text-muted small">(actualisé à chaque saisie)</span>
         </div>
         <div class="card-body">
+          {# Même hiérarchie que la page de résultats : cash-flow et valeur
+             créée d'abord, TRI et VAN ensuite. #}
           <div class="row text-center" id="apercu" aria-live="polite">
             <div class="col-6 col-md-3 mb-2">
-              <div class="small text-muted">Mensualité</div>
+              <div class="stat-libelle">Cash-flow / mois</div>
+              <div class="fw-bold fs-5" data-apercu="cashflow">—</div>
+            </div>
+            <div class="col-6 col-md-3 mb-2">
+              <div class="stat-libelle">Valeur créée</div>
+              <div class="fw-bold fs-5" data-apercu="valeur">—</div>
+            </div>
+            <div class="col-6 col-md-3 mb-2">
+              <div class="stat-libelle">Mensualité</div>
               <div class="fw-bold" data-apercu="mensualite">—</div>
             </div>
             <div class="col-6 col-md-3 mb-2">
-              <div class="small text-muted">Cash-flow / mois</div>
-              <div class="fw-bold" data-apercu="cashflow">—</div>
-            </div>
-            <div class="col-6 col-md-3 mb-2">
-              <div class="small text-muted">TRI</div>
-              <div class="fw-bold" data-apercu="tri">—</div>
-            </div>
-            <div class="col-6 col-md-3 mb-2">
-              <div class="small text-muted">VAN</div>
-              <div class="fw-bold" data-apercu="van">—</div>
+              <div class="stat-libelle">TRI · VAN</div>
+              <div class="fw-bold" data-apercu="tri_van">—</div>
             </div>
           </div>
         </div>
@@ -87,7 +90,7 @@
   const DEVISE = {{ projet.zone.devise | tojson }};
   const CHAMPS = ["mode", "apport", "taux_interet", "taux_assurance", "duree_annees",
                   "horizon_annees", "revalorisation_loyer_pct", "revalorisation_bien_pct",
-                  "frais_revente_pct", "taux_actualisation"];
+                  "frais_revente_pct", "taux_actualisation", "prix_revente"];
   const fmt = (v) => new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 0 }).format(v);
   const cellule = (nom) => document.querySelector(`[data-apercu="${nom}"]`);
   let minuteur = null;
@@ -105,14 +108,19 @@
       const r = await reponse.json();
       cellule("mensualite").textContent = donnees.mode === "credit"
         ? `${fmt(r.financement.mensualite_totale)} ${DEVISE}` : "—";
+
       const cf = r.indicateurs.cashflow_mensuel;
       cellule("cashflow").textContent = `${fmt(cf)} ${DEVISE}`;
-      cellule("cashflow").className = "fw-bold " + (cf >= 0 ? "text-success" : "text-danger");
-      cellule("tri").textContent = r.indicateurs.tri !== null
-        ? `${r.indicateurs.tri.toFixed(2)} %` : "—";
-      const van = r.indicateurs.van;
-      cellule("van").textContent = `${fmt(van)} ${DEVISE}`;
-      cellule("van").className = "fw-bold " + (van >= 0 ? "text-success" : "text-danger");
+      cellule("cashflow").className =
+        "fw-bold fs-5 " + (cf >= 0 ? "valeur-positive" : "valeur-negative");
+
+      const valeur = r.indicateurs.valeur_creee;
+      cellule("valeur").textContent = `${fmt(valeur)} ${DEVISE}`;
+      cellule("valeur").className =
+        "fw-bold fs-5 " + (valeur >= 0 ? "valeur-positive" : "valeur-negative");
+
+      const tri = r.indicateurs.tri !== null ? `${r.indicateurs.tri.toFixed(2)} %` : "—";
+      cellule("tri_van").textContent = `${tri} · ${fmt(r.indicateurs.van)} ${DEVISE}`;
     } catch (e) { /* réseau indisponible : l'aperçu reste tel quel */ }
   }
 

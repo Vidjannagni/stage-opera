@@ -8,20 +8,31 @@
   <link href="{{ url_for('static', filename='css/custom.css') }}" rel="stylesheet">
 </head>
 <body class="d-flex flex-column min-vh-100">
+  {% set rubrique = request.blueprint %}
   <nav class="navbar navbar-expand-lg navbar-dark bg-navy">
     <div class="container">
       <a class="navbar-brand fw-bold" href="{{ url_for('main.index') }}">
         Rent<span class="text-accent">Immo</span>
       </a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMain">
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMain"
+              aria-label="Afficher le menu">
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse" id="navMain">
+        {% if current_user.is_authenticated %}
         <ul class="navbar-nav me-auto">
-          <li class="nav-item"><a class="nav-link" href="{{ url_for('clients.liste') }}">Clients</a></li>
-          <li class="nav-item"><a class="nav-link" href="{{ url_for('projets.liste') }}">Projets</a></li>
+          <li class="nav-item">
+            <a class="nav-link {{ 'actif' if rubrique == 'main' }}" href="{{ url_for('main.index') }}">Tableau de bord</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link {{ 'actif' if rubrique == 'clients' }}" href="{{ url_for('clients.liste') }}">Clients</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link {{ 'actif' if rubrique in ('projets', 'scenarios') }}" href="{{ url_for('projets.liste') }}">Dossiers</a>
+          </li>
         </ul>
-        <ul class="navbar-nav">
+        {% endif %}
+        <ul class="navbar-nav ms-auto">
           {% if current_user.is_authenticated %}
           <li class="nav-item"><span class="nav-link">{{ current_user.nom }}</span></li>
           <li class="nav-item">
@@ -43,14 +54,14 @@
       {% for category, message in messages %}
         <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
           {{ message }}
-          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fermer"></button>
         </div>
       {% endfor %}
     {% endwith %}
     {% block content %}{% endblock %}
   </main>
 
-  <footer class="py-3 bg-light border-top mt-auto">
+  <footer class="py-3 bg-white border-top mt-auto">
     <div class="container d-flex justify-content-between small text-muted">
       <span>René DANSOU &amp; Marius HOUNKPETOHOU</span>
       <span>Choubel Consulting — Outil d'analyse de rentabilité immobilière</span>

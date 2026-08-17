@@ -32,14 +32,19 @@
   .positif { color: #1c7a43; }
   .negatif { color: #b02a37; }
   .convention { font-size: 8pt; color: #777; margin-top: 4px; font-style: italic; }
+  .objectif { background: #eaf1f7; border: 0.5pt solid #cfe0ee; border-radius: 4px;
+              padding: 6px 9px; margin-top: 10px; font-size: 9pt; color: #123a5c; }
   .saut { page-break-before: always; }
 </style>
 </head>
 <body>
 
+{% set locatif = projet.est_locatif %}
+{% set brief = projet.client.brief %}
+
 <div class="entete">
   <div>
-    <h1>Analyse de rentabilité locative</h1>
+    <h1>{{ "Analyse de rentabilité locative" if locatif else "Analyse d'une opération de revente" }}</h1>
     <div class="sous-titre">{{ projet.nom }} — scénario « {{ scenario.nom }} »</div>
     <div class="meta">
       Client : <strong>{{ projet.client.nom }}</strong> ·
@@ -50,12 +55,44 @@
   <img src="WhatsApp%20Image%202026-07-10%20at%2016.00.06.jpeg" alt="Choubel Consulting">
 </div>
 
+{% if brief %}
+<div class="objectif">
+  Objectif retenu avec le client : <strong>{{ brief.objectif_libelle }}</strong>
+  sur un horizon de <strong>{{ brief.horizon_annees }} ans</strong>.
+  Les indicateurs ci-dessous se lisent au regard de cet objectif ; il n'existe pas
+  de seuil de rentabilité universel.
+</div>
+{% endif %}
+
+{# Ordre de lecture retenu avec le cabinet : rendement net et cash-flow
+   d'abord pour un locatif, valeur créée et plus-value pour une revente. #}
 <div class="indicateurs">
+  {% if locatif %}
+  <div class="tuile">
+    <div class="libelle">Rendement net</div>
+    <div class="valeur">{{ "%.2f" | format(r.rendements.net) }} %</div>
+  </div>
   <div class="tuile">
     <div class="libelle">Cash-flow mensuel</div>
     <div class="valeur {{ 'positif' if r.indicateurs.cashflow_mensuel >= 0 else 'negatif' }}">
       {{ r.indicateurs.cashflow_mensuel | montant }} {{ r.devise }}</div>
   </div>
+  <div class="tuile">
+    <div class="libelle">Rendement net-net</div>
+    <div class="valeur">{{ "%.2f" | format(r.rendements.net_net) }} %</div>
+  </div>
+  {% else %}
+  <div class="tuile">
+    <div class="libelle">Valeur créée ({{ r.projection.horizon_annees }} ans)</div>
+    <div class="valeur {{ 'positif' if r.indicateurs.valeur_creee >= 0 else 'negatif' }}">
+      {{ r.indicateurs.valeur_creee | montant }} {{ r.devise }}</div>
+  </div>
+  <div class="tuile">
+    <div class="libelle">Plus-value à la revente</div>
+    <div class="valeur {{ 'positif' if r.revente.plus_value_brute >= 0 else 'negatif' }}">
+      {{ r.revente.plus_value_brute | montant }} {{ r.devise }}</div>
+  </div>
+  {% endif %}
   <div class="tuile">
     <div class="libelle">TRI ({{ r.projection.horizon_annees }} ans)</div>
     <div class="valeur">
@@ -67,11 +104,14 @@
     <div class="valeur {{ 'positif' if r.indicateurs.van >= 0 else 'negatif' }}">
       {{ r.indicateurs.van | montant }} {{ r.devise }}</div>
   </div>
-  <div class="tuile">
-    <div class="libelle">Rendement net-net</div>
-    <div class="valeur">{{ "%.2f" | format(r.rendements.net_net) }} %</div>
-  </div>
 </div>
+
+{% if r.projection.delai_livraison_mois %}
+<div class="convention">
+  Achat sur plan : livraison dans {{ r.projection.delai_livraison_mois }} mois. Le bien ne
+  produit ni loyer ni charges d'exploitation jusque-là, alors que les annuités courent déjà.
+</div>
+{% endif %}
 
 <h2>1. Coût d'acquisition</h2>
 <table>
@@ -110,7 +150,8 @@
   {% endif %}
 </table>
 
-<h2>3. Exploitation locative (année 1) et rendements</h2>
+{% if locatif %}
+<h2>3. Exploitation locative (année pleine) et rendements</h2>
 <table>
   <tr><td>Loyer annuel potentiel</td><td class="nombre">{{ r.exploitation.loyer_annuel | montant }} {{ r.devise }}</td></tr>
   <tr><td>Vacance locative ({{ "%.1f" | format(projet.vacance_pct) }} %)</td>
@@ -119,22 +160,45 @@
       <td class="nombre">−{{ r.exploitation.charges_totales | montant }} {{ r.devise }}</td></tr>
   <tr><td>Impôt (taux effectif {{ "%.1f" | format(projet.taux_imposition) }} %)</td>
       <td class="nombre">−{{ r.exploitation.impot_annuel | montant }} {{ r.devise }}</td></tr>
-  <tr class="total"><td>Cash-flow annuel (année 1)</td>
+  <tr class="total"><td>Cash-flow annuel</td>
       <td class="nombre">{{ r.indicateurs.cashflow_annuel | montant }} {{ r.devise }}</td></tr>
 </table>
 <table>
   <tr><th>Rendement</th><th class="nombre">Valeur</th></tr>
-  <tr><td>Brut (loyers / coût d'acquisition)</td><td class="nombre">{{ "%.2f" | format(r.rendements.brut) }} %</td></tr>
   <tr><td>Net de charges</td><td class="nombre">{{ "%.2f" | format(r.rendements.net) }} %</td></tr>
   <tr><td>Net-net (après impôt au taux effectif)</td><td class="nombre">{{ "%.2f" | format(r.rendements.net_net) }} %</td></tr>
+  <tr><td>Brut (loyers / coût d'acquisition)</td><td class="nombre">{{ "%.2f" | format(r.rendements.brut) }} %</td></tr>
+</table>
+{% endif %}
+
+<h2>{{ "4" if locatif else "3" }}. Sortie à {{ r.projection.horizon_annees }} ans</h2>
+<table>
+  <tr>
+    <td>Valeur du bien à l'horizon
+      {%- if r.revente.prix_revente_saisi %} (prix de revente saisi)
+      {%- else %} (revalorisation {{ "%.1f" | format(scenario.revalorisation_bien_pct) }} %/an){% endif %}</td>
+    <td class="nombre">{{ r.revente.valeur_bien_horizon | montant }} {{ r.devise }}</td>
+  </tr>
+  <tr><td>Plus-value brute</td>
+      <td class="nombre {{ 'positif' if r.revente.plus_value_brute >= 0 else 'negatif' }}">
+        {{ r.revente.plus_value_brute | montant }} {{ r.devise }}</td></tr>
+  <tr><td>Frais de revente ({{ "%.1f" | format(scenario.frais_revente_pct) }} %)</td>
+      <td class="nombre">−{{ r.revente.frais_revente | montant }} {{ r.devise }}</td></tr>
+  <tr><td>Capital restant dû</td>
+      <td class="nombre">−{{ r.revente.capital_restant_du | montant }} {{ r.devise }}</td></tr>
+  <tr class="total"><td>Encaissé à la revente</td>
+      <td class="nombre">{{ r.revente.revente_nette | montant }} {{ r.devise }}</td></tr>
+  <tr class="total"><td>Valeur créée sur l'horizon</td>
+      <td class="nombre {{ 'positif' if r.indicateurs.valeur_creee >= 0 else 'negatif' }}">
+        {{ r.indicateurs.valeur_creee | montant }} {{ r.devise }}</td></tr>
 </table>
 <div class="convention">
-  Conventions : travaux intégrés au coût d'acquisition ; fiscalité au taux effectif de la zone
-  (ajustable) ; vacance et frais de gestion inclus dans les charges ; indicateurs recalculés
-  à partir des hypothèses ci-dessus.
+  Conventions : travaux et construction intégrés au coût d'acquisition ; fiscalité au taux
+  effectif de la zone (ajustable) ; vacance et frais de gestion inclus dans les charges ;
+  indicateurs recalculés à partir des hypothèses ci-dessus.
 </div>
 
-<h2 class="saut">4. Projection sur {{ r.projection.horizon_annees }} ans</h2>
+<h2 class="saut">{{ "5" if locatif else "4" }}. Projection sur {{ r.projection.horizon_annees }} ans</h2>
 <table>
   <tr>
     <th>Année</th><th class="nombre">Loyer perçu</th><th class="nombre">Charges</th>

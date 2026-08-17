@@ -1,0 +1,32 @@
+{# Briques d'interface réutilisées par les écrans de l'application. #}
+
+{# Tuile d'indicateur. `ton` : "positif", "negatif" ou vide.
+   `rang` : "primaire" pour les indicateurs de tête, "secondaire" pour les autres. #}
+{% macro tuile(libelle, valeur, aide="", ton="", rang="") %}
+<div class="stat {{ 'stat-' ~ rang if rang }}">
+  <div class="stat-libelle">{{ libelle }}</div>
+  <div class="stat-valeur {{ 'valeur-' ~ ton if ton }}">{{ valeur }}</div>
+  {% if aide %}<div class="stat-aide">{{ aide }}</div>{% endif %}
+</div>
+{% endmacro %}
+
+{# Déroulé du dossier tel que décrit par le cabinet : recherche → livraison. #}
+{% macro etapes(statuts, index_courant) %}
+<ol class="etapes" aria-label="Avancement du dossier">
+  {% for code, libelle in statuts %}
+  {% if loop.index0 == index_courant %}
+  <li class="courante" aria-current="step">{{ libelle }}</li>
+  {% else %}
+  <li class="{{ 'faite' if loop.index0 < index_courant }}">{{ libelle }}</li>
+  {% endif %}
+  {% endfor %}
+</ol>
+{% endmacro %}
+
+{# État vide : toujours assorti de l'action qui en sort. #}
+{% macro vide(message, action_libelle="", action_url="") %}
+<div class="vide">
+  <p>{{ message }}</p>
+  {% if action_libelle %}<a href="{{ action_url }}" class="btn btn-primary">{{ action_libelle }}</a>{% endif %}
+</div>
+{% endmacro %}

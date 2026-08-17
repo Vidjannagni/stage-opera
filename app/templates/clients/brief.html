@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% from "_form_helpers.html" import render_field %}
+
+{% block title %}Brief de recherche — {{ client.nom }} — RentImmo{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{{ url_for('clients.liste') }}">Clients</a></li>
+    <li class="breadcrumb-item"><a href="{{ url_for('clients.detail', client_id=client.id) }}">{{ client.nom }}</a></li>
+    <li class="breadcrumb-item active">Brief de recherche</li>
+  </ol>
+</nav>
+
+<h3 class="mb-1">Brief de recherche — {{ client.nom }}</h3>
+<p class="text-muted mb-4">
+  Les critères recueillis au premier entretien. Ils orientent la recherche, et
+  l'objectif comme l'horizon servent ensuite à lire les indicateurs.
+</p>
+
+<form method="post" novalidate>
+  {{ form.hidden_tag() }}
+  <div class="row">
+    <div class="col-lg-6">
+      <div class="card mb-4">
+        <div class="card-header">Le bien recherché</div>
+        <div class="card-body">
+          {{ render_field(form.type_bien) }}
+          {{ render_field(form.standing) }}
+          {{ render_field(form.zone_recherchee) }}
+          <div class="row">
+            <div class="col-md-6">{{ render_field(form.superficie_min) }}</div>
+            <div class="col-md-6">{{ render_field(form.superficie_max) }}</div>
+          </div>
+          {{ render_field(form.type_acquisition) }}
+        </div>
+      </div>
+
+      <div class="card mb-4" id="carte-distribution">
+        <div class="card-header">Distribution souhaitée</div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-4">{{ render_field(form.nb_chambres) }}</div>
+            <div class="col-md-4">{{ render_field(form.nb_salles_bains) }}</div>
+            <div class="col-md-4">{{ render_field(form.nb_salons) }}</div>
+            <div class="col-md-6">{{ render_field(form.etage) }}</div>
+            <div class="col-md-6">{{ render_field(form.orientation) }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-6">
+      <div class="card mb-4">
+        <div class="card-header">Environnement</div>
+        <div class="card-body">
+          {{ render_field(form.commodites) }}
+        </div>
+      </div>
+
+      <div class="card mb-4">
+        <div class="card-header">Budget et financement</div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-6">{{ render_field(form.budget_min) }}</div>
+            <div class="col-md-6">{{ render_field(form.budget_max) }}</div>
+          </div>
+          {{ render_field(form.mode_financement) }}
+        </div>
+      </div>
+
+      <div class="card mb-4 border-primary">
+        <div class="card-header">Objectif du client</div>
+        <div class="card-body">
+          {{ render_field(form.objectif) }}
+          {{ render_field(form.horizon_annees) }}
+          <p class="form-text mb-0">
+            Il n'existe pas de seuil universel de rentabilité : un même bien peut
+            convenir à un client et pas à un autre. Ces deux réponses fixent la
+            grille de lecture des résultats.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="d-flex gap-2">
+    {{ form.submit(class="btn btn-primary") }}
+    <a href="{{ url_for('clients.detail', client_id=client.id) }}" class="btn btn-outline-secondary">Annuler</a>
+  </div>
+</form>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // La distribution (chambres, salons, étage…) ne concerne pas un terrain.
+  const champType = document.getElementById("type_bien");
+  const carte = document.getElementById("carte-distribution");
+
+  function actualiserDistribution() {
+    carte.hidden = champType.value === "Terrain";
+  }
+
+  champType.addEventListener("change", actualiserDistribution);
+  actualiserDistribution();
+</script>
+{% endblock %}

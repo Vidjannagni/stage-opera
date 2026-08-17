@@ -1,40 +1,64 @@
 {% extends "base.html" %}
+{% from "_ui.html" import vide %}
 
-{% block title %}Dossiers clients — RentImmo{% endblock %}
+{% block title %}Clients — RentImmo{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-  <h2 class="mb-0">Dossiers clients</h2>
-  <a href="{{ url_for('clients.nouveau') }}" class="btn btn-primary">+ Nouveau dossier</a>
+<div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-4">
+  <div>
+    <h2 class="mb-1">Clients</h2>
+    <p class="text-muted mb-0">Un dossier par investisseur, avec son brief de recherche.</p>
+  </div>
+  <a href="{{ url_for('clients.nouveau') }}" class="btn btn-primary">+ Nouveau dossier client</a>
 </div>
 
 {% if clients %}
-<div class="table-responsive">
-  <table class="table table-hover align-middle">
-    <thead class="table-light">
-      <tr>
-        <th>Client</th><th>Contact</th><th>Projets</th><th class="text-end">Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for client in clients %}
-      <tr>
-        <td><a href="{{ url_for('clients.detail', client_id=client.id) }}" class="fw-semibold">{{ client.nom }}</a></td>
-        <td class="small text-muted">{{ client.email or "" }} {{ client.telephone or "" }}</td>
-        <td>{{ client.projets.count() }}</td>
-        <td class="text-end">
-          <a href="{{ url_for('projets.nouveau', client_id=client.id) }}" class="btn btn-sm btn-outline-primary">+ Projet</a>
-          <a href="{{ url_for('clients.modifier', client_id=client.id) }}" class="btn btn-sm btn-outline-secondary">Modifier</a>
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+<div class="card">
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead>
+        <tr>
+          <th>Client</th><th>Situation</th><th class="text-end">Budget</th>
+          <th>Brief</th><th class="text-end">Dossiers</th><th class="text-end">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for client in clients %}
+        <tr>
+          <td>
+            <a href="{{ url_for('clients.detail', client_id=client.id) }}" class="fw-semibold">{{ client.nom }}</a>
+            {% if client.email or client.telephone %}
+            <div class="small text-muted">{{ client.email or "" }}{% if client.email and client.telephone %} · {% endif %}{{ client.telephone or "" }}</div>
+            {% endif %}
+          </td>
+          <td class="small">
+            {{ client.situation_professionnelle or "—" }}
+            {% if client.nationalite %}<div class="text-muted">{{ client.nationalite }}</div>{% endif %}
+          </td>
+          <td class="text-end">
+            {% if client.budget_disponible %}{{ client.budget_disponible | montant }}{% else %}—{% endif %}
+          </td>
+          <td>
+            {% if client.brief %}
+            <span class="etiquette">{{ client.brief.objectif_libelle }} · {{ client.brief.horizon_annees }} ans</span>
+            {% else %}
+            <a href="{{ url_for('clients.brief', client_id=client.id) }}" class="etiquette etiquette-sourde text-decoration-none">
+              À renseigner</a>
+            {% endif %}
+          </td>
+          <td class="text-end">{{ client.projets.count() }}</td>
+          <td class="text-end">
+            <a href="{{ url_for('projets.nouveau', client_id=client.id) }}" class="btn btn-sm btn-outline-primary">+ Dossier</a>
+            <a href="{{ url_for('clients.modifier', client_id=client.id) }}" class="btn btn-sm btn-outline-secondary">Modifier</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 </div>
 {% else %}
-<div class="text-center py-5 text-muted">
-  <p class="fs-5">Aucun dossier client pour le moment.</p>
-  <a href="{{ url_for('clients.nouveau') }}" class="btn btn-primary">Créer le premier dossier</a>
-</div>
+  {{ vide("Aucun dossier client pour le moment.", "Créer le premier dossier",
+          url_for('clients.nouveau')) }}
 {% endif %}
 {% endblock %}
