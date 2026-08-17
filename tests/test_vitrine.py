@@ -17,20 +17,23 @@ def test_vitrine_presente_le_cabinet(http):
     assert "facteur temps" in page             # la règle de décision, citée
 
 
-def test_vitrine_naffiche_aucune_coordonnee_inventee(http, monkeypatch):
-    """Tant que le cabinet n'a rien fourni, la page invite à compléter plutôt
-    que d'afficher un numéro fictif."""
+def test_vitrine_naffiche_que_les_coordonnees_fournies(http):
+    """Le courriel est connu, l'adresse ne l'est pas encore : elle ne doit
+    apparaître sous aucune forme inventée."""
     page = http.get("/").get_data(as_text=True)
-    assert "Coordonnées à renseigner" in page
+
+    assert "chouble.ma@gmail.com" in page
+    assert "Adresse" not in page
 
 
-def test_vitrine_affiche_les_coordonnees_fournies(http, monkeypatch):
+def test_vitrine_affiche_les_coordonnees_ajoutees_ensuite(http, monkeypatch):
+    """Renseigner une variable suffit à faire apparaître la ligne."""
     monkeypatch.setattr("app.cabinet.TELEPHONE", "+212 5 22 00 00 00")
-    monkeypatch.setattr("app.cabinet.EMAIL", "contact@choubel.example")
+    monkeypatch.setattr("app.cabinet.ADRESSE", "Quartier Gauthier, Casablanca")
 
     page = http.get("/").get_data(as_text=True)
     assert "+212 5 22 00 00 00" in page
-    assert "contact@choubel.example" in page
+    assert "Quartier Gauthier, Casablanca" in page
     assert "Coordonnées à renseigner" not in page
 
 

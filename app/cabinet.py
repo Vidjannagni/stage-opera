@@ -3,10 +3,10 @@
 Elles sont regroupées ici pour être modifiables à un seul endroit, sans
 toucher aux gabarits.
 
-⚠ Les coordonnées valent ``None`` tant que le cabinet ne les a pas fournies.
-Rien n'est inventé : la page affiche alors une invitation à les compléter
-plutôt qu'un numéro fictif. Il suffit de renseigner les valeurs ci-dessous —
-ou les variables d'environnement correspondantes — pour qu'elles s'affichent.
+⚠ Rien n'est inventé ici. Une coordonnée non communiquée vaut ``None`` et
+n'apparaît tout simplement pas sur la page — jamais un numéro fictif. Il suffit
+de renseigner la valeur ci-dessous, ou la variable d'environnement
+correspondante, pour qu'elle s'affiche.
 
 Tout le reste de la page vitrine (métier, étapes, règle de décision, questions
 fréquentes) provient des réponses du cabinet consignées dans
@@ -18,7 +18,8 @@ NOM = "Choubel Consulting"
 ACTIVITE = "Conseil en investissement immobilier"
 
 TELEPHONE = os.environ.get("CABINET_TELEPHONE")
-EMAIL = os.environ.get("CABINET_EMAIL")
+EMAIL = os.environ.get("CABINET_EMAIL", "chouble.ma@gmail.com")
+#: Communiquée plus tard par le cabinet.
 ADRESSE = os.environ.get("CABINET_ADRESSE")
 
 
