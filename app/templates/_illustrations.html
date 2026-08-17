@@ -18,46 +18,91 @@
 </svg>
 {% endmacro %}
 
-{# ── Illustration d'accueil : un marché qui prend de la valeur ────────────── #}
+{# ── Illustration d'accueil ────────────────────────────────────────────────
+
+   La scène raconte le métier du cabinet dans l'ordre où il l'exerce : un
+   terrain d'abord, la villa construite dessus ensuite, des immeubles au
+   second plan, et la courbe de valorisation qui traverse le tout. Le toit
+   reprend l'or du logo Choubel. #}
 {% macro accueil() %}
-<svg viewBox="0 0 460 300" class="illustration-accueil" role="img"
-     aria-label="Immeubles stylisés surmontés d'une courbe de valorisation croissante">
+<svg viewBox="0 0 520 340" class="illustration-accueil" role="img"
+     aria-label="Villa entourée d'arbres, immeubles en arrière-plan et courbe de valorisation croissante">
   <defs>
-    <linearGradient id="ill-bat" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#ffffff" stop-opacity=".26"/>
-      <stop offset="100%" stop-color="#ffffff" stop-opacity=".07"/>
+    <linearGradient id="ill-mur" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity=".30"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity=".12"/>
     </linearGradient>
-    <linearGradient id="ill-courbe" x1="0" y1="0" x2="1" y2="0">
+    <linearGradient id="ill-toit" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ffd75e"/>
+      <stop offset="100%" stop-color="#e0a800"/>
+    </linearGradient>
+    <linearGradient id="ill-courbe" x1="0" y1="1" x2="1" y2="0">
       <stop offset="0%" stop-color="#00bcaa"/>
-      <stop offset="100%" stop-color="#7ce8dc"/>
+      <stop offset="100%" stop-color="#8df0e4"/>
+    </linearGradient>
+    <linearGradient id="ill-vitre" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ffd75e" stop-opacity=".95"/>
+      <stop offset="100%" stop-color="#ffb800" stop-opacity=".55"/>
     </linearGradient>
   </defs>
 
-  <circle cx="376" cy="66" r="34" fill="#00bcaa" opacity=".14"/>
-  <circle cx="376" cy="66" r="20" fill="#00bcaa" opacity=".2"/>
+  {# Soleil #}
+  <circle cx="432" cy="62" r="40" fill="#F9CC28" opacity=".13"/>
+  <circle cx="432" cy="62" r="23" fill="#F9CC28" opacity=".28"/>
 
-  {# Terrain : la première ligne du métier, avant même le bâti #}
-  <path d="M24 258h412" stroke="#ffffff" stroke-opacity=".28" stroke-width="2"
+  {# Immeubles en arrière-plan : le cabinet traite aussi le collectif #}
+  {% for x, h in [(300, 96), (352, 132), (404, 108)] %}
+  <rect x="{{ x }}" y="{{ 258 - h }}" width="42" height="{{ h }}" rx="3"
+        fill="#ffffff" fill-opacity=".10" stroke="#ffffff" stroke-opacity=".20"/>
+  {% for etage in range((h / 30) | int) %}
+  {% for col in [0, 1] %}
+  <rect x="{{ x + 9 + col * 17 }}" y="{{ 258 - h + 12 + etage * 28 }}" width="9" height="12"
+        rx="1.5" fill="#ffffff" opacity="{{ 0.28 if (etage + col) % 2 else 0.14 }}"/>
+  {% endfor %}
+  {% endfor %}
+  {% endfor %}
+
+  {# La villa, sujet principal #}
+  <rect x="96" y="176" width="150" height="84" rx="4" fill="url(#ill-mur)"
+        stroke="#ffffff" stroke-opacity=".42" stroke-width="1.6"/>
+  <path d="M84 178 171 116l87 62z" fill="url(#ill-toit)"/>
+  <path d="M84 178 171 116l87 62" fill="none" stroke="#ffffff" stroke-opacity=".35"
+        stroke-width="1.6" stroke-linejoin="round"/>
+
+  {# Aile basse, garage #}
+  <rect x="246" y="212" width="62" height="48" rx="4" fill="#ffffff" fill-opacity=".16"
+        stroke="#ffffff" stroke-opacity=".34" stroke-width="1.4"/>
+  <path d="M240 214l31-22 43 22z" fill="url(#ill-toit)" opacity=".8"/>
+  <rect x="258" y="230" width="38" height="30" rx="2" fill="#0c1930" fill-opacity=".34"/>
+
+  {# Fenêtres éclairées et porte #}
+  {% for fx in [114, 158, 202] %}
+  <rect x="{{ fx }}" y="192" width="26" height="24" rx="2.5" fill="url(#ill-vitre)"/>
+  <path d="M{{ fx + 13 }} 192v24M{{ fx }} 204h26" stroke="#0c1930" stroke-opacity=".28" stroke-width="1.4"/>
+  {% endfor %}
+  <rect x="156" y="228" width="30" height="32" rx="2.5" fill="#0c1930" fill-opacity=".42"
+        stroke="#ffffff" stroke-opacity=".3" stroke-width="1.2"/>
+  <circle cx="180" cy="245" r="2.2" fill="#F9CC28"/>
+
+  {# Terrain : la parcelle avant le bâti, premier métier du cabinet #}
+  <path d="M20 260h480" stroke="#ffffff" stroke-opacity=".34" stroke-width="2" stroke-linecap="round"/>
+  <path d="M28 286h96l18-26H46z" fill="#ffffff" fill-opacity=".07"
+        stroke="#ffffff" stroke-opacity=".22" stroke-width="1.2"/>
+  <path d="M52 268h34M46 276h58" stroke="#00bcaa" stroke-opacity=".5" stroke-width="1.6"
+        stroke-linecap="round" stroke-dasharray="5 5"/>
+
+  {# Arbres #}
+  {% for tx, ty, r in [(64, 232, 20), (286, 196, 15), (330, 214, 12)] %}
+  <path d="M{{ tx }} {{ ty + r + 16 }}v-{{ r - 2 }}" stroke="#ffffff" stroke-opacity=".34" stroke-width="3"
         stroke-linecap="round"/>
-  <path d="M40 258l26-14h58l26 14" fill="#ffffff" fill-opacity=".08"/>
-
-  {# Immeubles, du plus modeste au plus élevé #}
-  {% for x, h, etages in [(60, 74, 3), (128, 116, 4), (196, 92, 3), (264, 152, 5), (332, 124, 4)] %}
-  <rect x="{{ x }}" y="{{ 258 - h }}" width="52" height="{{ h }}" rx="4" fill="url(#ill-bat)"
-        stroke="#ffffff" stroke-opacity=".34"/>
-  {% for etage in range(etages) %}
-  {% for colonne in [0, 1, 2] %}
-  <rect x="{{ x + 8 + colonne * 13 }}" y="{{ 258 - h + 12 + etage * 24 }}"
-        width="8" height="11" rx="1.5" fill="#00bcaa"
-        opacity="{{ 0.75 if (etage + colonne) % 3 else 0.3 }}"/>
-  {% endfor %}
-  {% endfor %}
+  <circle cx="{{ tx }}" cy="{{ ty }}" r="{{ r }}" fill="#00bcaa" fill-opacity=".34"/>
+  <circle cx="{{ tx - r * 0.4 }}" cy="{{ ty + r * 0.3 }}" r="{{ r * 0.7 }}" fill="#00bcaa" fill-opacity=".24"/>
   {% endfor %}
 
-  {# Courbe de valeur : ce que l'outil met en avant, la valeur créée dans le temps #}
-  <path d="M62 214C118 206 150 176 196 150s78-58 148-96" stroke="url(#ill-courbe)"
-        stroke-width="3.4" stroke-linecap="round" fill="none"/>
-  {% for cx, cy in [(62, 214), (196, 150), (344, 54)] %}
+  {# Courbe de valorisation : le facteur temps, cœur de la méthode du cabinet #}
+  <path d="M40 316C120 312 176 300 244 286s130-42 226-118" fill="none"
+        stroke="url(#ill-courbe)" stroke-width="3.6" stroke-linecap="round"/>
+  {% for cx, cy in [(40, 316), (244, 286), (462, 172)] %}
   <circle cx="{{ cx }}" cy="{{ cy }}" r="6" fill="#0c1930" stroke="#00bcaa" stroke-width="3"/>
   {% endfor %}
 </svg>

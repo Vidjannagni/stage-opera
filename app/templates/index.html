@@ -1,19 +1,30 @@
 {% extends "base.html" %}
 {% from "_illustrations.html" import accueil, icone %}
 
+{% block title %}Choubel Consulting — Conseil en investissement immobilier{% endblock %}
+
 {% block content %}
+
+{# ── Bandeau d'ouverture ─────────────────────────────────────────────────── #}
 <div class="hero p-4 p-lg-5 mb-4">
   <div class="row align-items-center g-4">
     <div class="col-lg-6">
-      <span class="etiquette etiquette-accent mb-3 d-inline-block">Choubel Consulting</span>
-      <h1 class="display-6 fw-bold mb-3">Du besoin du client<br>à la recommandation chiffrée</h1>
+      <img src="{{ url_for('static', filename='img/logo-choubel.jpg') }}"
+           alt="Logo Choubel Consulting" class="logo-choubel mb-3">
+      <span class="etiquette etiquette-or mb-3 d-block" style="width: fit-content">
+        Conseil en investissement immobilier
+      </span>
+      <h1 class="display-6 fw-bold mb-3">
+        Trouver le bien juste,<br>et savoir <span class="text-accent">ce qu'il vaut</span>
+      </h1>
       <p class="fs-6 mb-4">
-        Support de conseil pour l'accompagnement d'un investisseur immobilier :
-        recueil du besoin, suivi du dossier jusqu'à la livraison, et analyse
-        chiffrée du bien retenu — paramétrable par zone de marché.
+        Choubel Consulting accompagne les investisseurs du premier entretien
+        jusqu'à la livraison du bien. <strong class="text-white">RentImmo</strong>
+        est l'outil que ses conseillers utilisent en rendez-vous pour chiffrer
+        une opération et la présenter au client.
       </p>
-      <a href="{{ url_for('auth.login') }}" class="btn btn-light">Se connecter</a>
-      <a href="{{ url_for('auth.register') }}" class="btn btn-outline-light">Créer un compte</a>
+      <a href="{{ url_for('auth.login') }}" class="btn btn-light btn-lg">Accéder à l'outil</a>
+      <a href="{{ url_for('auth.register') }}" class="btn btn-outline-light btn-lg">Créer un compte</a>
     </div>
     <div class="col-lg-6">
       {{ accueil() }}
@@ -21,21 +32,88 @@
   </div>
 </div>
 
-<div class="titre-section">Le déroulé d'un accompagnement</div>
+{# ── Ce que le cabinet traite ────────────────────────────────────────────── #}
+<div class="bandeau-types mb-4">
+  {% for type_bien in ["Terrains", "Villas", "Appartements", "Immeubles"] %}
+  <span><i class="puce"></i>{{ type_bien }}</span>
+  {% endfor %}
+  <span class="text-muted">·</span>
+  <span>De l'économique au luxe</span>
+  <span class="text-muted">·</span>
+  <span>Neuf, ancien ou sur plan</span>
+</div>
+
+{# ── Le métier du cabinet ────────────────────────────────────────────────── #}
+<div class="row g-4 mb-5 align-items-center">
+  <div class="col-lg-5">
+    <div class="titre-section">Notre accompagnement</div>
+    <h3 class="mb-3">Du besoin exprimé aux clés remises</h3>
+    <p class="text-muted">
+      Le premier entretien sert à comprendre ce que vous cherchez : type de bien,
+      standing, superficie, commodités, zone, budget et mode de financement.
+      Tout le reste en découle.
+    </p>
+    <div class="row g-2 mt-2">
+      <div class="col-4"><div class="repere">
+        <div class="valeur">6</div><div class="libelle">étapes suivies</div>
+      </div></div>
+      <div class="col-4"><div class="repere">
+        <div class="valeur">3</div><div class="libelle">zones de marché</div>
+      </div></div>
+      <div class="col-4"><div class="repere">
+        <div class="valeur">10 min</div><div class="libelle">pour chiffrer un bien</div>
+      </div></div>
+    </div>
+  </div>
+  <div class="col-lg-7">
+    <div class="card">
+      <div class="card-body p-4">
+        <ol class="jalons">
+          {% for titre, texte in [
+            ("Recueil du besoin", "Type de bien, standing, superficie, commodités, zone, budget, financement — et l'objectif du client."),
+            ("Recherche", "Le cabinet identifie les biens correspondant aux critères."),
+            ("Présentation et visites", "Les biens retenus sont présentés, puis visités."),
+            ("Compromis", "Signature du compromis ou du contrat de vente."),
+            ("Acte notarié", "L'achat est finalisé devant le notaire."),
+            ("Livraison", "Le bien est remis au client.")
+          ] %}
+          <li><strong>{{ titre }}</strong><span>{{ texte }}</span></li>
+          {% endfor %}
+        </ol>
+      </div>
+    </div>
+  </div>
+</div>
+
+{# ── La règle de décision, dans les mots du cabinet ──────────────────────── #}
+<div class="citation mb-5">
+  <p class="mb-2">
+    Un investissement est bon lorsqu'il permet au client de générer de la valeur.
+    Tout dépend donc de son horizon d'investissement et du facteur temps.
+  </p>
+  <p class="mb-2" style="font-size: .94rem; color: rgba(255,255,255,.8)">
+    Un même bien peut être rentable pour une personne et ne pas l'être pour une
+    autre : c'est le client qui a le dernier mot.
+  </p>
+  <footer>Choubel Consulting — cadrage métier, août 2026</footer>
+</div>
+
+{# ── Ce que l'outil apporte ──────────────────────────────────────────────── #}
+<div class="titre-section">Ce que l'outil apporte en rendez-vous</div>
 <div class="row g-3 mb-4">
   {% for cle, titre, texte in [
-    ("brief", "Le besoin d'abord",
-     "Type de bien, standing, superficie, commodités, zone, budget et financement — puis l'objectif et l'horizon du client."),
-    ("suivi", "Le dossier suivi",
-     "Recherche, présentation, visites, compromis, acte notarié, livraison : chaque dossier affiche son étape."),
-    ("analyse", "Le bien analysé",
-     "Coût d'entrée réel, rendement net, cash-flow, plus-value et valeur créée à l'horizon retenu."),
+    ("analyse", "Le coût d'entrée réel",
+     "Prix, frais d'acquisition selon la zone et travaux détaillés poste par poste : le vrai montant à sortir, pas celui de l'annonce."),
+    ("suivi", "Le rendement et le cash-flow",
+     "Les deux chiffres que le conseiller regarde en premier : ce que le bien rapporte, et ce qu'il coûte ou rapporte chaque mois."),
+    ("terrain", "La plus-value et le terrain",
+     "Une opération sans loyer — portage foncier, construction-revente — est chiffrée pour ce qu'elle est : de la valeur créée dans le temps."),
     ("scenarios", "Les montages comparés",
-     "Comptant ou crédit, durées et apports variables : les scénarios se lisent côte à côte."),
-    ("terrain", "Le terrain aussi",
-     "Une opération sans loyer — portage foncier, construction-revente — est traitée pour ce qu'elle est : une plus-value."),
+     "Comptant ou crédit, apports et durées variables : les scénarios se lisent côte à côte, courbes superposées."),
+    ("temps", "L'achat sur plan",
+     "Un bien livré dans deux ans ne rapporte rien d'ici là, alors que les mensualités courent. L'outil le montre année par année."),
     ("restitution", "Le document remis",
-     "Rapport PDF aux couleurs du cabinet et classeur Excel, remis au client à l'issue du rendez-vous.")
+     "Rapport PDF aux couleurs du cabinet et classeur Excel, remis au client à la fin du rendez-vous.")
   ] %}
   <div class="col-md-6 col-lg-4">
     <div class="card carte-etape h-100">
@@ -49,25 +127,28 @@
   {% endfor %}
 </div>
 
-<div class="row g-3">
+{# ── Invitation finale ───────────────────────────────────────────────────── #}
+<div class="row g-3 align-items-stretch">
   <div class="col-lg-8">
     <div class="rappel h-100 d-flex align-items-center gap-3">
       <span class="medaillon medaillon-accent flex-shrink-0">{{ icone("temps") }}</span>
       <span>
         <strong>Aucun seuil automatique.</strong> L'outil ne décrète jamais qu'un
         investissement est bon ou mauvais : il présente les chiffres au regard de
-        l'objectif et de l'horizon du client, à qui revient l'arbitrage. Le même
-        bien peut convenir à l'un et pas à l'autre — tout dépend du facteur temps.
+        l'objectif et de l'horizon du client, à qui revient l'arbitrage.
       </span>
     </div>
   </div>
   <div class="col-lg-4">
-    <div class="rappel h-100 d-flex align-items-center gap-3">
-      <span class="medaillon flex-shrink-0">{{ icone("zone") }}</span>
-      <span>
-        <strong>Zones de marché.</strong> Frais d'acquisition, fiscalité et devise
-        s'actualisent selon la zone : Maroc, France ou paramétrage libre.
-      </span>
+    <div class="card h-100 text-center">
+      <div class="card-body d-flex flex-column justify-content-center">
+        <span class="medaillon mx-auto">{{ icone("zone") }}</span>
+        <p class="small text-muted mt-3 mb-3">
+          Maroc, France ou zone personnalisée : frais, fiscalité et devise
+          s'actualisent automatiquement.
+        </p>
+        <a href="{{ url_for('auth.login') }}" class="btn btn-primary">Commencer un dossier</a>
+      </div>
     </div>
   </div>
 </div>

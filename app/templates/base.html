@@ -64,9 +64,13 @@
   </main>
 
   <footer class="py-3 bg-white border-top mt-auto">
-    <div class="container d-flex justify-content-between small text-muted">
-      <span>René DANSOU &amp; Marius HOUNKPETOHOU</span>
-      <span>Choubel Consulting — Outil d'analyse de rentabilité immobilière</span>
+    <div class="container d-flex justify-content-between align-items-center gap-3 small text-muted">
+      <span class="d-flex align-items-center gap-2">
+        <img src="{{ url_for('static', filename='img/logo-choubel.jpg') }}"
+             alt="" class="logo-choubel-pied">
+        <span>Choubel Consulting — Outil d'analyse de rentabilité immobilière</span>
+      </span>
+      <span class="text-end">René DANSOU &amp; Marius HOUNKPETOHOU</span>
     </div>
   </footer>
 

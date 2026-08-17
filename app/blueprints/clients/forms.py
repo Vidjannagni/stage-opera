@@ -15,14 +15,16 @@ class ClientForm(FlaskForm):
     nom = StringField("Nom du client", validators=[DataRequired(), Length(max=120)])
     situation_professionnelle = StringField(
         "Situation professionnelle", validators=[Optional(), Length(max=120)],
-        description="Salarié, profession libérale, chef d'entreprise, retraité…",
+        render_kw={"list": "liste-situations", "placeholder": "Ex. : Chef d'entreprise"},
     )
     nationalite = StringField(
         "Nationalité", validators=[Optional(), Length(max=80)],
         description="Conditionne l'accès au crédit et le rapatriement des fonds.",
+        render_kw={"list": "liste-nationalites", "placeholder": "Ex. : Marocaine"},
     )
     budget_disponible = FloatField(
-        "Budget disponible", validators=[Optional(), NumberRange(min=0)]
+        "Budget disponible", validators=[Optional(), NumberRange(min=0)],
+        render_kw={"placeholder": "Ex. : 1 500 000"},
     )
     email = EmailField("Adresse e-mail", validators=[Optional(), Email()])
     telephone = StringField("Téléphone", validators=[Optional(), Length(max=40)])
@@ -43,27 +45,47 @@ class BriefForm(FlaskForm):
         validators=[Optional()],
     )
     zone_recherchee = StringField(
-        "Zone géographique recherchée", validators=[Optional(), Length(max=160)]
+        "Zone géographique recherchée", validators=[Optional(), Length(max=160)],
+        render_kw={"list": "liste-zones", "placeholder": "Ex. : Casablanca — Gauthier"},
     )
-    superficie_min = FloatField("Superficie minimale (m²)", validators=[Optional(), NumberRange(min=0)])
-    superficie_max = FloatField("Superficie maximale (m²)", validators=[Optional(), NumberRange(min=0)])
+    superficie_min = FloatField(
+        "Superficie minimale (m²)", validators=[Optional(), NumberRange(min=0)],
+        render_kw={"placeholder": "Ex. : 70"},
+    )
+    superficie_max = FloatField(
+        "Superficie maximale (m²)", validators=[Optional(), NumberRange(min=0)],
+        render_kw={"placeholder": "Ex. : 100"},
+    )
 
     nb_chambres = IntegerField("Chambres", validators=[Optional(), NumberRange(min=0, max=50)])
     nb_salles_bains = IntegerField("Salles de bains", validators=[Optional(), NumberRange(min=0, max=50)])
     nb_salons = IntegerField("Salons", validators=[Optional(), NumberRange(min=0, max=50)])
-    etage = StringField("Étage souhaité", validators=[Optional(), Length(max=40)])
-    orientation = StringField("Orientation", validators=[Optional(), Length(max=40)])
+    etage = StringField(
+        "Étage souhaité", validators=[Optional(), Length(max=40)],
+        render_kw={"list": "liste-etages", "placeholder": "Ex. : 2e étage"},
+    )
+    orientation = StringField(
+        "Orientation", validators=[Optional(), Length(max=40)],
+        render_kw={"list": "liste-orientations", "placeholder": "Ex. : Sud"},
+    )
 
     commodites = TextAreaField(
         "Commodités souhaitées", validators=[Optional()],
-        description="Transports, écoles, commerces, santé…",
+        description="Cochez ci-dessous, ou saisissez librement.",
+        render_kw={"rows": 2, "placeholder": "Ex. : Transports en commun, écoles et crèches"},
     )
     type_acquisition = SelectField(
         "Type d'acquisition", default="existant",
         choices=list(Brief.TYPES_ACQUISITION), validators=[DataRequired()],
     )
-    budget_min = FloatField("Budget minimal", validators=[Optional(), NumberRange(min=0)])
-    budget_max = FloatField("Budget maximal", validators=[Optional(), NumberRange(min=0)])
+    budget_min = FloatField(
+        "Budget minimal", validators=[Optional(), NumberRange(min=0)],
+        render_kw={"placeholder": "Ex. : 1 000 000"},
+    )
+    budget_max = FloatField(
+        "Budget maximal", validators=[Optional(), NumberRange(min=0)],
+        render_kw={"placeholder": "Ex. : 1 500 000"},
+    )
     mode_financement = SelectField(
         "Mode de financement", default="pret",
         choices=list(Brief.MODES_FINANCEMENT), validators=[DataRequired()],

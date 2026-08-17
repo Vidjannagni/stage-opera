@@ -6,7 +6,10 @@ from ..projets.forms import zero_si_vide
 
 
 class ScenarioForm(FlaskForm):
-    nom = StringField("Nom du scénario", validators=[DataRequired(), Length(max=120)])
+    nom = StringField(
+        "Nom du scénario", validators=[DataRequired(), Length(max=120)],
+        render_kw={"list": "liste-scenarios", "placeholder": "Ex. : Crédit 20 ans"},
+    )
     mode = SelectField(
         "Mode de financement",
         choices=[("credit", "Crédit"), ("cash", "Cash (sans emprunt)")],
@@ -16,6 +19,7 @@ class ScenarioForm(FlaskForm):
     apport = FloatField(
         "Apport", default=0.0,
         validators=[Optional(), NumberRange(min=0)], filters=[zero_si_vide],
+        render_kw={"placeholder": "Ex. : 300 000"},
     )
     taux_interet = FloatField(
         "Taux d'intérêt annuel (%)", default=4.5,
@@ -45,6 +49,7 @@ class ScenarioForm(FlaskForm):
     prix_revente = FloatField(
         "Prix de revente à l'horizon",
         validators=[Optional(), NumberRange(min=0)],
+        render_kw={"placeholder": "Ex. : 16 070 000 — laisser vide si inconnu"},
         description="Prix connu ou négocié (construction-revente, lotissement). "
                     "Laisser vide pour appliquer la revalorisation annuelle.",
     )

@@ -55,6 +55,13 @@ def create_app(config_name: str | None = None) -> Flask:
     app.register_blueprint(scenarios_bp, url_prefix="/scenarios")
     app.register_blueprint(exports_bp, url_prefix="/exports")
 
+    @app.context_processor
+    def injecter_suggestions():
+        """Rend les listes de suggestions disponibles dans tous les gabarits."""
+        from .suggestions import TOUTES
+
+        return {"SUGGESTIONS": TOUTES}
+
     @app.template_filter("montant")
     def montant(valeur) -> str:
         """Format monétaire : 1 234 567 (arrondi à l'unité, séparateur espace)."""

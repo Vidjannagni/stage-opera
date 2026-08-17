@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "_form_helpers.html" import render_field %}
+{% from "_form_helpers.html" import render_field, suggestions %}
 
 {% block title %}Brief de recherche — {{ client.nom }} — RentImmo{% endblock %}
 
@@ -20,6 +20,9 @@
 
 <form method="post" novalidate>
   {{ form.hidden_tag() }}
+  {{ suggestions("liste-zones", SUGGESTIONS.zones_recherche) }}
+  {{ suggestions("liste-etages", SUGGESTIONS.etages) }}
+  {{ suggestions("liste-orientations", SUGGESTIONS.orientations) }}
   <div class="row">
     <div class="col-lg-6">
       <div class="card mb-4">
@@ -55,6 +58,14 @@
         <div class="card-header">Environnement</div>
         <div class="card-body">
           {{ render_field(form.commodites) }}
+          {# Raccourcis de saisie : un clic ajoute ou retire la commodité du
+             champ ci-dessus, qui reste modifiable à la main. #}
+          <div class="d-flex flex-wrap gap-2" id="puces-commodites">
+            {% for commodite in SUGGESTIONS.commodites %}
+            <button type="button" class="etiquette etiquette-sourde border-0"
+                    data-commodite="{{ commodite }}">+ {{ commodite }}</button>
+            {% endfor %}
+          </div>
         </div>
       </div>
 
@@ -103,5 +114,36 @@
 
   champType.addEventListener("change", actualiserDistribution);
   actualiserDistribution();
+
+  // Commodités : les puces ajoutent ou retirent une valeur du champ libre.
+  const champCommodites = document.getElementById("commodites");
+
+  function listeCommodites() {
+    return champCommodites.value.split(",").map((v) => v.trim()).filter(Boolean);
+  }
+
+  function refletDesPuces() {
+    const choisies = listeCommodites();
+    document.querySelectorAll("[data-commodite]").forEach((puce) => {
+      const active = choisies.includes(puce.dataset.commodite);
+      puce.classList.toggle("etiquette-accent", active);
+      puce.classList.toggle("etiquette-sourde", !active);
+      puce.textContent = (active ? "\u2713 " : "+ ") + puce.dataset.commodite;
+    });
+  }
+
+  document.querySelectorAll("[data-commodite]").forEach((puce) => {
+    puce.addEventListener("click", () => {
+      const valeur = puce.dataset.commodite;
+      const choisies = listeCommodites();
+      const index = choisies.indexOf(valeur);
+      if (index === -1) choisies.push(valeur); else choisies.splice(index, 1);
+      champCommodites.value = choisies.join(", ");
+      refletDesPuces();
+    });
+  });
+
+  champCommodites.addEventListener("input", refletDesPuces);
+  refletDesPuces();
 </script>
 {% endblock %}

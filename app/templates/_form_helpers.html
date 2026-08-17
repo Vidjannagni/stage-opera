@@ -1,8 +1,9 @@
-{% macro render_field(field, placeholder="") %}
+{% macro render_field(field, placeholder=none) %}
 <div class="mb-3">
   {{ field.label(class="form-label") }}
   {% set css = "form-select" if field.type == "SelectField" else "form-control" %}
-  {{ field(class=css + (" is-invalid" if field.errors else ""), placeholder=placeholder) }}
+  {% set attributs = {"placeholder": placeholder} if placeholder else {} %}
+  {{ field(class=css + (" is-invalid" if field.errors else ""), **attributs) }}
   {% for error in field.errors %}
   <div class="invalid-feedback">{{ error }}</div>
   {% endfor %}
@@ -10,4 +11,15 @@
   <div class="form-text">{{ field.description }}</div>
   {% endif %}
 </div>
+{% endmacro %}
+
+{# Liste de suggestions rattachée à un champ libre.
+
+   Le champ garde l'attribut `list` dans sa définition (render_kw) ; ce macro
+   ne fait qu'émettre les valeurs proposées. Le conseiller reste libre de
+   saisir autre chose : une suggestion n'est jamais une contrainte. #}
+{% macro suggestions(identifiant, valeurs) %}
+<datalist id="{{ identifiant }}">
+  {% for valeur in valeurs %}<option value="{{ valeur }}"></option>{% endfor %}
+</datalist>
 {% endmacro %}

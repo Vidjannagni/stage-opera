@@ -22,7 +22,13 @@ Ce sont exactement les variables `--ecc-blue`, `--ecc-navy` et `--ecc-accent` de
 partagent donc la même charte**, ce qui est l'argument principal : la cohérence
 entre le logiciel et les livrables papier n'est pas un hasard.
 
-S'y ajoutent seulement deux teintes fonctionnelles, et non décoratives :
+S'y ajoute **l'or du logo Choubel Consulting**. Le logo fourni par le cabinet
+est or sur fond noir ; la teinte a été relevée directement sur le fichier
+(`#F9CC28` en moyenne sur les pixels dorés). Elle sert d'accent de marque sur la
+page d'accueil et sur le toit de l'illustration, pour que le logo ne jure pas
+avec le reste de la page.
+
+S'y ajoutent enfin deux teintes fonctionnelles, et non décoratives :
 
 | Couleur | Usage | Pourquoi |
 |---|---|---|
@@ -50,12 +56,36 @@ Quatre raisons, dans l'ordre d'importance :
 4. **La charte est respectée automatiquement** — les SVG héritent des couleurs
    CSS, donc un changement de palette se propage sans retoucher d'image.
 
-L'illustration d'accueil n'est pas décorative non plus : elle représente un
-terrain, des immeubles de hauteur croissante et une courbe de valorisation —
-c'est-à-dire les trois objets du métier du cabinet, dont le terrain, que les cas
-réels transmis par le mentor ont placé au premier plan.
+**Seule exception : le logo du cabinet**, qui est une image fournie par le
+client et lui appartient (`app/static/img/logo-choubel.jpg`).
 
-## 3. La hiérarchie visuelle traduit la hiérarchie métier
+L'illustration d'accueil n'est pas décorative non plus. Elle met en scène, dans
+l'ordre où le cabinet exerce son métier : une **parcelle de terrain** au premier
+plan, la **villa** construite dessus, des **immeubles** en arrière-plan, et la
+**courbe de valorisation** qui traverse la scène. Le toit reprend l'or du logo.
+Le terrain y figure au premier plan parce que les deux cas réels transmis par le
+mentor sont des opérations foncières.
+
+## 3. La page d'accueil présente le cabinet, pas l'outil
+
+C'est la seule page visible sans compte. Elle suit donc un ordre de lecture de
+site vitrine, et non d'application :
+
+1. **Qui** — logo du cabinet, métier annoncé en une phrase, bouton d'accès ;
+2. **Quoi** — bandeau des biens traités : terrains, villas, appartements,
+   immeubles, de l'économique au luxe, neuf, ancien ou sur plan ;
+3. **Comment** — les six étapes de l'accompagnement, du recueil du besoin à la
+   livraison, telles que le cabinet les a décrites ;
+4. **La règle de décision**, citée dans les mots du mentor : *« un investissement
+   est bon lorsqu'il permet au client de générer de la valeur »* ;
+5. **Ce que l'outil apporte** en rendez-vous, en six points ;
+6. **L'invitation** à ouvrir un dossier.
+
+Aucun contenu n'est inventé : les types de biens, les étapes et la citation
+proviennent tous des réponses du cabinet consignées dans
+[`retour_cabinet.md`](retour_cabinet.md).
+
+## 4. La hiérarchie visuelle traduit la hiérarchie métier
 
 Le cabinet a indiqué regarder d'abord le **rendement net** et le **cash-flow**,
 TRI et VAN ne venant qu'ensuite. Cette hiérarchie est rendue visible :
@@ -68,7 +98,7 @@ TRI et VAN ne venant qu'ensuite. Cette hiérarchie est rendue visible :
 Un lecteur qui ne connaît pas le métier voit donc immédiatement, sans lire, ce
 qui compte le plus. C'est le seul rôle de cette différence de traitement.
 
-## 4. Moins de champs à l'écran
+## 5. Moins de champs à l'écran
 
 Le mentor décrit un premier entretien où l'on note ce que le client sait dire.
 Les formulaires suivent ce principe : **seuls les champs qu'on remplit devant un
@@ -87,7 +117,35 @@ n'influe que sur la VAN, indicateur de second rang.
 Rien n'a été supprimé : tous les champs restent accessibles en un clic, et le
 moteur de calcul est inchangé.
 
-## 5. Accessibilité et lisibilité
+## 6. Des suggestions, jamais des contraintes
+
+Plusieurs champs libres proposent désormais une liste de valeurs
+(`app/suggestions.py`) : situation professionnelle, nationalité, zone
+recherchée, étage, orientation, commodités, postes de travaux, noms de
+scénarios. Tous les champs numériques portent en outre un exemple en filigrane
+(« Ex. : 1 200 000 »).
+
+Le choix technique est un **`<datalist>` HTML et non une liste déroulante
+fermée**, et il se justifie :
+
+- une liste fermée serait fausse dès le premier cas particulier — une
+  nationalité absente, un quartier non répertorié — et bloquerait le conseiller
+  en plein rendez-vous ;
+- une liste ouverte accélère la saisie sans rien interdire ;
+- elle **homogénéise le vocabulaire** entre conseillers, ce qui rend les
+  dossiers comparables — c'est le vrai bénéfice, au-delà du gain de frappe.
+
+Restent en liste fermée (`SelectField`) les seules valeurs qui alimentent les
+calculs ou les filtres : type de bien, standing, type d'acquisition, mode de
+financement, objectif, type d'opération, étape du dossier, mode de financement
+du scénario. Leur ensemble est arrêté, donc les fermer est légitime.
+
+Les commodités disposent en plus de **puces cliquables** qui ajoutent ou
+retirent une valeur du champ libre : c'est le seul champ où le cabinet a cité
+une énumération (« transports, écoles, commerces »), et où l'on coche
+naturellement plusieurs entrées.
+
+## 7. Accessibilité et lisibilité
 
 - **Chiffres alignés** : `font-variant-numeric: tabular-nums` sur toutes les
   colonnes de montants, pour que les ordres de grandeur se comparent à l'œil.
@@ -100,11 +158,12 @@ moteur de calcul est inchangé.
 - **Impression** : une feuille de style dédiée retire navigation, boutons et
   formulaires, pour qu'une page imprimée reste exploitable.
 
-## 6. Ce qui a été volontairement écarté
+## 8. Ce qui a été volontairement écarté
 
 - **Photographies de biens** : l'outil est un support de calcul, pas une vitrine
-  d'annonces. Une photo n'apporterait rien à la décision et poserait un problème
-  de droits.
+  d'annonces. Une photo de bien n'apporterait rien à la décision et poserait un
+  problème de droits ; l'illustration dessinée joue le même rôle d'accroche sans
+  cet inconvénient.
 - **Polices externes** : dépendance réseau inutile ; la pile de polices système
   rend bien sur tous les postes et évite un chargement supplémentaire.
 - **Animations** : hors un léger relief au survol des cartes de présentation,

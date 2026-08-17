@@ -20,10 +20,19 @@ def zero_entier_si_vide(valeur):
 
 
 class ProjetForm(FlaskForm):
-    nom = StringField("Nom du projet", validators=[DataRequired(), Length(max=160)])
-    adresse = StringField("Adresse / localisation", validators=[Optional(), Length(max=255)])
+    nom = StringField(
+        "Nom du dossier", validators=[DataRequired(), Length(max=160)],
+        render_kw={"placeholder": "Ex. : Appartement Gauthier — Casablanca"},
+    )
+    adresse = StringField(
+        "Adresse / localisation", validators=[Optional(), Length(max=255)],
+        render_kw={"list": "liste-zones", "placeholder": "Ex. : Quartier Gauthier, Casablanca"},
+    )
     zone_id = SelectField("Zone de marché", coerce=int, validators=[DataRequired()])
-    surface_m2 = FloatField("Surface (m²)", validators=[Optional(), NumberRange(min=0)])
+    surface_m2 = FloatField(
+        "Surface (m²)", validators=[Optional(), NumberRange(min=0)],
+        render_kw={"placeholder": "Ex. : 85"},
+    )
     type_operation = SelectField(
         "Type d'opération", default="locatif",
         choices=list(Projet.TYPES_OPERATION), validators=[DataRequired()],
@@ -36,11 +45,13 @@ class ProjetForm(FlaskForm):
     )
 
     prix_bien = FloatField(
-        "Prix du bien", validators=[DataRequired(), NumberRange(min=1)]
+        "Prix du bien", validators=[DataRequired(), NumberRange(min=1)],
+        render_kw={"placeholder": "Ex. : 1 200 000"},
     )
     budget_travaux = FloatField(
         "Budget travaux / construction", default=0.0,
         validators=[Optional(), NumberRange(min=0)], filters=[zero_si_vide],
+        render_kw={"placeholder": "Ex. : 150 000 — ou 0 si rien à prévoir"},
     )
     taux_frais_override = FloatField(
         "Taux de frais d'acquisition (%)",
@@ -49,6 +60,7 @@ class ProjetForm(FlaskForm):
     )
     delai_livraison_mois = IntegerField(
         "Délai de livraison (mois)", default=0,
+        render_kw={"placeholder": "0 pour un bien déjà livré, 24 pour une VEFA"},
         validators=[Optional(), NumberRange(min=0, max=120)], filters=[zero_entier_si_vide],
         description="Achat sur plan (VEFA) : mois avant livraison. "
                     "Aucun loyer n'est perçu d'ici là.",
@@ -57,6 +69,7 @@ class ProjetForm(FlaskForm):
     loyer_mensuel = FloatField(
         "Loyer mensuel attendu", default=0.0,
         validators=[Optional(), NumberRange(min=0)], filters=[zero_si_vide],
+        render_kw={"placeholder": "Ex. : 8 500"},
     )
     charges_copro_annuelles = FloatField(
         "Charges de copropriété (annuelles)", default=0.0,
@@ -69,10 +82,12 @@ class ProjetForm(FlaskForm):
     frais_gestion_pct = FloatField(
         "Frais de gestion (% du loyer)", default=0.0,
         validators=[Optional(), NumberRange(min=0, max=100)], filters=[zero_si_vide],
+        render_kw={"placeholder": "Ex. : 5 — laisser vide en gestion directe"},
     )
     vacance_pct = FloatField(
         "Vacance locative (% du loyer)", default=0.0,
         validators=[Optional(), NumberRange(min=0, max=100)], filters=[zero_si_vide],
+        render_kw={"placeholder": "Ex. : 5 — soit environ trois semaines par an"},
     )
     entretien_annuel = FloatField(
         "Entretien (annuel)", default=0.0,
@@ -92,7 +107,10 @@ class ProjetForm(FlaskForm):
 
 
 class LigneTravauxForm(FlaskForm):
-    libelle = StringField("Poste", validators=[DataRequired(), Length(max=160)])
+    libelle = StringField(
+        "Poste", validators=[DataRequired(), Length(max=160)],
+        render_kw={"list": "liste-postes-travaux", "placeholder": "Ex. : Cuisine équipée"},
+    )
     categorie = SelectField(
         "Catégorie",
         choices=[
@@ -104,5 +122,8 @@ class LigneTravauxForm(FlaskForm):
             ("Autre", "Autre"),
         ],
     )
-    montant = FloatField("Montant", validators=[DataRequired(), NumberRange(min=0.01)])
+    montant = FloatField(
+        "Montant", validators=[DataRequired(), NumberRange(min=0.01)],
+        render_kw={"placeholder": "Ex. : 80 000"},
+    )
     submit_travaux = SubmitField("Ajouter le poste")

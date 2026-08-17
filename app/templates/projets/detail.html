@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% from "_ui.html" import tuile, etapes, vide %}
+{% from "_form_helpers.html" import suggestions %}
 
 {% block title %}{{ projet.nom }} — RentImmo{% endblock %}
 
@@ -132,6 +133,7 @@
     {% endif %}
     <form method="post" action="{{ url_for('projets.ajouter_travaux', projet_id=projet.id) }}" class="row g-2 align-items-end">
       {{ form_travaux.hidden_tag() }}
+      {{ suggestions("liste-postes-travaux", SUGGESTIONS.postes_travaux) }}
       <div class="col-md-4">
         {{ form_travaux.libelle.label(class="form-label small") }}
         {{ form_travaux.libelle(class="form-control form-control-sm") }}

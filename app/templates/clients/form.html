@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "_form_helpers.html" import render_field %}
+{% from "_form_helpers.html" import render_field, suggestions %}
 
 {% block title %}{{ titre }} — RentImmo{% endblock %}
 
@@ -26,6 +26,9 @@
           </div>
         </div>
       </div>
+
+      {{ suggestions("liste-situations", SUGGESTIONS.situations_professionnelles) }}
+      {{ suggestions("liste-nationalites", SUGGESTIONS.nationalites) }}
 
       <div class="card mb-4">
         <div class="card-header">Contact et suivi</div>

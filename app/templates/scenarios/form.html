@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "_form_helpers.html" import render_field %}
+{% from "_form_helpers.html" import render_field, suggestions %}
 
 {% block title %}{{ titre }} — RentImmo{% endblock %}
 
@@ -16,6 +16,7 @@
 
 <form method="post" novalidate>
   {{ form.hidden_tag() }}
+  {{ suggestions("liste-scenarios", SUGGESTIONS.noms_scenarios) }}
   <div class="row">
     <div class="col-lg-6">
       <div class="card shadow-sm mb-4">

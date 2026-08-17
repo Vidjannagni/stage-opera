@@ -1,9 +1,11 @@
 /* ═══════════════════════════════════════════════════════════════════════════
    RentImmo — habillage de Bootstrap 5 aux couleurs de Choubel Consulting.
 
-   La palette est reprise des documents LaTeX du cabinet (eccblue, navy,
-   accent) : elle n'est pas inventée pour l'occasion. Les illustrations sont
-   des SVG écrits dans les gabarits, sans aucune image externe.
+   La palette est reprise des documents LaTeX du projet (eccblue, navy,
+   accent) et complétée par l'or du logo Choubel Consulting, relevé sur le
+   fichier fourni par le cabinet. Elle n'est pas inventée pour l'occasion.
+   Hors le logo, les illustrations sont des SVG écrits dans les gabarits :
+   aucune image téléchargée.
 
    Parti pris : l'outil est projeté devant un client. La couleur sert à
    hiérarchiser l'information, jamais à décorer pour décorer.
@@ -17,6 +19,10 @@
   --ecc-accent: #00bcaa;
   --ecc-accent-fonce: #009184;
   --ecc-ambre: #e08a00;
+
+  /* Or du logo Choubel Consulting, relevé sur le fichier du cabinet. */
+  --choubel-or: #f9cc28;
+  --choubel-or-fonce: #b8860b;
 
   --encre: #16202f;
   --encre-douce: #5b6875;
@@ -322,3 +328,94 @@ footer { background: var(--surface); }
   body { background: #fff; background-image: none; }
   .card, .stat { box-shadow: none; border-color: #ccc; }
 }
+
+/* ═══ Page d'accueil publique ═══════════════════════════════════════════════
+   Seule page vue avant connexion : elle doit présenter le cabinet, son
+   métier, et donner envie d'ouvrir les autres pages. */
+
+.logo-choubel {
+  width: 88px; height: 88px;
+  border-radius: 16px;
+  border: 2px solid rgba(249, 204, 40, .55);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .35);
+  background: #000;
+  object-fit: contain;
+}
+
+.logo-choubel-pied { width: 40px; height: 40px; border-radius: 9px; object-fit: contain; background: #000; }
+
+.etiquette-or {
+  background: rgba(249, 204, 40, .16);
+  color: var(--choubel-or);
+  border-color: rgba(249, 204, 40, .45);
+}
+
+/* Bandeau des types de biens traités par le cabinet */
+.bandeau-types {
+  display: flex; flex-wrap: wrap; gap: .5rem 1.6rem;
+  align-items: center; justify-content: center;
+  padding: .95rem 1.2rem;
+  border-radius: var(--rayon);
+  background: var(--surface);
+  border: 1px solid var(--trait);
+  box-shadow: var(--ombre);
+  font-size: .84rem; font-weight: 600; color: var(--encre-douce);
+}
+
+.bandeau-types span { display: inline-flex; align-items: center; gap: .45rem; }
+.bandeau-types .puce { width: 7px; height: 7px; border-radius: 50%; background: var(--choubel-or); }
+
+/* Déroulé du métier, en jalons numérotés */
+.jalons { list-style: none; padding: 0; margin: 0; counter-reset: jalon; }
+
+.jalons li {
+  position: relative;
+  counter-increment: jalon;
+  padding: 0 0 1.35rem 3.1rem;
+}
+
+.jalons li::before {
+  content: counter(jalon);
+  position: absolute; left: 0; top: 0;
+  width: 30px; height: 30px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 50%;
+  font-size: .82rem; font-weight: 700; color: #fff;
+  background: linear-gradient(140deg, var(--ecc-blue), var(--ecc-blue-fonce));
+  box-shadow: 0 3px 8px rgba(0, 82, 145, .25);
+}
+
+.jalons li::after {
+  content: ""; position: absolute; left: 14.5px; top: 34px; bottom: .35rem;
+  width: 2px; background: linear-gradient(180deg, #cfe0ee, transparent);
+}
+
+.jalons li:last-child { padding-bottom: 0; }
+.jalons li:last-child::after { display: none; }
+.jalons strong { display: block; color: var(--encre); }
+.jalons span { font-size: .86rem; color: var(--encre-douce); }
+
+/* Bloc de citation : la règle de décision du cabinet, dans ses mots */
+.citation {
+  position: relative;
+  background: linear-gradient(135deg, var(--ecc-navy), #12294a);
+  color: #fff;
+  border-radius: var(--rayon);
+  padding: 1.9rem 2rem 1.7rem;
+  box-shadow: var(--ombre-forte);
+}
+
+.citation::before {
+  content: "\201C";
+  position: absolute; top: -.4rem; left: 1rem;
+  font-size: 5rem; line-height: 1;
+  color: var(--choubel-or); opacity: .38;
+}
+
+.citation p { position: relative; font-size: 1.06rem; margin: 0 0 .7rem; }
+.citation footer { font-size: .82rem; color: rgba(255, 255, 255, .66); background: none; }
+
+/* Chiffres de présentation */
+.repere { text-align: center; padding: .3rem .5rem; }
+.repere .valeur { font-size: 1.65rem; font-weight: 700; color: var(--ecc-blue); letter-spacing: -.02em; }
+.repere .libelle { font-size: .78rem; color: var(--encre-douce); }
