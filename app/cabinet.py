@@ -8,8 +8,8 @@ Rien n'est inventé : la page affiche alors une invitation à les compléter
 plutôt qu'un numéro fictif. Il suffit de renseigner les valeurs ci-dessous —
 ou les variables d'environnement correspondantes — pour qu'elles s'affichent.
 
-Tout le reste de la page vitrine (métier, étapes, cas d'accompagnement, règle
-de décision) provient des réponses du cabinet consignées dans
+Tout le reste de la page vitrine (métier, étapes, règle de décision, questions
+fréquentes) provient des réponses du cabinet consignées dans
 ``docs/retour_cabinet.md``.
 """
 import os
@@ -27,32 +27,6 @@ def coordonnees() -> dict:
     valeurs = {"telephone": TELEPHONE, "email": EMAIL, "adresse": ADRESSE}
     return {**valeurs, "renseignees": any(valeurs.values())}
 
-
-#: Les deux dossiers décrits par le cabinet pour illustrer sa règle de
-#: décision (cf. docs/retour_cabinet.md, réponse 3). Montants en dirhams,
-#: clients anonymisés.
-ACCOMPAGNEMENTS = [
-    {
-        "titre": "Portage foncier",
-        "resume": "Terrain de 3 ha acquis dans une zone ciblée, conservé sans "
-                  "mise en valeur. Quatre ans plus tard, un projet d'État à "
-                  "1 km fait bondir la valeur : morcellement et revente de "
-                  "2 ha, 1 ha gardé en réserve foncière.",
-        "budget": "1 M",
-        "horizon": "10 ans",
-        "resultat": "+15 M",
-        "icone": "terrain",
-    },
-    {
-        "titre": "Construction-revente",
-        "resume": "Terrain viabilisé de 500 m² acquis à 1,1 M, immeuble R+4 de "
-                  "20 appartements construit puis revendu à la découpe.",
-        "budget": "1,1 M",
-        "horizon": "2 ans",
-        "resultat": "+5 M",
-        "icone": "analyse",
-    },
-]
 
 #: Questions réellement posées en rendez-vous, avec la réponse du cabinet.
 QUESTIONS_FREQUENTES = [

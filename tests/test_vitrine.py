@@ -17,15 +17,6 @@ def test_vitrine_presente_le_cabinet(http):
     assert "facteur temps" in page             # la règle de décision, citée
 
 
-def test_vitrine_montre_les_deux_cas_du_cabinet(http):
-    page = http.get("/").get_data(as_text=True)
-
-    assert "Portage foncier" in page and "+15 M MAD" in page
-    assert "Construction-revente" in page and "+5 M MAD" in page
-    # Une illustration de performance passée s'accompagne de sa réserve d'usage.
-    assert "ne préjugent pas" in page
-
-
 def test_vitrine_naffiche_aucune_coordonnee_inventee(http, monkeypatch):
     """Tant que le cabinet n'a rien fourni, la page invite à compléter plutôt
     que d'afficher un numéro fictif."""

@@ -11,14 +11,11 @@ def index():
     """Page d'accueil : présentation si visiteur, tableau de bord si connecté."""
     if not current_user.is_authenticated:
         # Page vitrine : elle présente le cabinet à un visiteur, pas l'outil.
-        from ...cabinet import (
-            ACCOMPAGNEMENTS, ACTIVITE, NOM, QUESTIONS_FREQUENTES, coordonnees,
-        )
+        from ...cabinet import ACTIVITE, NOM, QUESTIONS_FREQUENTES, coordonnees
 
         return render_template(
             "index.html", cabinet_nom=NOM, cabinet_activite=ACTIVITE,
-            accompagnements=ACCOMPAGNEMENTS, questions=QUESTIONS_FREQUENTES,
-            coordonnees=coordonnees(),
+            questions=QUESTIONS_FREQUENTES, coordonnees=coordonnees(),
         )
 
     clients = current_user.clients.order_by(Client.nom).all()

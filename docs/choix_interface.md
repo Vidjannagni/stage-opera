@@ -94,15 +94,18 @@ site vitrine, et non d'application :
 5. **Ce que l'outil apporte** en rendez-vous, en six points ;
 6. **L'invitation** à ouvrir un dossier.
 
-La page comporte en outre **deux dossiers réels anonymisés** — le portage
-foncier et la construction-revente décrits par le mentor — assortis de la
-réserve d'usage (« les performances passées ne préjugent pas des performances
-futures »), et une **foire aux questions** reprenant les questions réellement
-posées en rendez-vous.
+Elle comporte en outre une **foire aux questions** reprenant les questions
+réellement posées en rendez-vous.
 
-Aucun contenu n'est inventé : types de biens, étapes, cas d'accompagnement,
-citation et réponses de la FAQ proviennent tous des réponses du cabinet
-consignées dans [`retour_cabinet.md`](retour_cabinet.md).
+Les deux dossiers réels du cabinet y ont figuré un temps, puis en ont été
+retirés : publier des performances passées sur une page ouverte engage le
+cabinet, et cela dépassait ce qu'on nous avait autorisé à diffuser. Ils restent
+documentés dans [`retour_cabinet.md`](retour_cabinet.md) et servent de cas de
+référence aux tests du moteur.
+
+Aucun contenu n'est inventé : types de biens, étapes, citation et réponses de la
+FAQ proviennent tous des réponses du cabinet consignées dans
+[`retour_cabinet.md`](retour_cabinet.md).
 
 **Les coordonnées ne sont pas inventées non plus.** Tant que le cabinet ne les
 a pas fournies, la page affiche une invitation à les compléter plutôt qu'un

@@ -103,40 +103,6 @@
   </div>
 </div>
 
-{# ── Deux dossiers réels, anonymisés ─────────────────────────────────────── #}
-<div class="titre-section">Deux opérations, deux horizons</div>
-<p class="text-muted mb-3" style="max-width: 62ch">
-  Même budget de départ, deux stratégies opposées. À la sortie du second
-  investisseur, il semble avoir fait la meilleure affaire — jusqu'à ce que
-  l'horizon du premier arrive à terme.
-</p>
-<div class="row g-3 mb-4">
-  {% for cas in accompagnements %}
-  <div class="col-lg-6">
-    <div class="card carte-etape h-100">
-      <div class="card-body">
-        <div class="d-flex align-items-start gap-3 mb-3">
-          <span class="medaillon {{ 'medaillon-accent' if loop.index0 }}">{{ icone(cas.icone) }}</span>
-          <div>
-            <h5 class="card-title mb-1">{{ cas.titre }}</h5>
-            <span class="etiquette etiquette-sourde">Budget {{ cas.budget }} MAD · {{ cas.horizon }}</span>
-          </div>
-        </div>
-        <p class="card-text small text-muted">{{ cas.resume }}</p>
-        <div class="stat stat-primaire">
-          <div class="stat-libelle">Valeur créée</div>
-          <div class="stat-valeur valeur-positive">{{ cas.resultat }} MAD</div>
-        </div>
-      </div>
-    </div>
-  </div>
-  {% endfor %}
-</div>
-<p class="small text-muted mb-5">
-  Dossiers réels, anonymisés, communiqués par le cabinet à titre d'illustration.
-  Les performances passées ne préjugent pas des performances futures.
-</p>
-
 {# ── La règle de décision ────────────────────────────────────────────────── #}
 <div class="citation mb-5">
   <p class="mb-2">
