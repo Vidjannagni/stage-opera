@@ -1,4 +1,6 @@
 """Authentification des consultants."""
+import os
+
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required, login_user, logout_user
 
@@ -31,9 +33,13 @@ def register():
     if current_user.is_authenticated:
         return redirect(url_for("main.index"))
     form = RegisterForm()
+    # En ligne, l'inscription peut être réservée aux porteurs d'un code.
+    code_attendu = os.environ.get("CODE_INSCRIPTION")
     if form.validate_on_submit():
         email = form.email.data.lower()
-        if User.query.filter_by(email=email).first():
+        if code_attendu and form.code_inscription.data != code_attendu:
+            flash("Code d'inscription invalide — demandez-le au cabinet.", "danger")
+        elif User.query.filter_by(email=email).first():
             flash("Un compte existe déjà avec cette adresse.", "warning")
         else:
             user = User(email=email, nom=form.nom.data)
@@ -43,7 +49,9 @@ def register():
             login_user(user)
             flash("Compte créé, bienvenue !", "success")
             return redirect(url_for("clients.liste"))
-    return render_template("auth/register.html", form=form)
+    return render_template(
+        "auth/register.html", form=form, code_requis=bool(code_attendu)
+    )
 
 
 @bp.route("/logout", methods=["POST"])

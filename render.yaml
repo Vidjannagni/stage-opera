@@ -1,0 +1,32 @@
+# Déploiement Render — « Blueprint ».
+# Render lit ce fichier et crée le service web et la base PostgreSQL.
+# Voir docs/deploiement.md pour la marche à suivre.
+services:
+  - type: web
+    name: rentimmo
+    runtime: python
+    plan: free
+    region: frankfurt
+    buildCommand: pip install -r requirements.txt
+    startCommand: ./demarrer.sh
+    healthCheckPath: /
+    envVars:
+      - key: FLASK_ENV
+        value: prod
+      - key: PYTHON_VERSION
+        value: 3.12.3
+      # Générée automatiquement par Render : l'application refuse de démarrer
+      # si elle est absente.
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: rentimmo-db
+          property: connectionString
+
+databases:
+  - name: rentimmo-db
+    plan: free
+    region: frankfurt
+    databaseName: rentimmo
+    user: rentimmo

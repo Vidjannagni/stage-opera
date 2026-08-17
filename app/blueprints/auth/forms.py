@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import EmailField, PasswordField, StringField, SubmitField
-from wtforms.validators import DataRequired, Email, EqualTo, Length
+from wtforms.validators import DataRequired, Email, EqualTo, Length, Optional
 
 
 class LoginForm(FlaskForm):
@@ -18,5 +18,11 @@ class RegisterForm(FlaskForm):
     confirm = PasswordField(
         "Confirmation",
         validators=[DataRequired(), EqualTo("password", message="Les mots de passe diffèrent")],
+    )
+    # Vérifié seulement si CODE_INSCRIPTION est défini (déploiement en ligne) :
+    # sans cette variable, l'inscription reste libre comme en local.
+    code_inscription = StringField(
+        "Code d'inscription", validators=[Optional()],
+        description="Fourni par le cabinet.",
     )
     submit = SubmitField("Créer le compte")

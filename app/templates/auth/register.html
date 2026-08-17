@@ -15,6 +15,7 @@
           {{ render_field(form.email) }}
           {{ render_field(form.password) }}
           {{ render_field(form.confirm) }}
+          {% if code_requis %}{{ render_field(form.code_inscription) }}{% endif %}
           <div class="d-grid mt-4">{{ form.submit(class="btn btn-primary") }}</div>
         </form>
         <p class="mt-3 mb-0 small text-muted">

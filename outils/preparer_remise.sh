@@ -20,7 +20,8 @@ cp cahier_des_charges.pdf feuille_de_route.pdf "$ETAPE/documents/"
 cp rapport_semaine1.pdf "$ETAPE/documents/rapports_hebdomadaires/"
 cp rapports/rapport_semaine[2-5].pdf "$ETAPE/documents/rapports_hebdomadaires/"
 cp rapports/rapport_final.pdf "$ETAPE/documents/"
-cp docs/guide_utilisation.md docs/script_demonstration.md "$ETAPE/documents/"
+cp docs/guide_utilisation.md docs/script_demonstration.md \
+   docs/retour_cabinet.md docs/deploiement.md "$ETAPE/documents/"
 
 cat > "$ETAPE/LISEZMOI.txt" <<'FIN'
 RentImmo — Dossier de remise (21 août 2026)
