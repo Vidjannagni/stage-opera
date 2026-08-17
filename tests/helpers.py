@@ -10,9 +10,19 @@ def inscrire_et_connecter(http, email="rene@choubel.com", nom="René"):
     )
 
 
+#: Fiche client minimale acceptée : le cabinet recueille systématiquement ces
+#: quatre informations, le formulaire les exige donc.
+DONNEES_CLIENT = {
+    "nom": "Investisseur Test",
+    "situation_professionnelle": "Salarié(e) du privé",
+    "nationalite": "Marocaine",
+    "budget_disponible": "1000000",
+}
+
+
 def creer_parcours_complet(http, app):
     """Client → projet (zone Maroc) → scénario crédit ; renvoie les ids."""
-    http.post("/clients/nouveau", data={"nom": "Investisseur Test"})
+    http.post("/clients/nouveau", data=DONNEES_CLIENT)
     with app.app_context():
         client_id = Client.query.first().id
         zone_maroc = ZonePreset.query.filter_by(nom="Maroc").first().id

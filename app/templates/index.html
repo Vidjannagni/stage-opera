@@ -1,67 +1,85 @@
 {% extends "base.html" %}
 {% from "_illustrations.html" import accueil, icone %}
 
-{% block title %}Choubel Consulting — Conseil en investissement immobilier{% endblock %}
+{% block title %}{{ cabinet_nom }} — {{ cabinet_activite }}{% endblock %}
 
 {% block content %}
 
-{# ── Bandeau d'ouverture ─────────────────────────────────────────────────── #}
+{# ── Ouverture ───────────────────────────────────────────────────────────── #}
 <div class="hero p-4 p-lg-5 mb-4">
   <div class="row align-items-center g-4">
     <div class="col-lg-6">
       <img src="{{ url_for('static', filename='img/logo-choubel.jpg') }}"
-           alt="Logo Choubel Consulting" class="logo-choubel mb-3">
+           alt="Logo {{ cabinet_nom }}" class="logo-choubel mb-3">
       <span class="etiquette etiquette-or mb-3 d-block" style="width: fit-content">
-        Conseil en investissement immobilier
+        {{ cabinet_activite }}
       </span>
       <h1 class="display-6 fw-bold mb-3">
         Trouver le bien juste,<br>et savoir <span class="text-accent">ce qu'il vaut</span>
       </h1>
       <p class="fs-6 mb-4">
-        Choubel Consulting accompagne les investisseurs du premier entretien
-        jusqu'à la livraison du bien. <strong class="text-white">RentImmo</strong>
-        est l'outil que ses conseillers utilisent en rendez-vous pour chiffrer
-        une opération et la présenter au client.
+        {{ cabinet_nom }} accompagne les investisseurs immobiliers du premier
+        entretien jusqu'à la livraison du bien : recherche, visites, compromis,
+        acte notarié. Et à chaque étape, des chiffres pour décider.
       </p>
-      <a href="{{ url_for('auth.login') }}" class="btn btn-light btn-lg">Accéder à l'outil</a>
-      <a href="{{ url_for('auth.register') }}" class="btn btn-outline-light btn-lg">Créer un compte</a>
+      <a href="#accompagnement" class="btn btn-light btn-lg">Découvrir notre méthode</a>
+      <a href="{{ url_for('auth.login') }}" class="btn btn-outline-light btn-lg">Espace conseiller</a>
     </div>
-    <div class="col-lg-6">
-      {{ accueil() }}
-    </div>
+    <div class="col-lg-6">{{ accueil() }}</div>
   </div>
 </div>
 
 {# ── Ce que le cabinet traite ────────────────────────────────────────────── #}
-<div class="bandeau-types mb-4">
+<div class="bandeau-types mb-5">
   {% for type_bien in ["Terrains", "Villas", "Appartements", "Immeubles"] %}
   <span><i class="puce"></i>{{ type_bien }}</span>
   {% endfor %}
-  <span class="text-muted">·</span>
-  <span>De l'économique au luxe</span>
-  <span class="text-muted">·</span>
-  <span>Neuf, ancien ou sur plan</span>
+  <span class="text-muted">·</span><span>De l'économique au luxe</span>
+  <span class="text-muted">·</span><span>Neuf, ancien ou sur plan</span>
 </div>
 
-{# ── Le métier du cabinet ────────────────────────────────────────────────── #}
-<div class="row g-4 mb-5 align-items-center">
+{# ── Le cabinet en bref ──────────────────────────────────────────────────── #}
+<div class="row g-3 mb-5">
+  {% for cle, titre, texte in [
+    ("brief", "Nous partons de votre besoin",
+     "Type de bien, standing, superficie, commodités, quartier, budget et mode de financement. Rien ne vous est proposé avant que ce cadre soit posé."),
+    ("suivi", "Nous vous accompagnons jusqu'au bout",
+     "Recherche, présentation des biens, visites, compromis, acte devant notaire, livraison. Un interlocuteur du début à la fin."),
+    ("analyse", "Nous chiffrons avant de recommander",
+     "Coût d'entrée réel, rendement net, trésorerie mensuelle, plus-value à la revente : chaque bien présenté est appuyé sur des calculs vérifiables.")
+  ] %}
+  <div class="col-lg-4">
+    <div class="card carte-etape h-100">
+      <div class="card-body">
+        <span class="medaillon {{ 'medaillon-accent' if loop.index0 == 1 }}">{{ icone(cle) }}</span>
+        <h5 class="card-title mt-3 mb-2">{{ titre }}</h5>
+        <p class="card-text small text-muted mb-0">{{ texte }}</p>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+{# ── La méthode, étape par étape ─────────────────────────────────────────── #}
+<div class="row g-4 mb-5 align-items-center" id="accompagnement">
   <div class="col-lg-5">
     <div class="titre-section">Notre accompagnement</div>
     <h3 class="mb-3">Du besoin exprimé aux clés remises</h3>
     <p class="text-muted">
-      Le premier entretien sert à comprendre ce que vous cherchez : type de bien,
-      standing, superficie, commodités, zone, budget et mode de financement.
-      Tout le reste en découle.
+      Le premier entretien sert à comprendre ce que vous cherchez et ce que vous
+      pouvez engager. Nous y recueillons systématiquement votre nom, votre
+      situation professionnelle, votre nationalité et votre budget disponible :
+      ces deux dernières informations conditionnent l'accès au crédit local.
     </p>
     <div class="row g-2 mt-2">
       <div class="col-4"><div class="repere">
         <div class="valeur">6</div><div class="libelle">étapes suivies</div>
       </div></div>
       <div class="col-4"><div class="repere">
-        <div class="valeur">3</div><div class="libelle">zones de marché</div>
+        <div class="valeur">4</div><div class="libelle">types de biens</div>
       </div></div>
       <div class="col-4"><div class="repere">
-        <div class="valeur">10 min</div><div class="libelle">pour chiffrer un bien</div>
+        <div class="valeur">5</div><div class="libelle">niveaux de standing</div>
       </div></div>
     </div>
   </div>
@@ -70,12 +88,12 @@
       <div class="card-body p-4">
         <ol class="jalons">
           {% for titre, texte in [
-            ("Recueil du besoin", "Type de bien, standing, superficie, commodités, zone, budget, financement — et l'objectif du client."),
-            ("Recherche", "Le cabinet identifie les biens correspondant aux critères."),
-            ("Présentation et visites", "Les biens retenus sont présentés, puis visités."),
+            ("Recueil du besoin", "Type de bien, standing, superficie, commodités, zone, budget, financement — et votre objectif."),
+            ("Recherche", "Nous identifions les biens correspondant à vos critères."),
+            ("Présentation et visites", "Les biens retenus vous sont présentés, puis visités."),
             ("Compromis", "Signature du compromis ou du contrat de vente."),
             ("Acte notarié", "L'achat est finalisé devant le notaire."),
-            ("Livraison", "Le bien est remis au client.")
+            ("Livraison", "Le bien vous est remis.")
           ] %}
           <li><strong>{{ titre }}</strong><span>{{ texte }}</span></li>
           {% endfor %}
@@ -85,7 +103,41 @@
   </div>
 </div>
 
-{# ── La règle de décision, dans les mots du cabinet ──────────────────────── #}
+{# ── Deux dossiers réels, anonymisés ─────────────────────────────────────── #}
+<div class="titre-section">Deux opérations, deux horizons</div>
+<p class="text-muted mb-3" style="max-width: 62ch">
+  Même budget de départ, deux stratégies opposées. À la sortie du second
+  investisseur, il semble avoir fait la meilleure affaire — jusqu'à ce que
+  l'horizon du premier arrive à terme.
+</p>
+<div class="row g-3 mb-4">
+  {% for cas in accompagnements %}
+  <div class="col-lg-6">
+    <div class="card carte-etape h-100">
+      <div class="card-body">
+        <div class="d-flex align-items-start gap-3 mb-3">
+          <span class="medaillon {{ 'medaillon-accent' if loop.index0 }}">{{ icone(cas.icone) }}</span>
+          <div>
+            <h5 class="card-title mb-1">{{ cas.titre }}</h5>
+            <span class="etiquette etiquette-sourde">Budget {{ cas.budget }} MAD · {{ cas.horizon }}</span>
+          </div>
+        </div>
+        <p class="card-text small text-muted">{{ cas.resume }}</p>
+        <div class="stat stat-primaire">
+          <div class="stat-libelle">Valeur créée</div>
+          <div class="stat-valeur valeur-positive">{{ cas.resultat }} MAD</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+<p class="small text-muted mb-5">
+  Dossiers réels, anonymisés, communiqués par le cabinet à titre d'illustration.
+  Les performances passées ne préjugent pas des performances futures.
+</p>
+
+{# ── La règle de décision ────────────────────────────────────────────────── #}
 <div class="citation mb-5">
   <p class="mb-2">
     Un investissement est bon lorsqu'il permet au client de générer de la valeur.
@@ -95,25 +147,55 @@
     Un même bien peut être rentable pour une personne et ne pas l'être pour une
     autre : c'est le client qui a le dernier mot.
   </p>
-  <footer>Choubel Consulting — cadrage métier, août 2026</footer>
+  <footer>{{ cabinet_nom }} — cadrage métier, août 2026</footer>
 </div>
 
-{# ── Ce que l'outil apporte ──────────────────────────────────────────────── #}
-<div class="titre-section">Ce que l'outil apporte en rendez-vous</div>
-<div class="row g-3 mb-4">
+{# ── Questions fréquentes ────────────────────────────────────────────────── #}
+<div class="row g-4 mb-5">
+  <div class="col-lg-4">
+    <div class="titre-section">Questions fréquentes</div>
+    <h3 class="mb-3">Ce que les investisseurs nous demandent</h3>
+    <p class="text-muted small">
+      Les réponses ci-contre sont celles que nos conseillers donnent en
+      rendez-vous, chiffres à l'appui.
+    </p>
+  </div>
+  <div class="col-lg-8">
+    <div class="accordion" id="faq">
+      {% for question, reponse in questions %}
+      <div class="accordion-item">
+        <h2 class="accordion-header">
+          <button class="accordion-button {{ 'collapsed' if not loop.first }}" type="button"
+                  data-bs-toggle="collapse" data-bs-target="#faq-{{ loop.index }}">
+            {{ question }}
+          </button>
+        </h2>
+        <div id="faq-{{ loop.index }}" class="accordion-collapse collapse {{ 'show' if loop.first }}"
+             data-bs-parent="#faq">
+          <div class="accordion-body text-muted">{{ reponse }}</div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+{# ── L'outil, réservé aux conseillers ────────────────────────────────────── #}
+<div class="titre-section">L'outil de nos conseillers</div>
+<div class="row g-3 mb-5">
   {% for cle, titre, texte in [
     ("analyse", "Le coût d'entrée réel",
-     "Prix, frais d'acquisition selon la zone et travaux détaillés poste par poste : le vrai montant à sortir, pas celui de l'annonce."),
-    ("suivi", "Le rendement et le cash-flow",
-     "Les deux chiffres que le conseiller regarde en premier : ce que le bien rapporte, et ce qu'il coûte ou rapporte chaque mois."),
-    ("terrain", "La plus-value et le terrain",
-     "Une opération sans loyer — portage foncier, construction-revente — est chiffrée pour ce qu'elle est : de la valeur créée dans le temps."),
+     "Prix, frais d'acquisition selon la zone et travaux poste par poste : le vrai montant à sortir, pas celui de l'annonce."),
+    ("suivi", "Rendement net et trésorerie",
+     "Les deux chiffres regardés en premier : ce que le bien rapporte, et ce qu'il vous coûte ou vous rapporte chaque mois."),
+    ("terrain", "La plus-value et le foncier",
+     "Une opération sans loyer est chiffrée pour ce qu'elle est : de la valeur créée dans le temps."),
     ("scenarios", "Les montages comparés",
-     "Comptant ou crédit, apports et durées variables : les scénarios se lisent côte à côte, courbes superposées."),
+     "Comptant ou crédit, apports et durées variables : les scénarios se lisent côte à côte."),
     ("temps", "L'achat sur plan",
-     "Un bien livré dans deux ans ne rapporte rien d'ici là, alors que les mensualités courent. L'outil le montre année par année."),
+     "Un bien livré dans deux ans ne rapporte rien d'ici là, alors que les mensualités courent. Nous le montrons année par année."),
     ("restitution", "Le document remis",
-     "Rapport PDF aux couleurs du cabinet et classeur Excel, remis au client à la fin du rendez-vous.")
+     "Vous repartez du rendez-vous avec l'analyse complète : rapport PDF et classeur de calcul.")
   ] %}
   <div class="col-md-6 col-lg-4">
     <div class="card carte-etape h-100">
@@ -127,28 +209,27 @@
   {% endfor %}
 </div>
 
-{# ── Invitation finale ───────────────────────────────────────────────────── #}
-<div class="row g-3 align-items-stretch">
-  <div class="col-lg-8">
-    <div class="rappel h-100 d-flex align-items-center gap-3">
-      <span class="medaillon medaillon-accent flex-shrink-0">{{ icone("temps") }}</span>
-      <span>
-        <strong>Aucun seuil automatique.</strong> L'outil ne décrète jamais qu'un
-        investissement est bon ou mauvais : il présente les chiffres au regard de
-        l'objectif et de l'horizon du client, à qui revient l'arbitrage.
-      </span>
+{# ── Contact ─────────────────────────────────────────────────────────────── #}
+<div class="citation">
+  <div class="row align-items-center g-4">
+    <div class="col-lg-7">
+      <h3 class="mb-2" style="color: #fff">Parlons de votre projet</h3>
+      {% if coordonnees.renseignees %}
+      <ul class="list-unstyled mb-0 small" style="color: rgba(255,255,255,.86)">
+        {% if coordonnees.telephone %}<li class="mb-1">Téléphone — {{ coordonnees.telephone }}</li>{% endif %}
+        {% if coordonnees.email %}<li class="mb-1">E-mail — {{ coordonnees.email }}</li>{% endif %}
+        {% if coordonnees.adresse %}<li class="mb-1">Adresse — {{ coordonnees.adresse }}</li>{% endif %}
+      </ul>
+      {% else %}
+      <p class="mb-0 small" style="color: rgba(255,255,255,.72)">
+        Coordonnées à renseigner par le cabinet — voir <code>app/cabinet.py</code>
+        ou les variables d'environnement <code>CABINET_TELEPHONE</code>,
+        <code>CABINET_EMAIL</code> et <code>CABINET_ADRESSE</code>.
+      </p>
+      {% endif %}
     </div>
-  </div>
-  <div class="col-lg-4">
-    <div class="card h-100 text-center">
-      <div class="card-body d-flex flex-column justify-content-center">
-        <span class="medaillon mx-auto">{{ icone("zone") }}</span>
-        <p class="small text-muted mt-3 mb-3">
-          Maroc, France ou zone personnalisée : frais, fiscalité et devise
-          s'actualisent automatiquement.
-        </p>
-        <a href="{{ url_for('auth.login') }}" class="btn btn-primary">Commencer un dossier</a>
-      </div>
+    <div class="col-lg-5 text-lg-end">
+      <a href="{{ url_for('auth.login') }}" class="btn btn-light btn-lg">Espace conseiller</a>
     </div>
   </div>
 </div>

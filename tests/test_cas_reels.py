@@ -7,11 +7,11 @@ import pytest
 
 from app.extensions import db
 from app.models import Projet, Scenario, ZonePreset
-from helpers import inscrire_et_connecter
+from helpers import DONNEES_CLIENT, inscrire_et_connecter
 
 
 def creer_dossier_france(http, app):
-    http.post("/clients/nouveau", data={"nom": "Famille Martin"})
+    http.post("/clients/nouveau", data={**DONNEES_CLIENT, "nom": "Famille Martin"})
     with app.app_context():
         from app.models import Client
 

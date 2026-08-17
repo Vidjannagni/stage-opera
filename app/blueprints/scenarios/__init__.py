@@ -31,6 +31,7 @@ def liste():
 def nouveau(projet_id: int):
     projet = projet_du_conseiller(projet_id)
     form = ScenarioForm()
+    form.projet = projet
     if form.validate_on_submit():
         scenario = Scenario(projet_id=projet.id)
         form.populate_obj(scenario)
@@ -49,6 +50,7 @@ def nouveau(projet_id: int):
 def modifier(scenario_id: int):
     scenario = scenario_du_conseiller(scenario_id)
     form = ScenarioForm(obj=scenario)
+    form.projet = scenario.projet
     if form.validate_on_submit():
         form.populate_obj(scenario)
         db.session.commit()

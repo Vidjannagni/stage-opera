@@ -419,3 +419,15 @@ footer { background: var(--surface); }
 .repere { text-align: center; padding: .3rem .5rem; }
 .repere .valeur { font-size: 1.65rem; font-weight: 700; color: var(--ecc-blue); letter-spacing: -.02em; }
 .repere .libelle { font-size: .78rem; color: var(--encre-douce); }
+
+/* Questions fréquentes de la page vitrine */
+.accordion-item { border-color: var(--trait); }
+.accordion-item:first-of-type { border-top-left-radius: var(--rayon); border-top-right-radius: var(--rayon); }
+.accordion-item:last-of-type { border-bottom-left-radius: var(--rayon); border-bottom-right-radius: var(--rayon); }
+.accordion-button { font-weight: 600; font-size: .95rem; color: var(--encre); }
+.accordion-button:not(.collapsed) { background: var(--ecc-blue-clair); color: var(--ecc-blue); box-shadow: none; }
+.accordion-button:focus { box-shadow: 0 0 0 .2rem rgba(0, 82, 145, .13); }
+.accordion-body { font-size: .9rem; }
+
+/* Le bloc de contact réutilise le fond sombre de la citation, sans le guillemet */
+.citation .stat-valeur { color: inherit; }

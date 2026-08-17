@@ -81,9 +81,21 @@ site vitrine, et non d'application :
 5. **Ce que l'outil apporte** en rendez-vous, en six points ;
 6. **L'invitation** à ouvrir un dossier.
 
-Aucun contenu n'est inventé : les types de biens, les étapes et la citation
-proviennent tous des réponses du cabinet consignées dans
-[`retour_cabinet.md`](retour_cabinet.md).
+La page comporte en outre **deux dossiers réels anonymisés** — le portage
+foncier et la construction-revente décrits par le mentor — assortis de la
+réserve d'usage (« les performances passées ne préjugent pas des performances
+futures »), et une **foire aux questions** reprenant les questions réellement
+posées en rendez-vous.
+
+Aucun contenu n'est inventé : types de biens, étapes, cas d'accompagnement,
+citation et réponses de la FAQ proviennent tous des réponses du cabinet
+consignées dans [`retour_cabinet.md`](retour_cabinet.md).
+
+**Les coordonnées ne sont pas inventées non plus.** Tant que le cabinet ne les
+a pas fournies, la page affiche une invitation à les compléter plutôt qu'un
+numéro fictif. Elles sont regroupées dans `app/cabinet.py`, renseignables par
+variables d'environnement. Publier un faux numéro sur une vitrine aurait été
+indéfendable dans un travail académique.
 
 ## 4. La hiérarchie visuelle traduit la hiérarchie métier
 
@@ -117,7 +129,28 @@ n'influe que sur la VAN, indicateur de second rang.
 Rien n'a été supprimé : tous les champs restent accessibles en un clic, et le
 moteur de calcul est inchangé.
 
-## 6. Des suggestions, jamais des contraintes
+## 6. Ce qui est obligatoire, et pourquoi
+
+Un formulaire trop permissif laisse créer des dossiers inexploitables. Les
+règles retenues découlent toutes du cadrage métier :
+
+| Champ | Obligatoire | Justification |
+|---|---|---|
+| Nom, situation professionnelle, nationalité, budget disponible | oui | Le cabinet les recueille **systématiquement** au premier entretien (réponse 5). La nationalité et la situation conditionnent l'accès au crédit local. |
+| Standing et zone recherchée (brief) | oui | Cités parmi les critères du premier entretien (réponse 4). |
+| Superficie et budget (brief) | au moins une borne | Un client dit souvent « jusqu'à tant » sans plancher : exiger la fourchette complète serait faux. |
+| Loyer mensuel | oui **si** l'opération est locative | Un dossier locatif sans loyer ne produit aucun indicateur. Le message d'erreur oriente vers le type « Terrain / revente » plutôt que de bloquer. |
+| Prix de revente **ou** revalorisation | oui **si** l'opération est sans loyer | Sans l'un des deux, un terrain resterait à sa valeur d'achat : le scénario n'aurait rien à montrer. |
+| Chambres, salles de bains, salons, étage, orientation | non | Le cabinet les cite pour un appartement en terminant par « etc. » : ce sont des précisions, pas des conditions. Le bloc disparaît d'ailleurs pour un terrain. |
+
+Deux principes ont guidé ces choix. **Zéro reste une valeur admise** — un budget
+disponible nul est une information, pas une absence de réponse. Et **une
+obligation doit toujours indiquer la sortie** : refuser un loyer vide sans dire
+qu'il existe un type « terrain » serait une impasse.
+
+Ces règles sont couvertes par `tests/test_champs_obligatoires.py`.
+
+## 7. Des suggestions, jamais des contraintes
 
 Plusieurs champs libres proposent désormais une liste de valeurs
 (`app/suggestions.py`) : situation professionnelle, nationalité, zone
@@ -145,7 +178,7 @@ retirent une valeur du champ libre : c'est le seul champ où le cabinet a cité
 une énumération (« transports, écoles, commerces »), et où l'on coche
 naturellement plusieurs entrées.
 
-## 7. Accessibilité et lisibilité
+## 8. Accessibilité et lisibilité
 
 - **Chiffres alignés** : `font-variant-numeric: tabular-nums` sur toutes les
   colonnes de montants, pour que les ordres de grandeur se comparent à l'œil.
@@ -158,7 +191,7 @@ naturellement plusieurs entrées.
 - **Impression** : une feuille de style dédiée retire navigation, boutons et
   formulaires, pour qu'une page imprimée reste exploitable.
 
-## 8. Ce qui a été volontairement écarté
+## 9. Ce qui a été volontairement écarté
 
 - **Photographies de biens** : l'outil est un support de calcul, pas une vitrine
   d'annonces. Une photo de bien n'apporterait rien à la décision et poserait un

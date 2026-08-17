@@ -63,3 +63,27 @@ class ScenarioForm(FlaskForm):
     )
 
     submit = SubmitField("Enregistrer")
+
+    #: Renseigné par la vue : le contrôle ci-dessous dépend du type d'opération.
+    projet = None
+
+    def validate(self, extra_validators=None) -> bool:
+        """Une opération sans loyer doit pouvoir créer de la valeur.
+
+        Sans prix de revente ni revalorisation du bien, un terrain resterait à
+        sa valeur d'achat : le scénario n'aurait rien à montrer.
+        """
+        if not super().validate(extra_validators):
+            return False
+        if (
+            self.projet is not None
+            and not self.projet.est_locatif
+            and not self.prix_revente.data
+            and not self.revalorisation_bien_pct.data
+        ):
+            self.prix_revente.errors.append(
+                "Une opération sans loyer a besoin d'un prix de revente, ou "
+                "d'une revalorisation annuelle du bien, pour créer de la valeur."
+            )
+            return False
+        return True

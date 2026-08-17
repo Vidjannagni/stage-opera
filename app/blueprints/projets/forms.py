@@ -105,6 +105,22 @@ class ProjetForm(FlaskForm):
 
     submit = SubmitField("Enregistrer")
 
+    def validate(self, extra_validators=None) -> bool:
+        """Un dossier locatif sans loyer ne produirait aucun indicateur.
+
+        On ne l'exige que dans ce cas : une opération de type terrain n'a par
+        définition pas de loyer, et le champ y vaut légitimement zéro.
+        """
+        if not super().validate(extra_validators):
+            return False
+        if self.type_operation.data == "locatif" and not self.loyer_mensuel.data:
+            self.loyer_mensuel.errors.append(
+                "Un dossier locatif suppose un loyer. Pour un bien sans loyer, "
+                "choisissez le type d'opération « Terrain / revente »."
+            )
+            return False
+        return True
+
 
 class LigneTravauxForm(FlaskForm):
     libelle = StringField(
