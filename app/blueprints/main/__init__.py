@@ -1,9 +1,21 @@
-from flask import Blueprint, render_template
+from pathlib import Path
+
+from flask import Blueprint, current_app, render_template
 from flask_login import current_user
 
 from ...models import Client, Projet
 
 bp = Blueprint("main", __name__)
+
+#: Visuel d'accueil facultatif. Le fichier n'est pas versionné : il peut donc
+#: être présent sur le poste d'un conseiller et absent d'un déploiement. Quand
+#: il manque, la page retombe sur l'illustration SVG du projet.
+VISUEL_ACCUEIL = "img/accueil.webp"
+
+
+def visuel_accueil() -> str | None:
+    chemin = Path(current_app.static_folder) / VISUEL_ACCUEIL
+    return VISUEL_ACCUEIL if chemin.is_file() else None
 
 
 @bp.route("/")
@@ -16,6 +28,7 @@ def index():
         return render_template(
             "index.html", cabinet_nom=NOM, cabinet_activite=ACTIVITE,
             questions=QUESTIONS_FREQUENTES, coordonnees=coordonnees(),
+            visuel_accueil=visuel_accueil(),
         )
 
     clients = current_user.clients.order_by(Client.nom).all()

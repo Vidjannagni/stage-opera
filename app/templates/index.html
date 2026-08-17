@@ -25,7 +25,15 @@
       <a href="#accompagnement" class="btn btn-light btn-lg">Découvrir notre méthode</a>
       <a href="{{ url_for('auth.login') }}" class="btn btn-outline-light btn-lg">Espace conseiller</a>
     </div>
-    <div class="col-lg-6">{{ accueil() }}</div>
+    <div class="col-lg-6">
+      {% if visuel_accueil %}
+      <img src="{{ url_for('static', filename=visuel_accueil) }}"
+           alt="Maquette de maisons illustrant l'accompagnement du cabinet"
+           class="visuel-accueil">
+      {% else %}
+      {{ accueil() }}
+      {% endif %}
+    </div>
   </div>
 </div>
 

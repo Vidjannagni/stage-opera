@@ -18,7 +18,7 @@ NOM = "Choubel Consulting"
 ACTIVITE = "Conseil en investissement immobilier"
 
 TELEPHONE = os.environ.get("CABINET_TELEPHONE")
-EMAIL = os.environ.get("CABINET_EMAIL", "chouble.ma@gmail.com")
+EMAIL = os.environ.get("CABINET_EMAIL", "choubel.ma@gmail.com")
 #: Communiquée plus tard par le cabinet.
 ADRESSE = os.environ.get("CABINET_ADRESSE")
 

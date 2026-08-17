@@ -22,7 +22,7 @@ def test_vitrine_naffiche_que_les_coordonnees_fournies(http):
     apparaître sous aucune forme inventée."""
     page = http.get("/").get_data(as_text=True)
 
-    assert "chouble.ma@gmail.com" in page
+    assert "choubel.ma@gmail.com" in page
     assert "Adresse" not in page
 
 

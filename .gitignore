@@ -31,7 +31,9 @@ remise/
 .idea/
 .DS_Store
 
-# Images de référence téléchargées (inspiration) : jamais versionnées, elles
-# appartiennent à leurs auteurs.
+# Visuels non produits par le projet : jamais versionnés, ils appartiennent à
+# leurs auteurs. L'application retombe sur son illustration SVG s'ils sont
+# absents, si bien que le dépôt et les déploiements restent utilisables.
+app/static/img/accueil.*
 original-*.webp
 Image collée*.png

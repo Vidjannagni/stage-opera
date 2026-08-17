@@ -431,3 +431,13 @@ footer { background: var(--surface); }
 
 /* Le bloc de contact réutilise le fond sombre de la citation, sans le guillemet */
 .citation .stat-valeur { color: inherit; }
+
+/* Visuel d'accueil apporté par le cabinet, quand il est présent. Arrondi et
+   détaché du fond pour qu'il ne se lise pas comme un rectangle rapporté. */
+.visuel-accueil {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, .34);
+}
