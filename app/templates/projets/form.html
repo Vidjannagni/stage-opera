@@ -14,7 +14,8 @@
 
 <h3 class="mb-1">{{ titre }}</h3>
 <p class="text-muted mb-4">
-  Renseignez ce que vous savez : les champs laissés vides valent zéro.
+  Ne remplissez que ce que vous savez : les champs laissés vides valent zéro.
+  Les réglages techniques sont repliés en bas de page.
 </p>
 
 <form method="post" novalidate>
@@ -22,13 +23,13 @@
   <div class="row">
     <div class="col-lg-6">
       <div class="card mb-4">
-        <div class="card-header">Identification</div>
+        <div class="card-header">Le bien</div>
         <div class="card-body">
           {{ render_field(form.nom) }}
           {{ render_field(form.type_operation) }}
-          {{ render_field(form.adresse) }}
           {{ render_field(form.zone_id) }}
           <div id="zone-info" class="rappel mb-3" role="status"></div>
+          {{ render_field(form.adresse) }}
           <div class="row">
             <div class="col-md-6">{{ render_field(form.surface_m2) }}</div>
             <div class="col-md-6">{{ render_field(form.statut) }}</div>
@@ -42,7 +43,6 @@
           {{ render_field(form.prix_bien) }}
           {{ render_field(form.budget_travaux) }}
           {{ render_field(form.delai_livraison_mois) }}
-          {{ render_field(form.taux_frais_override) }}
         </div>
       </div>
     </div>
@@ -54,13 +54,10 @@
           {{ render_field(form.loyer_mensuel) }}
           <div class="row">
             <div class="col-md-6">{{ render_field(form.charges_copro_annuelles) }}</div>
-            <div class="col-md-6">{{ render_field(form.assurance_annuelle) }}</div>
+            <div class="col-md-6">{{ render_field(form.taxe_annuelle) }}</div>
             <div class="col-md-6">{{ render_field(form.frais_gestion_pct) }}</div>
             <div class="col-md-6">{{ render_field(form.vacance_pct) }}</div>
-            <div class="col-md-6">{{ render_field(form.entretien_annuel) }}</div>
-            <div class="col-md-6">{{ render_field(form.taxe_annuelle) }}</div>
           </div>
-          {{ render_field(form.taux_imposition_override) }}
         </div>
       </div>
 
@@ -74,12 +71,37 @@
           <ul class="small text-muted mb-0">
             <li>Le coût de construction se saisit dans <em>Budget travaux / construction</em>.</li>
             <li>Le prix de sortie se saisit sur le scénario, champ <em>Prix de revente à l'horizon</em>.</li>
-            <li>Les charges annuelles éventuelles (taxe, gardiennage) restent saisissables ci-dessus.</li>
           </ul>
         </div>
       </div>
     </div>
   </div>
+
+  {# Réglages que l'on ne renseigne pas devant un client : par défaut, la zone
+     de marché fournit les taux et les charges secondaires valent zéro. #}
+  <details class="avance mb-4">
+    <summary>Réglages avancés — surcharges de zone et charges secondaires</summary>
+    <div class="contenu-avance row">
+      <div class="col-lg-6">
+        <div class="card">
+          <div class="card-header">Surcharges de la zone</div>
+          <div class="card-body">
+            {{ render_field(form.taux_frais_override) }}
+            {{ render_field(form.taux_imposition_override) }}
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <div class="card">
+          <div class="card-header">Charges annuelles secondaires</div>
+          <div class="card-body">
+            {{ render_field(form.assurance_annuelle) }}
+            {{ render_field(form.entretien_annuel) }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </details>
 
   <div class="d-flex gap-2">
     {{ form.submit(class="btn btn-primary") }}
@@ -102,7 +124,7 @@
     const zone = ZONES.find((z) => z.id === Number(selectZone.value));
     if (!zone) return;
     infoZone.innerHTML = zone.personnalisable
-      ? `Zone <strong>${zone.nom}</strong> : saisissez vos taux dans les champs de surcharge ci-dessous.`
+      ? `Zone <strong>${zone.nom}</strong> : saisissez vos taux dans les réglages avancés.`
       : `Zone <strong>${zone.nom}</strong> — devise <strong>${zone.devise}</strong>, ` +
         `frais d'acquisition <strong>${zone.taux_frais_total.toFixed(1)} %</strong>, ` +
         `imposition effective <strong>${zone.taux_imposition_defaut.toFixed(1)} %</strong>. ` +

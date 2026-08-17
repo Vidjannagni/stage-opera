@@ -66,6 +66,7 @@ appartement locatif à Casablanca (3 scénarios) et un terrain en portage sur
 
 - `docs/retour_cabinet.md` — entretien de cadrage métier avec le cabinet, écarts
   constatés et modifications apportées.
+- `docs/choix_interface.md` — justification des choix visuels et ergonomiques.
 - `docs/guide_utilisation.md` — guide du conseiller, dans l'ordre d'un rendez-vous.
 - `docs/script_demonstration.md` — déroulé de démonstration face à un investisseur.
 - `cahier_des_charges.pdf` — périmètre, formules et conventions de calcul.

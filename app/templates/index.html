@@ -1,40 +1,47 @@
 {% extends "base.html" %}
+{% from "_illustrations.html" import accueil, icone %}
 
 {% block content %}
-<div class="p-5 mb-4 rounded-3 hero">
-  <div class="container-fluid py-4">
-    <h1 class="display-6 fw-bold">Du besoin du client à la recommandation chiffrée</h1>
-    <p class="col-lg-8 fs-5 mb-4">
-      Support de conseil pour l'accompagnement d'un investisseur immobilier :
-      brief de recherche, suivi du dossier jusqu'à la livraison, et analyse
-      chiffrée du bien retenu — paramétrable par zone de marché (Maroc par défaut).
-    </p>
-    <a href="{{ url_for('auth.login') }}" class="btn btn-light fw-semibold">Se connecter</a>
-    <a href="{{ url_for('auth.register') }}" class="btn btn-outline-light">Créer un compte</a>
+<div class="hero p-4 p-lg-5 mb-4">
+  <div class="row align-items-center g-4">
+    <div class="col-lg-6">
+      <span class="etiquette etiquette-accent mb-3 d-inline-block">Choubel Consulting</span>
+      <h1 class="display-6 fw-bold mb-3">Du besoin du client<br>à la recommandation chiffrée</h1>
+      <p class="fs-6 mb-4">
+        Support de conseil pour l'accompagnement d'un investisseur immobilier :
+        recueil du besoin, suivi du dossier jusqu'à la livraison, et analyse
+        chiffrée du bien retenu — paramétrable par zone de marché.
+      </p>
+      <a href="{{ url_for('auth.login') }}" class="btn btn-light">Se connecter</a>
+      <a href="{{ url_for('auth.register') }}" class="btn btn-outline-light">Créer un compte</a>
+    </div>
+    <div class="col-lg-6">
+      {{ accueil() }}
+    </div>
   </div>
 </div>
 
 <div class="titre-section">Le déroulé d'un accompagnement</div>
-<div class="row g-4 mb-4">
-  {% for numero, titre, texte in [
-    ("1", "Brief de recherche",
-     "Type de bien, standing, superficie, commodités, zone, budget et financement — plus l'objectif et l'horizon du client."),
-    ("2", "Suivi du dossier",
-     "Recherche, présentation des biens, visites, compromis, acte notarié, livraison : chaque dossier affiche son étape."),
-    ("3", "Analyse du bien",
+<div class="row g-3 mb-4">
+  {% for cle, titre, texte in [
+    ("brief", "Le besoin d'abord",
+     "Type de bien, standing, superficie, commodités, zone, budget et financement — puis l'objectif et l'horizon du client."),
+    ("suivi", "Le dossier suivi",
+     "Recherche, présentation, visites, compromis, acte notarié, livraison : chaque dossier affiche son étape."),
+    ("analyse", "Le bien analysé",
      "Coût d'entrée réel, rendement net, cash-flow, plus-value et valeur créée à l'horizon retenu."),
-    ("4", "Scénarios de financement",
-     "Comptant ou crédit, durées et apports variables, achat sur plan : chaque montage se compare côte à côte."),
-    ("5", "Restitution",
-     "Rapport PDF aux couleurs du cabinet et classeur Excel remis au client à l'issue du rendez-vous."),
-    ("6", "Zones de marché",
-     "Frais d'acquisition, fiscalité et devise s'actualisent selon la zone : Maroc, France ou paramétrage libre.")
+    ("scenarios", "Les montages comparés",
+     "Comptant ou crédit, durées et apports variables : les scénarios se lisent côte à côte."),
+    ("terrain", "Le terrain aussi",
+     "Une opération sans loyer — portage foncier, construction-revente — est traitée pour ce qu'elle est : une plus-value."),
+    ("restitution", "Le document remis",
+     "Rapport PDF aux couleurs du cabinet et classeur Excel, remis au client à l'issue du rendez-vous.")
   ] %}
-  <div class="col-md-4">
-    <div class="card h-100">
+  <div class="col-md-6 col-lg-4">
+    <div class="card carte-etape h-100">
       <div class="card-body">
-        <span class="etiquette mb-2 d-inline-block">Étape {{ numero }}</span>
-        <h5 class="card-title">{{ titre }}</h5>
+        <span class="medaillon {{ 'medaillon-accent' if loop.index0 % 2 }}">{{ icone(cle) }}</span>
+        <h5 class="card-title mt-3 mb-2">{{ titre }}</h5>
         <p class="card-text small text-muted mb-0">{{ texte }}</p>
       </div>
     </div>
@@ -42,9 +49,26 @@
   {% endfor %}
 </div>
 
-<div class="rappel">
-  <strong>Pas de seuil automatique.</strong> L'outil ne décrète jamais qu'un
-  investissement est bon ou mauvais : il présente les chiffres au regard de
-  l'objectif et de l'horizon du client, à qui revient l'arbitrage.
+<div class="row g-3">
+  <div class="col-lg-8">
+    <div class="rappel h-100 d-flex align-items-center gap-3">
+      <span class="medaillon medaillon-accent flex-shrink-0">{{ icone("temps") }}</span>
+      <span>
+        <strong>Aucun seuil automatique.</strong> L'outil ne décrète jamais qu'un
+        investissement est bon ou mauvais : il présente les chiffres au regard de
+        l'objectif et de l'horizon du client, à qui revient l'arbitrage. Le même
+        bien peut convenir à l'un et pas à l'autre — tout dépend du facteur temps.
+      </span>
+    </div>
+  </div>
+  <div class="col-lg-4">
+    <div class="rappel h-100 d-flex align-items-center gap-3">
+      <span class="medaillon flex-shrink-0">{{ icone("zone") }}</span>
+      <span>
+        <strong>Zones de marché.</strong> Frais d'acquisition, fiscalité et devise
+        s'actualisent selon la zone : Maroc, France ou paramétrage libre.
+      </span>
+    </div>
+  </div>
 </div>
 {% endblock %}

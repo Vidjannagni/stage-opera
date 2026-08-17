@@ -25,7 +25,9 @@
 
 {# État vide : toujours assorti de l'action qui en sort. #}
 {% macro vide(message, action_libelle="", action_url="") %}
+{% from "_illustrations.html" import dossier_vide %}
 <div class="vide">
+  {{ dossier_vide() }}
   <p>{{ message }}</p>
   {% if action_libelle %}<a href="{{ action_url }}" class="btn btn-primary">{{ action_libelle }}</a>{% endif %}
 </div>

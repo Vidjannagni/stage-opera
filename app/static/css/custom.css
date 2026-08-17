@@ -1,54 +1,89 @@
 /* ═══════════════════════════════════════════════════════════════════════════
    RentImmo — habillage de Bootstrap 5 aux couleurs de Choubel Consulting.
-   Parti pris : sobriété. L'outil est projeté devant un client, la lisibilité
-   des chiffres prime sur l'effet visuel.
+
+   La palette est reprise des documents LaTeX du cabinet (eccblue, navy,
+   accent) : elle n'est pas inventée pour l'occasion. Les illustrations sont
+   des SVG écrits dans les gabarits, sans aucune image externe.
+
+   Parti pris : l'outil est projeté devant un client. La couleur sert à
+   hiérarchiser l'information, jamais à décorer pour décorer.
    ═══════════════════════════════════════════════════════════════════════════ */
 
 :root {
   --ecc-blue: #005291;
-  --ecc-blue-clair: #e7f0f7;
+  --ecc-blue-fonce: #003b6b;
+  --ecc-blue-clair: #e8f1f8;
   --ecc-navy: #0c1930;
   --ecc-accent: #00bcaa;
+  --ecc-accent-fonce: #009184;
+  --ecc-ambre: #e08a00;
 
   --encre: #16202f;
   --encre-douce: #5b6875;
-  --trait: #e3e8ee;
-  --fond: #f5f7fa;
+  --trait: #e2e8f0;
+  --fond: #f4f7fb;
   --surface: #ffffff;
 
   --positif: #157347;
   --negatif: #b02a37;
 
-  --rayon: 10px;
-  --ombre: 0 1px 2px rgba(16, 32, 51, .06), 0 4px 16px rgba(16, 32, 51, .05);
+  --rayon: 12px;
+  --rayon-petit: 8px;
+  --ombre: 0 1px 2px rgba(12, 25, 48, .05), 0 4px 14px rgba(12, 25, 48, .06);
+  --ombre-forte: 0 2px 6px rgba(12, 25, 48, .08), 0 14px 34px rgba(12, 25, 48, .10);
 }
 
 body {
   background-color: var(--fond);
+  background-image:
+    radial-gradient(circle at 12% -8%, rgba(0, 188, 170, .10), transparent 42%),
+    radial-gradient(circle at 92% 0%, rgba(0, 82, 145, .09), transparent 38%);
+  background-attachment: fixed;
   color: var(--encre);
   font-size: .95rem;
 }
 
-h1, h2, h3, h4, h5 { letter-spacing: -.015em; }
+h1, h2, h3, h4, h5 { letter-spacing: -.02em; font-weight: 650; }
 
-/* ── Marque et navigation ───────────────────────────────────────────────── */
+/* ── Navigation ─────────────────────────────────────────────────────────── */
 .bg-navy { background-color: var(--ecc-navy); }
 .text-accent { color: var(--ecc-accent); }
 
-.navbar { box-shadow: inset 0 -1px 0 rgba(255, 255, 255, .08); }
-.navbar .nav-link { color: rgba(255, 255, 255, .72); font-weight: 500; }
-.navbar .nav-link:hover { color: #fff; }
+.navbar {
+  background-image: linear-gradient(100deg, var(--ecc-navy) 0%, #12294a 62%, var(--ecc-blue-fonce) 100%);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, .08), 0 4px 18px rgba(12, 25, 48, .16);
+}
+
+.navbar-brand { display: flex; align-items: center; gap: .55rem; letter-spacing: -.02em; }
+.navbar .nav-link { color: rgba(255, 255, 255, .74); font-weight: 500; border-radius: 6px; }
+.navbar .nav-link:hover { color: #fff; background: rgba(255, 255, 255, .07); }
+
 .navbar .nav-link.actif {
   color: #fff;
+  background: rgba(255, 255, 255, .10);
   box-shadow: inset 0 -2px 0 var(--ecc-accent);
 }
 
+/* ── Bandeau d'accueil ──────────────────────────────────────────────────── */
 .hero {
-  background: linear-gradient(135deg, var(--ecc-navy) 0%, var(--ecc-blue) 100%);
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--rayon);
   color: #fff;
+  background-color: var(--ecc-navy);
+  background-image:
+    radial-gradient(circle at 86% 14%, rgba(0, 188, 170, .28), transparent 48%),
+    linear-gradient(128deg, var(--ecc-navy) 0%, #123055 58%, var(--ecc-blue) 100%);
+  box-shadow: var(--ombre-forte);
 }
 
-/* ── Cartes et titres de section ────────────────────────────────────────── */
+.hero h1 { color: #fff; }
+.hero p { color: rgba(255, 255, 255, .84); }
+
+.illustration-accueil { width: 100%; max-width: 460px; height: auto; display: block; }
+.illustration-vide { width: 116px; height: auto; margin: 0 auto .4rem; display: block; }
+
+/* ── Cartes ─────────────────────────────────────────────────────────────── */
 .card {
   border: 1px solid var(--trait);
   border-radius: var(--rayon);
@@ -58,59 +93,95 @@ h1, h2, h3, h4, h5 { letter-spacing: -.015em; }
 .card-header {
   background-color: var(--surface);
   border-bottom: 1px solid var(--trait);
-  font-size: .8rem;
-  font-weight: 600;
-  letter-spacing: .04em;
+  font-size: .78rem;
+  font-weight: 650;
+  letter-spacing: .05em;
   text-transform: uppercase;
   color: var(--encre-douce);
+  padding-top: .72rem;
+  padding-bottom: .72rem;
 }
 
-.card .card-title { color: var(--ecc-blue); }
+.card .card-title { color: var(--ecc-blue); font-weight: 650; }
+
+.carte-etape { transition: transform .16s ease, box-shadow .16s ease; }
+.carte-etape:hover { transform: translateY(-3px); box-shadow: var(--ombre-forte); }
+
+.medaillon {
+  width: 42px; height: 42px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border-radius: 11px;
+  color: var(--ecc-blue);
+  background: linear-gradient(140deg, var(--ecc-blue-clair), #f3f9fd);
+  border: 1px solid #d5e6f3;
+}
+
+.medaillon-accent {
+  color: var(--ecc-accent-fonce);
+  background: linear-gradient(140deg, #e2f7f4, #f2fbfa);
+  border-color: #c4ece6;
+}
 
 .titre-section {
-  font-size: .78rem;
+  font-size: .76rem;
   font-weight: 700;
-  letter-spacing: .08em;
+  letter-spacing: .09em;
   text-transform: uppercase;
   color: var(--encre-douce);
   margin-bottom: .85rem;
+  display: flex; align-items: center; gap: .5rem;
+}
+
+.titre-section::after {
+  content: ""; flex: 1; height: 1px;
+  background: linear-gradient(90deg, var(--trait), transparent);
 }
 
 /* ── Tuiles d'indicateur ────────────────────────────────────────────────── */
 .stat {
+  position: relative;
+  overflow: hidden;
   background: var(--surface);
   border: 1px solid var(--trait);
   border-radius: var(--rayon);
   box-shadow: var(--ombre);
-  padding: 1rem 1.1rem;
+  padding: 1rem 1.15rem;
   height: 100%;
 }
 
 .stat-libelle {
-  font-size: .74rem;
-  font-weight: 600;
-  letter-spacing: .05em;
-  text-transform: uppercase;
-  color: var(--encre-douce);
+  font-size: .73rem; font-weight: 650; letter-spacing: .055em;
+  text-transform: uppercase; color: var(--encre-douce);
 }
 
 .stat-valeur {
-  font-size: 1.55rem;
-  font-weight: 700;
-  line-height: 1.25;
-  margin-top: .3rem;
-  font-variant-numeric: tabular-nums;
+  font-size: 1.6rem; font-weight: 700; line-height: 1.22;
+  margin-top: .32rem; font-variant-numeric: tabular-nums;
+  letter-spacing: -.02em;
 }
 
-.stat-aide {
-  font-size: .78rem;
-  color: var(--encre-douce);
-  margin-top: .15rem;
-}
+.stat-aide { font-size: .78rem; color: var(--encre-douce); margin-top: .2rem; }
 
 /* Hiérarchie voulue par le cabinet : rendement net et cash-flow d'abord. */
-.stat-primaire { border-left: 3px solid var(--ecc-blue); }
-.stat-secondaire { background: transparent; box-shadow: none; }
+.stat-primaire {
+  border-color: #cfe2f1;
+  background: linear-gradient(168deg, #fbfdff 0%, var(--surface) 58%);
+  box-shadow: var(--ombre-forte);
+  padding-left: 1.35rem;
+}
+
+.stat-primaire::before {
+  content: ""; position: absolute; top: 0; bottom: 0; left: 0; width: 4px;
+  background: linear-gradient(180deg, var(--ecc-accent), var(--ecc-blue));
+}
+
+.stat-primaire .stat-valeur { font-size: 1.9rem; }
+
+.stat-secondaire {
+  background: transparent; box-shadow: none;
+  border-style: dashed; border-color: #d8e1ea;
+}
+
 .stat-secondaire .stat-valeur { font-size: 1.2rem; }
 
 .valeur-positive { color: var(--positif); }
@@ -118,25 +189,18 @@ h1, h2, h3, h4, h5 { letter-spacing: -.015em; }
 
 /* ── Déroulé du dossier : recherche → livraison ─────────────────────────── */
 .etapes {
-  display: flex;
-  flex-wrap: wrap;
-  gap: .35rem;
-  list-style: none;
-  padding: 0;
-  margin: 0;
+  display: flex; flex-wrap: wrap; gap: .4rem;
+  list-style: none; padding: 0; margin: 0;
 }
 
 .etapes li {
-  flex: 1 1 0;
-  min-width: 92px;
-  font-size: .74rem;
-  font-weight: 600;
-  text-align: center;
+  flex: 1 1 0; min-width: 96px;
+  font-size: .73rem; font-weight: 650; text-align: center;
   color: var(--encre-douce);
   background: var(--fond);
   border: 1px solid var(--trait);
-  border-radius: 6px;
-  padding: .4rem .3rem;
+  border-radius: var(--rayon-petit);
+  padding: .48rem .35rem;
 }
 
 .etapes li.faite {
@@ -145,54 +209,50 @@ h1, h2, h3, h4, h5 { letter-spacing: -.015em; }
   color: var(--ecc-blue);
 }
 
+.etapes li.faite::before { content: "✓ "; color: var(--ecc-accent-fonce); font-weight: 700; }
+
 .etapes li.courante {
-  background: var(--ecc-blue);
-  border-color: var(--ecc-blue);
+  background: linear-gradient(140deg, var(--ecc-blue), var(--ecc-blue-fonce));
+  border-color: var(--ecc-blue-fonce);
   color: #fff;
+  box-shadow: 0 4px 12px rgba(0, 82, 145, .26);
 }
 
 /* ── Tableaux ───────────────────────────────────────────────────────────── */
-.table { --bs-table-bg: var(--surface); }
+.table { --bs-table-bg: var(--surface); margin-bottom: 0; }
 
 .table > thead th {
-  font-size: .74rem;
-  font-weight: 600;
-  letter-spacing: .04em;
-  text-transform: uppercase;
-  color: var(--encre-douce);
+  font-size: .73rem; font-weight: 650; letter-spacing: .045em;
+  text-transform: uppercase; color: var(--encre-douce);
+  background: #fbfcfe;
   border-bottom: 1px solid var(--trait);
+  white-space: nowrap;
 }
 
-.table td, .table th { border-color: var(--trait); }
+.table td, .table th { border-color: var(--trait); vertical-align: middle; }
 .table .text-end, td.nombre { font-variant-numeric: tabular-nums; }
+.table-hover > tbody > tr:hover > * { background-color: #f7fbff; }
 
-.ligne-attente td { color: var(--encre-douce); font-style: italic; }
+.ligne-attente td { color: var(--encre-douce); font-style: italic; background: #fcfcfd; }
 
 /* ── Étiquettes ─────────────────────────────────────────────────────────── */
 .etiquette {
-  display: inline-block;
-  font-size: .72rem;
-  font-weight: 600;
-  letter-spacing: .03em;
-  padding: .18rem .55rem;
-  border-radius: 999px;
-  background: var(--ecc-blue-clair);
-  color: var(--ecc-blue);
+  display: inline-block; white-space: nowrap;
+  font-size: .72rem; font-weight: 650; letter-spacing: .02em;
+  padding: .2rem .6rem; border-radius: 999px;
+  background: var(--ecc-blue-clair); color: var(--ecc-blue);
   border: 1px solid #cfe0ee;
 }
 
-.etiquette-sourde {
-  background: var(--fond);
-  color: var(--encre-douce);
-  border-color: var(--trait);
-}
+.etiquette-sourde { background: var(--fond); color: var(--encre-douce); border-color: var(--trait); }
+.etiquette-accent { background: #e2f7f4; color: var(--ecc-accent-fonce); border-color: #c4ece6; }
 
 /* ── État vide ──────────────────────────────────────────────────────────── */
 .vide {
   background: var(--surface);
-  border: 1px dashed #cdd6e0;
+  border: 1px dashed #cbd8e4;
   border-radius: var(--rayon);
-  padding: 2.5rem 1.5rem;
+  padding: 2.4rem 1.5rem;
   text-align: center;
   color: var(--encre-douce);
 }
@@ -200,34 +260,65 @@ h1, h2, h3, h4, h5 { letter-spacing: -.015em; }
 .vide p { margin-bottom: 1rem; }
 
 /* ── Formulaires ────────────────────────────────────────────────────────── */
-.form-label { font-size: .84rem; font-weight: 600; color: var(--encre); }
+.form-label { font-size: .84rem; font-weight: 600; color: var(--encre); margin-bottom: .3rem; }
 .form-text { font-size: .78rem; }
-
-.form-control, .form-select { border-color: #d3dae2; }
+.form-control, .form-select { border-color: #d3dce6; border-radius: var(--rayon-petit); }
 
 .form-control:focus, .form-select:focus {
   border-color: var(--ecc-blue);
-  box-shadow: 0 0 0 .2rem rgba(0, 82, 145, .12);
+  box-shadow: 0 0 0 .2rem rgba(0, 82, 145, .13);
 }
 
+/* Repli des réglages que l'on ne remplit pas en rendez-vous */
+.avance > summary {
+  cursor: pointer; list-style: none;
+  font-size: .8rem; font-weight: 650; color: var(--ecc-blue);
+  padding: .55rem .8rem;
+  border: 1px dashed #cbd8e4; border-radius: var(--rayon-petit);
+  background: #fbfcfe;
+}
+
+.avance > summary::-webkit-details-marker { display: none; }
+.avance > summary::before { content: "▸ "; }
+.avance[open] > summary::before { content: "▾ "; }
+.avance > summary:hover { background: var(--ecc-blue-clair); }
+.contenu-avance { padding-top: 1rem; }
+
+/* ── Boutons ────────────────────────────────────────────────────────────── */
+.btn { border-radius: var(--rayon-petit); font-weight: 550; }
+
+.btn-primary {
+  background-image: linear-gradient(140deg, var(--ecc-blue), var(--ecc-blue-fonce));
+  border-color: var(--ecc-blue-fonce);
+  box-shadow: 0 2px 8px rgba(0, 82, 145, .22);
+}
+
+.btn-primary:hover { background-image: linear-gradient(140deg, #005ea6, var(--ecc-blue)); }
+.btn-light { font-weight: 600; }
+
 /* ── Fil d'Ariane ───────────────────────────────────────────────────────── */
-.breadcrumb { font-size: .84rem; margin-bottom: .75rem; }
+.breadcrumb { font-size: .84rem; margin-bottom: .8rem; }
 .breadcrumb a { color: var(--encre-douce); text-decoration: none; }
 .breadcrumb a:hover { color: var(--ecc-blue); text-decoration: underline; }
 
 /* ── Encart de rappel (objectif du client, conventions) ─────────────────── */
 .rappel {
-  background: var(--ecc-blue-clair);
+  background: linear-gradient(100deg, var(--ecc-blue-clair), #f4fbfd);
   border: 1px solid #cfe0ee;
-  border-radius: var(--rayon);
-  padding: .8rem 1rem;
-  font-size: .86rem;
+  border-left: 4px solid var(--ecc-accent);
+  border-radius: var(--rayon-petit);
+  padding: .82rem 1rem;
+  font-size: .87rem;
   color: #123a5c;
 }
 
 .rappel strong { color: var(--ecc-blue); }
 
+/* ── Pied de page ───────────────────────────────────────────────────────── */
+footer { background: var(--surface); }
+
 @media print {
-  .navbar, footer, .btn, form { display: none !important; }
-  body { background: #fff; }
+  .navbar, footer, .btn, form, .breadcrumb { display: none !important; }
+  body { background: #fff; background-image: none; }
+  .card, .stat { box-shadow: none; border-color: #ccc; }
 }
