@@ -86,9 +86,10 @@ pytest tests/ -v
 
 ## Mise en ligne
 
-Le dépôt contient tout le nécessaire (`demarrer.sh`, `Procfile`, `render.yaml`) :
-sur Render, un *Blueprint* crée le service web et la base PostgreSQL, applique
-les migrations et charge les zones au premier démarrage.
+Le dépôt contient tout le nécessaire : `deploiement/pythonanywhere_wsgi.py` pour
+**PythonAnywhere** (offre gratuite sans carte bancaire, base SQLite), et
+`demarrer.sh` / `Procfile` / `render.yaml` pour un hébergeur de type Render
+(Gunicorn + PostgreSQL, migrations et zones jouées au démarrage).
 
 **Marche à suivre complète : `docs/deploiement.md`.**
 

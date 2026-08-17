@@ -7,7 +7,16 @@ local, variables de l'hébergeur en ligne).
 import os
 from pathlib import Path
 
+from dotenv import load_dotenv
+
 BASE_DIR = Path(__file__).resolve().parent
+
+# Chargé ici, et non dans create_app : les classes ci-dessous lisent
+# os.environ au moment de l'import du module. Sous Gunicorn ou un serveur
+# WSGI — qui, contrairement à la commande `flask`, ne lit pas le .env —
+# un chargement plus tardif arriverait trop tard et les valeurs du fichier
+# seraient silencieusement ignorées.
+load_dotenv(BASE_DIR / ".env")
 
 
 def uri_base_de_donnees() -> str:
