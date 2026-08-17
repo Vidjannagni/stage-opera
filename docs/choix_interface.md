@@ -59,12 +59,25 @@ Quatre raisons, dans l'ordre d'importance :
 **Seule exception : le logo du cabinet**, qui est une image fournie par le
 client et lui appartient (`app/static/img/logo-choubel.jpg`).
 
-L'illustration d'accueil n'est pas décorative non plus. Elle met en scène, dans
-l'ordre où le cabinet exerce son métier : une **parcelle de terrain** au premier
-plan, la **villa** construite dessus, des **immeubles** en arrière-plan, et la
-**courbe de valorisation** qui traverse la scène. Le toit reprend l'or du logo.
-Le terrain y figure au premier plan parce que les deux cas réels transmis par le
-mentor sont des opérations foncières.
+### L'illustration d'accueil
+
+Elle représente une **villa posée sur sa parcelle**, en projection isométrique
+avec volumes ombrés — le rendu communément appelé « 3D doux ». Chaque solide
+reçoit trois tons : face éclairée, face de côté, face d'ombre. Le relief est
+donc obtenu par la seule colorimétrie, sans image matricielle ni bibliothèque
+3D. Le toit reprend l'or du logo.
+
+Le sujet n'est pas choisi au hasard : la parcelle est représentée avant le bâti,
+parce que les deux cas réels transmis par le mentor sont des **opérations
+foncières**.
+
+**Inspiration revendiquée.** Le style — isométrie, formes arrondies, ombres
+douces, palette bois et crème — est celui d'un genre très répandu chez les
+illustrateurs (*isometric house*, *clay render*). Le dessin, lui, est
+entièrement original : aucune illustration existante n'a été copiée, ni
+décalquée, ni téléchargée. **Un style ne se protège pas, une œuvre si** — et
+reprendre le fichier d'un illustrateur identifié dans un livrable académique
+aurait été une faute, indépendamment du rendu.
 
 ## 3. La page d'accueil présente le cabinet, pas l'outil
 

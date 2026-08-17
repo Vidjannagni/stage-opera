@@ -18,92 +18,116 @@
 </svg>
 {% endmacro %}
 
-{# ── Illustration d'accueil ────────────────────────────────────────────────
+{# ── Illustration d'accueil : maison isométrique sur sa parcelle ───────────
 
-   La scène raconte le métier du cabinet dans l'ordre où il l'exerce : un
-   terrain d'abord, la villa construite dessus ensuite, des immeubles au
-   second plan, et la courbe de valorisation qui traverse le tout. Le toit
-   reprend l'or du logo Choubel. #}
+   Dessin original, en projection isométrique et volumes ombrés (le rendu dit
+   « 3D doux »). Chaque solide reçoit trois tons — face éclairée, face de
+   côté, face d'ombre — ce qui donne le relief sans aucune image bitmap.
+
+   Le sujet reste celui du métier du cabinet : une villa posée sur sa parcelle.
+   Le toit reprend l'or du logo Choubel. #}
 {% macro accueil() %}
-<svg viewBox="0 0 520 340" class="illustration-accueil" role="img"
-     aria-label="Villa entourée d'arbres, immeubles en arrière-plan et courbe de valorisation croissante">
+<svg viewBox="0 0 560 460" class="illustration-accueil" role="img"
+     aria-label="Maison vue en perspective isométrique, posée sur sa parcelle plantée d'arbres">
   <defs>
-    <linearGradient id="ill-mur" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#ffffff" stop-opacity=".30"/>
-      <stop offset="100%" stop-color="#ffffff" stop-opacity=".12"/>
+    <linearGradient id="sol-haut" x1="0.2" y1="0" x2="0.8" y2="1">
+      <stop offset="0%" stop-color="#26bda6"/><stop offset="100%" stop-color="#12897a"/>
     </linearGradient>
-    <linearGradient id="ill-toit" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#ffd75e"/>
-      <stop offset="100%" stop-color="#e0a800"/>
+    <linearGradient id="sol-gauche" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0f7d6e"/><stop offset="100%" stop-color="#0a5f55"/>
     </linearGradient>
-    <linearGradient id="ill-courbe" x1="0" y1="1" x2="1" y2="0">
-      <stop offset="0%" stop-color="#00bcaa"/>
-      <stop offset="100%" stop-color="#8df0e4"/>
+    <linearGradient id="sol-droite" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0a5e54"/><stop offset="100%" stop-color="#074740"/>
     </linearGradient>
-    <linearGradient id="ill-vitre" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#ffd75e" stop-opacity=".95"/>
-      <stop offset="100%" stop-color="#ffb800" stop-opacity=".55"/>
+    <linearGradient id="toit-clair" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ffd97a"/><stop offset="100%" stop-color="#f0a92f"/>
     </linearGradient>
+    <linearGradient id="toit-fonce" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#d98b22"/><stop offset="100%" stop-color="#ab6511"/>
+    </linearGradient>
+    <linearGradient id="mur-clair" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#fef7ea"/><stop offset="100%" stop-color="#f3e4ca"/>
+    </linearGradient>
+    <linearGradient id="mur-fonce" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#e7d4b3"/><stop offset="100%" stop-color="#d2b98f"/>
+    </linearGradient>
+    <linearGradient id="vitre" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#fff0b8"/><stop offset="100%" stop-color="#ffc63f"/>
+    </linearGradient>
+    <filter id="ombre-douce" x="-40%" y="-70%" width="180%" height="260%">
+      <feGaussianBlur stdDeviation="14"/>
+    </filter>
   </defs>
 
-  {# Soleil #}
-  <circle cx="432" cy="62" r="40" fill="#F9CC28" opacity=".13"/>
-  <circle cx="432" cy="62" r="23" fill="#F9CC28" opacity=".28"/>
+  {# La parcelle, en volume #}
+  <path d="M280 150 520 272 280 394 40 272Z" fill="url(#sol-haut)"/>
+  <path d="M40 272 280 394v30L40 302Z" fill="url(#sol-gauche)"/>
+  <path d="M280 394 520 272v30L280 424Z" fill="url(#sol-droite)"/>
 
-  {# Immeubles en arrière-plan : le cabinet traite aussi le collectif #}
-  {% for x, h in [(300, 96), (352, 132), (404, 108)] %}
-  <rect x="{{ x }}" y="{{ 258 - h }}" width="42" height="{{ h }}" rx="3"
-        fill="#ffffff" fill-opacity=".10" stroke="#ffffff" stroke-opacity=".20"/>
-  {% for etage in range((h / 30) | int) %}
-  {% for col in [0, 1] %}
-  <rect x="{{ x + 9 + col * 17 }}" y="{{ 258 - h + 12 + etage * 28 }}" width="9" height="12"
-        rx="1.5" fill="#ffffff" opacity="{{ 0.28 if (etage + col) % 2 else 0.14 }}"/>
-  {% endfor %}
-  {% endfor %}
+  {# Ombre portée de la maison #}
+  <ellipse cx="288" cy="300" rx="128" ry="38" fill="#04413a" opacity="0.6" filter="url(#ombre-douce)"/>
+
+  {# Allée montant vers la porte #}
+  {% for dx, dy, ech in [(340, 352, 1.0), (323, 332, 0.93), (306, 313, 0.86)] %}
+  <path d="M{{ dx }} {{ dy }}l{{ 26 * ech }} {{ 13 * ech }} -{{ 26 * ech }} {{ 13 * ech }} -{{ 26 * ech }} -{{ 13 * ech }}Z"
+        fill="#18a893" opacity="0.9"/>
   {% endfor %}
 
-  {# La villa, sujet principal #}
-  <rect x="96" y="176" width="150" height="84" rx="4" fill="url(#ill-mur)"
-        stroke="#ffffff" stroke-opacity=".42" stroke-width="1.6"/>
-  <path d="M84 178 171 116l87 62z" fill="url(#ill-toit)"/>
-  <path d="M84 178 171 116l87 62" fill="none" stroke="#ffffff" stroke-opacity=".35"
-        stroke-width="1.6" stroke-linejoin="round"/>
-
-  {# Aile basse, garage #}
-  <rect x="246" y="212" width="62" height="48" rx="4" fill="#ffffff" fill-opacity=".16"
-        stroke="#ffffff" stroke-opacity=".34" stroke-width="1.4"/>
-  <path d="M240 214l31-22 43 22z" fill="url(#ill-toit)" opacity=".8"/>
-  <rect x="258" y="230" width="38" height="30" rx="2" fill="#0c1930" fill-opacity=".34"/>
-
-  {# Fenêtres éclairées et porte #}
-  {% for fx in [114, 158, 202] %}
-  <rect x="{{ fx }}" y="192" width="26" height="24" rx="2.5" fill="url(#ill-vitre)"/>
-  <path d="M{{ fx + 13 }} 192v24M{{ fx }} 204h26" stroke="#0c1930" stroke-opacity=".28" stroke-width="1.4"/>
-  {% endfor %}
-  <rect x="156" y="228" width="30" height="32" rx="2.5" fill="#0c1930" fill-opacity=".42"
-        stroke="#ffffff" stroke-opacity=".3" stroke-width="1.2"/>
-  <circle cx="180" cy="245" r="2.2" fill="#F9CC28"/>
-
-  {# Terrain : la parcelle avant le bâti, premier métier du cabinet #}
-  <path d="M20 260h480" stroke="#ffffff" stroke-opacity=".34" stroke-width="2" stroke-linecap="round"/>
-  <path d="M28 286h96l18-26H46z" fill="#ffffff" fill-opacity=".07"
-        stroke="#ffffff" stroke-opacity=".22" stroke-width="1.2"/>
-  <path d="M52 268h34M46 276h58" stroke="#00bcaa" stroke-opacity=".5" stroke-width="1.6"
-        stroke-linecap="round" stroke-dasharray="5 5"/>
-
-  {# Arbres #}
-  {% for tx, ty, r in [(64, 232, 20), (286, 196, 15), (330, 214, 12)] %}
-  <path d="M{{ tx }} {{ ty + r + 16 }}v-{{ r - 2 }}" stroke="#ffffff" stroke-opacity=".34" stroke-width="3"
-        stroke-linecap="round"/>
-  <circle cx="{{ tx }}" cy="{{ ty }}" r="{{ r }}" fill="#00bcaa" fill-opacity=".34"/>
-  <circle cx="{{ tx - r * 0.4 }}" cy="{{ ty + r * 0.3 }}" r="{{ r * 0.7 }}" fill="#00bcaa" fill-opacity=".24"/>
+  {# Murs #}
+  <path d="M160 158 270 214v86L160 244Z" fill="url(#mur-clair)"/>
+  <path d="M270 214 380 158v86l-110 56Z" fill="url(#mur-fonce)"/>
+  {% for k in [24, 48, 72] %}
+  <path d="M160 {{ 158 + k }} 270 {{ 214 + k }}" stroke="#cdb083" stroke-opacity="0.4" stroke-width="1.2"/>
+  <path d="M270 {{ 214 + k }} 380 {{ 158 + k }}" stroke="#a88d61" stroke-opacity="0.34" stroke-width="1.2"/>
   {% endfor %}
 
-  {# Courbe de valorisation : le facteur temps, cœur de la méthode du cabinet #}
-  <path d="M40 316C120 312 176 300 244 286s130-42 226-118" fill="none"
-        stroke="url(#ill-courbe)" stroke-width="3.6" stroke-linecap="round"/>
-  {% for cx, cy in [(40, 316), (244, 286), (462, 172)] %}
-  <circle cx="{{ cx }}" cy="{{ cy }}" r="6" fill="#0c1930" stroke="#00bcaa" stroke-width="3"/>
+  <path d="M270 214v86" stroke="#c9ab7d" stroke-opacity="0.55" stroke-width="1.6"/>
+
+  {# Fenêtres du mur clair #}
+  <path d="M180 190 208 205v34l-28-15Z" fill="url(#vitre)"/>
+  <path d="M222 211 250 226v34l-28-15Z" fill="url(#vitre)"/>
+  <path d="M194 197v34M180 207 208 222" stroke="#b8801c" stroke-opacity="0.5" stroke-width="1.4"/>
+  <path d="M236 218v34M222 228 250 243" stroke="#b8801c" stroke-opacity="0.5" stroke-width="1.4"/>
+
+  {# Fenêtre et porte du mur d'ombre #}
+  <path d="M327 207 356 192v34l-29 15Z" fill="url(#vitre)" opacity="0.88"/>
+  <path d="M341 200v34M327 217 356 202" stroke="#9a6712" stroke-opacity="0.5" stroke-width="1.4"/>
+  <path d="M283 235 307 222v58l-24 13Z" fill="#a9723c"/>
+  <path d="M283 235 307 222v7l-24 13Z" fill="#8a5a32"/>
+  <circle cx="290" cy="265" r="2.8" fill="#ffd166"/>
+  <path d="M279 291 313 308l-18 9-34-17Z" fill="#0f7d6e"/>
+
+  {# Toiture #}
+  <path d="M150 158 270 220 270 104Z" fill="url(#toit-clair)"/>
+  <path d="M270 220 390 158 270 104Z" fill="url(#toit-fonce)"/>
+  <path d="M150 158 270 220v10L150 168Z" fill="#c2791a"/>
+  <path d="M270 220 390 158v10l-120 62Z" fill="#93590d"/>
+  {% for t in [0.25, 0.5, 0.75] %}
+  <path d="M{{ 150 + 120 * t }} {{ 158 + 62 * t }} 270 104" stroke="#b06d16" stroke-opacity="0.26" stroke-width="1.6"/>
+  <path d="M{{ 270 + 120 * t }} {{ 220 - 62 * t }} 270 104" stroke="#87500a" stroke-opacity="0.3" stroke-width="1.6"/>
+  {% endfor %}
+
+  {# Cheminée, posée sur le versant clair #}
+  <path d="M212 116 228 126 212 136 196 126Z" fill="#e0c8aa"/>
+  <path d="M196 126 212 136v26l-16-10Z" fill="#c4a883"/>
+  <path d="M212 136 228 126v26l-16 10Z" fill="#a98d6c"/>
+  {% for cx, cy, r, o in [(214, 100, 9, 0.72), (220, 77, 11, 0.5), (227, 50, 13, 0.3)] %}
+  <circle cx="{{ cx }}" cy="{{ cy }}" r="{{ r }}" fill="#f4f8ff" opacity="{{ o }}"/>
+  {% endfor %}
+
+  {# Arbres, posés à l'intérieur de la parcelle #}
+  {% for x, y, r in [(438, 248, 28), (392, 302, 18), (128, 286, 24)] %}
+  <ellipse cx="{{ x }}" cy="{{ y + r + 8 }}" rx="{{ r * 0.8 }}" ry="{{ r * 0.3 }}" fill="#064840" opacity="0.45"/>
+  <path d="M{{ x }} {{ y + r + 6 }}v-{{ r - 2 }}" stroke="#8a5a32" stroke-width="{{ r * 0.26 }}" stroke-linecap="round"/>
+  <circle cx="{{ x }}" cy="{{ y }}" r="{{ r }}" fill="#0e8878"/>
+  <circle cx="{{ x - r * 0.24 }}" cy="{{ y - r * 0.24 }}" r="{{ r * 0.8 }}" fill="#1cb49b"/>
+  <circle cx="{{ x - r * 0.44 }}" cy="{{ y - r * 0.44 }}" r="{{ r * 0.38 }}" fill="#5adcc4" opacity="0.75"/>
+  {% endfor %}
+
+  {# Buissons au pied des murs #}
+  {% for x, y, r in [(186, 262, 13), (206, 272, 9), (352, 258, 11)] %}
+  <circle cx="{{ x }}" cy="{{ y }}" r="{{ r }}" fill="#0e8878"/>
+  <circle cx="{{ x - r * 0.28 }}" cy="{{ y - r * 0.28 }}" r="{{ r * 0.68 }}" fill="#1cb49b"/>
   {% endfor %}
 </svg>
 {% endmacro %}
