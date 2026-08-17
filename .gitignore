@@ -30,3 +30,8 @@ remise/
 .vscode/
 .idea/
 .DS_Store
+
+# Images de référence téléchargées (inspiration) : jamais versionnées, elles
+# appartiennent à leurs auteurs.
+original-*.webp
+Image collée*.png
