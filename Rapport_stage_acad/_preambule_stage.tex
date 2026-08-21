@@ -1,0 +1,337 @@
+% ══════════════════════════════════════════════════════════════════════════════
+% Préambule du rapport de stage académique (École Centrale Casablanca)
+%
+% Deux exigences se superposent ici, et il a fallu les tenir ensemble :
+%
+%   1. le guide de rédaction de l'école — police 12, interligne 1,5, texte
+%      justifié, pagination ;
+%   2. la charte des livrables du projet — c'est le gabarit des rapports
+%      hebdomadaires remis au cabinet (rapports/_preambule.tex) qui est repris
+%      ici : même page de garde sur fond navy, mêmes bandeaux de partie à
+%      pastille numérotée, même table des matières, mêmes en-têtes.
+%
+% Ce qui a été adapté : la typographie du corps (12 pt et interligne 1,5 au lieu
+% de 11 pt serré), les marges, la page de garde qui doit porter les mentions
+% imposées (numéro d'étudiant, tuteur, dates), et un bandeau sans numéro pour
+% les sections non numérotées (remerciements, introduction, conclusion…).
+% ══════════════════════════════════════════════════════════════════════════════
+
+% ─── Encodage & langue ────────────────────────────────────────────────────────
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[french]{babel}
+% Pas de lmodern : les rapports hebdomadaires composent en Computer Modern (les
+% fontes T1 « cm-super »), et le rapport doit être dans la même police qu'eux.
+
+% ─── Mise en page imposée par le guide ────────────────────────────────────────
+\usepackage[left=2.5cm, right=2.5cm, top=2.4cm, bottom=2.5cm]{geometry}
+\usepackage{setspace}
+\onehalfspacing                     % interligne 1,5
+\usepackage{ragged2e}
+\justifying                         % texte justifié
+\setlength{\parindent}{1.5em}    % même retrait d'alinéa que les rapports hebdo
+\setlength{\parskip}{0.22em plus 0.08em minus 0.04em}
+\usepackage{indentfirst}
+\setlength{\headheight}{15pt}
+\setlength{\headsep}{18pt}
+
+% ─── Mathématiques, graphiques & tableaux ─────────────────────────────────────
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\graphicspath{{img/}{img/photos/}{../}}
+\usepackage{float}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{multirow}
+\usepackage{xcolor}
+\usepackage{colortbl}
+\usepackage[font=small,labelfont={bf,color=eccblue}]{caption}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,decorations.pathmorphing,patterns,calc,fadings,
+	positioning,shapes.geometric}
+\usepackage[most]{tcolorbox}
+\usepackage{enumitem}
+\setlist[itemize,1]{label=\textbullet, leftmargin=1.6em, itemsep=0.22em, topsep=0.32em}
+\setlist[enumerate,1]{leftmargin=1.8em, itemsep=0.22em, topsep=0.32em}
+
+% ─── Couleurs (charte du projet, identique aux rapports hebdomadaires) ────────
+\definecolor{eccblue}{RGB}{0,82,145}
+\definecolor{linkblue}{RGB}{0,0,250}
+\definecolor{navy}{RGB}{12,25,48}
+\definecolor{accent}{RGB}{0,188,170}
+\definecolor{smoke}{RGB}{160,170,185}
+\definecolor{darkgray}{RGB}{80,80,80}
+\definecolor{choubelor}{RGB}{249,204,40}
+\definecolor{arelire}{RGB}{176,0,32}
+
+\newcommand{\coverSerif}{\fontfamily{ptm}\selectfont}
+\newcommand{\coverSans}{\fontfamily{phv}\selectfont}
+
+% ─── Liens ────────────────────────────────────────────────────────────────────
+\usepackage{hyperref}
+\usepackage{bookmark}
+\hypersetup{colorlinks=true, linkcolor=linkblue, urlcolor=linkblue,
+	citecolor=linkblue, filecolor=linkblue}
+
+% ═══ Bandeaux de partie ═══════════════════════════════════════════════════════
+% Repris des rapports hebdomadaires : pastille dégradée portant le numéro,
+% barre bleue, titre centré en italique gras, filet de séparation. Les
+% coordonnées sont exprimées pour une justification de 16 cm (marges 2,5 cm) ;
+% le bandeau déborde de 1,1 cm dans la marge de gauche, comme dans le gabarit
+% d'origine, pour que la pastille « sorte » du bloc de texte.
+\newcounter{manualbookmark}
+\makeatletter
+
+\newcommand{\bandeautitre}[1]{%
+	\node[text width=13.6cm,align=center,
+	font=\bfseries\itshape\fontsize{17.5}{21}\selectfont,color=black]
+	at (9.35,-0.92) {#1};
+	\draw[eccblue!55,line width=0.50pt] (1.55,-1.80) -- (17.10,-1.80);}
+
+\newcommand{\mainsection}[1]{%
+	\clearpage
+	\thispagestyle{empty}%
+	\refstepcounter{section}%
+	\setcounter{subsection}{0}%
+	\stepcounter{manualbookmark}%
+	\phantomsection%
+	\pdfbookmark[1]{\thesection\space #1}{sec-\themanualbookmark}%
+	\addcontentsline{toc}{section}{\protect\numberline{\thesection}#1}%
+	\markboth{\thesection. #1}{\thesection. #1}%
+	\vspace*{0.05cm}%
+	\noindent\hspace*{-1.55cm}%
+	\begin{tikzpicture}[x=1cm,y=1cm]
+		\shade[inner color=eccblue!18,outer color=eccblue!82]
+		(0.85,0.05) circle (1.30);
+		\node[anchor=west,font=\fontsize{8.5}{10}\selectfont,color=white]
+		at (0.16,0.90) {Partie};
+		\node[font=\bfseries\fontsize{32}{32}\selectfont,color=white]
+		at (0.87,0.02) {\thesection};
+		\fill[eccblue!80] (1.62,-0.16) rectangle (17.10,0.06);
+		\bandeautitre{#1}
+	\end{tikzpicture}\par
+	\vspace{0.70cm}%
+}
+
+% Même bandeau, sans numéro : remerciements, glossaire, introduction,
+% conclusion, sources, annexes. La pastille passe en teinte d'accent et reste
+% muette — écrire un numéro là où il n'y en a pas serait un contresens.
+\newcommand{\mainsectionstar}[1]{%
+	\clearpage
+	\thispagestyle{empty}%
+	\stepcounter{manualbookmark}%
+	\phantomsection%
+	\pdfbookmark[1]{#1}{sec-\themanualbookmark}%
+	\addcontentsline{toc}{section}{#1}%
+	\markboth{#1}{#1}%
+	\vspace*{0.05cm}%
+	\noindent\hspace*{-1.55cm}%
+	\begin{tikzpicture}[x=1cm,y=1cm]
+		\shade[inner color=accent!14,outer color=accent!70]
+		(0.85,0.05) circle (1.30);
+		\fill[white,opacity=0.85] (0.85,0.05) circle (0.20);
+		\fill[accent!80] (1.62,-0.16) rectangle (17.10,0.06);
+		\bandeautitre{#1}
+	\end{tikzpicture}\par
+	\vspace{0.70cm}%
+}
+\makeatother
+
+% ─── Titres de niveau inférieur ───────────────────────────────────────────────
+\usepackage{titlesec}
+\titleformat{\subsection}
+{\color{eccblue}\large\bfseries}{\thesubsection.}{0.55em}{}
+\titleformat{\subsubsection}
+{\color{navy}\normalsize\bfseries\itshape}{\thesubsubsection.}{0.5em}{}
+\titlespacing*{\subsection}{0pt}{1.25em}{0.45em}
+\titlespacing*{\subsubsection}{0pt}{0.95em}{0.35em}
+
+% ─── En-têtes et pieds de page (gabarit hebdomadaire) ─────────────────────────
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\scriptsize\leftmark}
+\fancyhead[R]{\scriptsize\thepage}
+\fancyfoot[L]{\fontsize{8}{9}\selectfont\color{darkgray}\textit{\nouncleve}}
+\fancyfoot[C]{\fontsize{9}{10}\selectfont\bfseries\color{eccblue}\thepage}
+\fancyfoot[R]{\fontsize{8}{9}\selectfont\color{darkgray}\textit{Stage opérateur --- \entreprise}}
+\renewcommand{\headrulewidth}{1.0pt}
+\renewcommand{\footrulewidth}{0.8pt}
+
+% ─── Table des matières ───────────────────────────────────────────────────────
+\usepackage{tocloft}
+\renewcommand{\contentsname}{Table des matières}
+\renewcommand{\cfttoctitlefont}{\hfill\LARGE\bfseries\itshape\color{black}}
+\renewcommand{\cftaftertoctitle}{\hfill\par\vspace{0.85cm}}
+\renewcommand{\cftsecfont}{\small\color{eccblue}\bfseries}
+\renewcommand{\cftsecpagefont}{\small\bfseries\color{black}}
+\renewcommand{\cftsubsecfont}{\small\color{navy}}
+\renewcommand{\cftdotsep}{2.5}
+
+\makeatletter
+\newcommand{\printstyledtoc}{%
+	\clearpage
+	\pagestyle{empty}%
+	\thispagestyle{empty}%
+	\phantomsection%
+	\pdfbookmark[1]{Table des matières}{toc}%
+	\vspace*{0.58cm}%
+	\noindent
+	\begin{tikzpicture}[baseline]
+		\fill[gray!28] (0,0.09) rectangle (0.62\linewidth,0.50);
+		\node[anchor=east,font=\LARGE\bfseries\itshape,color=black]
+		at (\linewidth,0.30) {Table des matières};
+		\draw[black,line width=0.55pt] (0,0.00) -- (\linewidth,0.00);
+	\end{tikzpicture}\par
+	\vspace{0.82cm}%
+	{\hypersetup{linkcolor=linkblue,linktoc=section}\@starttoc{toc}}%
+	\clearpage
+	\pagestyle{fancy}}%
+\makeatother
+
+% ─── Encadrés ─────────────────────────────────────────────────────────────────
+\newtcolorbox{encadre}[1][]{colback=eccblue!5, colframe=eccblue!55,
+	boxrule=0.7pt, arc=2pt, left=9pt, right=9pt, top=7pt, bottom=7pt, #1}
+\newtcolorbox{encadrecle}[1][]{colback=accent!7, colframe=accent!70,
+	boxrule=0.7pt, arc=2pt, left=9pt, right=9pt, top=7pt, bottom=7pt, #1}
+\newtcolorbox{citationbox}[1][]{colback=navy, colframe=navy, coltext=white,
+	boxrule=0pt, arc=2pt, left=11pt, right=11pt, top=9pt, bottom=9pt, #1}
+
+% ─── Marqueur des informations restant à compléter ────────────────────────────
+% Rend visible, à la relecture, tout ce que seul l'auteur ou le tuteur peut
+% renseigner. À supprimer avant l'envoi du rapport.
+\newcommand{\acompleter}[1]{{\color{arelire}\bfseries[à compléter : #1]}}
+
+% ─── Insertion d'images tolérante ─────────────────────────────────────────────
+\newcommand{\safelogo}[2]{%
+	\IfFileExists{#1}{\includegraphics[height=#2,keepaspectratio]{#1}}{\phantom{\rule{0pt}{#2}}}}
+
+% ─── Figure standard, avec crédit optionnel ───────────────────────────────────
+% #1 largeur · #2 fichier · #3 légende · #4 crédit (peut être vide)
+% La hauteur est bornée : une capture d'écran de page longue dépasserait sinon
+% la hauteur du bloc de texte, et LaTeX la repousserait en laissant une page à
+% moitié vide.
+\newcommand{\figurecredit}[4]{%
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=#1\linewidth,height=0.74\textheight,keepaspectratio]{#2}
+		\caption{#3\ifx\relax#4\relax\else\\{\footnotesize\color{darkgray}\textit{#4}}\fi}
+	\end{figure}}
+
+% ═══ Page de garde ════════════════════════════════════════════════════════════
+% Reprise de \couverture des rapports hebdomadaires : fond navy pleine page,
+% dégradé haut, logos aux deux angles, pastille de titre, titre serif blanc,
+% sous-titre en teinte d'accent, blocs d'information étiquetés, ondes en pied
+% de page et filet de bas de page. S'y ajoutent les mentions imposées par
+% l'école : numéro d'étudiant, tuteur, dates et année académique.
+% #1 badge · #2 titre · #3 sous-titre
+\newcommand{\couverturestage}[3]{%
+	\hypersetup{pageanchor=false}%
+	\begin{titlepage}
+		\thispagestyle{empty}
+		\begin{tikzpicture}[remember picture,overlay]
+			\fill[navy] (current page.south west) rectangle (current page.north east);
+			\fill[navy,opacity=0.35]
+			(current page.north west)
+			rectangle ([yshift=14.8cm]current page.south west -| current page.east);
+			\fill[navy,path fading=north]
+			([yshift=14.8cm]current page.south west)
+			rectangle ([yshift=21cm]current page.south west -| current page.east);
+
+			% Logos : école à gauche, organisme d'accueil à droite
+			\node[anchor=north west, inner sep=0pt, fill=white, rounded corners=3pt,
+			inner xsep=7pt, inner ysep=7pt]
+			at ([xshift=2.2cm,yshift=-1.9cm]current page.north west)
+			{\safelogo{../logo.jpg}{2.2cm}};
+			\node[anchor=north east, inner sep=0pt, fill=white, rounded corners=3pt,
+			inner xsep=7pt, inner ysep=7pt]
+			at ([xshift=-2.2cm,yshift=-1.9cm]current page.north east)
+			{\safelogo{../app/static/img/logo-choubel.jpg}{2.2cm}};
+
+			% Année académique
+			\node[anchor=north east, font=\coverSans\fontsize{8.5}{11}\selectfont, text=smoke]
+			at ([xshift=-2.2cm,yshift=-5.1cm]current page.north east)
+			{Année académique \anneeacad};
+
+			% Pastille de titre
+			\node[anchor=south west,
+			font=\coverSerif\fontsize{10.5}{12}\selectfont\bfseries,
+			text=white, fill=eccblue, fill opacity=0.85, text opacity=1,
+			inner xsep=6pt, inner ysep=4pt, rounded corners=2pt]
+			at ([xshift=2.2cm,yshift=19.9cm]current page.south west)
+			{#1};
+
+			% Titre et sous-titre
+			\node[anchor=south west, text width=16.6cm,
+			font=\coverSerif\bfseries\fontsize{24}{29}\selectfont, text=white, inner sep=0pt]
+			at ([xshift=2.2cm,yshift=14.9cm]current page.south west)
+			{\raggedright\hyphenpenalty=10000\exhyphenpenalty=10000 #2};
+			\node[anchor=south west, text width=16.6cm,
+			font=\coverSerif\fontsize{14}{18}\selectfont, text=accent, inner sep=0pt]
+			at ([xshift=2.2cm,yshift=13.1cm]current page.south west)
+			{\raggedright #3};
+			\draw[accent!60, line width=1.1pt]
+			([xshift=2.2cm,yshift=12.5cm]current page.south west)
+			-- ([xshift=6.2cm,yshift=12.5cm]current page.south west);
+
+			% Colonne de gauche : élève, puis période
+			\node[anchor=north west, font=\coverSans\fontsize{7.5}{9.5}\selectfont, text=accent]
+			at ([xshift=2.2cm,yshift=11.7cm]current page.south west) {ÉLÈVE INGÉNIEUR};
+			\node[anchor=north west, text width=8cm,
+			font=\coverSerif\fontsize{12.5}{16}\selectfont, text=white, inner sep=0pt]
+			at ([xshift=2.2cm,yshift=11.0cm]current page.south west)
+			{\textbf{HOUNKPETOHOU} \prenomeleve \\[2pt]
+				{\fontsize{9.5}{12}\selectfont\color{smoke}
+					N\textsuperscript{o} d'étudiant : \numetudiant}};
+
+			\node[anchor=north west, font=\coverSans\fontsize{7.5}{9.5}\selectfont, text=accent]
+			at ([xshift=2.2cm,yshift=8.5cm]current page.south west) {PÉRIODE DE STAGE};
+			\node[anchor=north west, text width=8cm,
+			font=\coverSerif\fontsize{11.5}{15}\selectfont, text=white, inner sep=0pt]
+			at ([xshift=2.2cm,yshift=7.8cm]current page.south west)
+			{Du \datedebut{} au \datefin \\[2pt]
+				{\fontsize{9.5}{12}\selectfont\color{smoke} Soit six semaines --- \villestage}};
+
+			% Filet vertical, comme sur la couverture des rapports hebdomadaires
+			\draw[smoke!30,line width=0.4pt]
+			([xshift=10.4cm,yshift=11.9cm]current page.south west)
+			-- ([xshift=10.4cm,yshift=6.9cm]current page.south west);
+
+			% Colonne de droite : organisme d'accueil, puis tuteur
+			\node[anchor=north west, font=\coverSans\fontsize{7.5}{9.5}\selectfont, text=accent]
+			at ([xshift=11.2cm,yshift=11.7cm]current page.south west) {ORGANISME D'ACCUEIL};
+			\node[anchor=north west, text width=6.4cm,
+			font=\coverSerif\fontsize{12.5}{16}\selectfont, text=white, inner sep=0pt]
+			at ([xshift=11.2cm,yshift=11.0cm]current page.south west)
+			{\textbf{\entreprise} \\[2pt]
+				{\fontsize{9.5}{12}\selectfont\color{smoke} \villestage}};
+
+			\node[anchor=north west, font=\coverSans\fontsize{7.5}{9.5}\selectfont, text=accent]
+			at ([xshift=11.2cm,yshift=8.5cm]current page.south west) {TUTEUR ORGANISME D'ACCUEIL};
+			\node[anchor=north west, text width=6.4cm,
+			font=\coverSerif\fontsize{11.5}{15}\selectfont, text=white, inner sep=0pt]
+			at ([xshift=11.2cm,yshift=7.8cm]current page.south west)
+			{\tuteurnom \\[2pt]
+				{\fontsize{9.5}{12}\selectfont\color{smoke} \tuteurfonction}};
+
+			% Ondes de pied de page : le motif des couvertures du projet
+			\begin{scope}[shift={([xshift=10.5cm,yshift=3.4cm]current page.south west)},
+				accent,line width=0.7pt,opacity=0.22]
+				\foreach \a/\p in {0.6/0, 0.45/40, 0.75/80, 0.35/120} {
+					\draw plot[domain=-4.5:4.5,samples=80,smooth]
+					(\x,{\a*sin(200*\x+\p)});
+				}
+			\end{scope}
+
+			\draw[smoke!25,line width=0.3pt]
+			([xshift=2.2cm,yshift=1.8cm]current page.south west)
+			-- ([xshift=-2.2cm,yshift=1.8cm]current page.south east);
+			\node[anchor=south west, font=\coverSans\fontsize{7.5}{9}\selectfont, text=smoke!60]
+			at ([xshift=2.2cm,yshift=1.0cm]current page.south west)
+			{École Centrale Casablanca --- Rapport de stage opérateur de première année
+				--- Projet mené en binôme avec \binome};
+		\end{tikzpicture}
+	\end{titlepage}
+	\hypersetup{pageanchor=true}%
+}

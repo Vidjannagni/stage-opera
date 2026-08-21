@@ -1,0 +1,1177 @@
+\documentclass[12pt,a4paper]{article}
+
+% ══════════════════════════════════════════════════════════════════════════════
+%  INFORMATIONS À RENSEIGNER AVANT ENVOI
+%  Les champs marqués \acompleter{...} apparaissent en rouge dans le PDF :
+%  ils signalent ce que seul l'auteur ou le tuteur peut renseigner.
+% ══════════════════════════════════════════════════════════════════════════════
+\newcommand{\nouncleve}{HOUNKPETOHOU Marius}
+\newcommand{\prenomeleve}{Marius}
+\newcommand{\numetudiant}{à compléter}
+\newcommand{\anneeacad}{2025 -- 2026}
+\newcommand{\entreprise}{Choubel Consulting}
+\newcommand{\villestage}{Casablanca, Maroc}
+\newcommand{\datedebut}{13 juillet 2026}
+\newcommand{\datefin}{21 août 2026}
+\newcommand{\tuteurnom}{à compléter}
+\newcommand{\tuteurfonction}{à compléter}
+\newcommand{\binome}{DANSOU René}
+
+\input{_preambule_stage}
+
+\hypersetup{pdftitle={Rapport de stage opérateur -- \nouncleve},
+	pdfauthor={\nouncleve}}
+
+\begin{document}
+
+% ══════════════════════════════════════════════════════════════════════════════
+%  PAGE DE GARDE — gabarit des rapports hebdomadaires du projet
+% ══════════════════════════════════════════════════════════════════════════════
+\couverturestage
+	{RAPPORT DE STAGE OPÉRATEUR --- PREMIÈRE ANNÉE}
+	{Concevoir un outil d'aide à la décision\\ pour un cabinet de conseil\\ en investissement immobilier}
+	{L'application web « RentImmo » --- de la formule financière\\ au geste métier du conseiller}
+
+\newpage
+\pagenumbering{roman}
+\setcounter{page}{1}
+
+% ══════════════════════════════════════════════════════════════════════════════
+\mainsectionstar{Remerciements}
+
+Je tiens d'abord à remercier \tuteurnom, \tuteurfonction{} au sein de
+\entreprise, pour m'avoir accueilli au sein du cabinet et pour avoir accepté de
+consacrer du temps à répondre, en détail et sans complaisance, aux questions que
+nous lui avons adressées sur sa méthode de travail. Ses réponses ont fait plus
+que compléter notre cahier des charges : elles en ont corrigé les prémisses. Le
+tournant de ce stage tient à cet échange, et je lui suis reconnaissant de la
+franchise avec laquelle il a décrit un métier bien plus nuancé que le modèle que
+nous en avions formé.
+
+Je remercie également l'ensemble des collaborateurs du cabinet
+\acompleter{citer nommément les personnes rencontrées} pour leur disponibilité
+et pour les explications concrètes qu'ils ont bien voulu me donner sur le
+déroulement réel d'un dossier client.
+
+Je remercie \binome, avec qui j'ai mené ce projet en binôme pendant six
+semaines. Travailler à deux sur une même base de code impose une discipline —
+écrire avant de coder, tester avant de livrer, expliquer avant de fusionner —
+dont j'ai mesuré la valeur au fil des semaines.
+
+Enfin, je remercie l'équipe pédagogique de l'École Centrale Casablanca, et en
+particulier \acompleter{nom du responsable des stages}, pour l'encadrement et le
+cadre méthodologique de ce stage opérateur.
+
+% ══════════════════════════════════════════════════════════════════════════════
+\mainsectionstar{Glossaire et abréviations}
+
+% Un tableau par famille de vocabulaire : une seule tabularx dépasserait la
+% hauteur d'une page, et LaTeX ne sait pas la couper.
+\newcommand{\glossaire}[2]{%
+	\begin{table}[H]
+		\centering
+		\small
+		\setstretch{1.05}
+		\renewcommand{\arraystretch}{1.40}
+		\begin{tabular}{|>{\bfseries\raggedright\arraybackslash}p{3.7cm}|>{\raggedright\arraybackslash}p{11.1cm}|}
+			\hline
+			\rowcolor{eccblue!15}
+			\multicolumn{2}{|l|}{\textbf{\color{eccblue}#1}} \\
+			\hline
+			#2
+		\end{tabular}
+	\end{table}}
+
+\glossaire{Vocabulaire métier}{%
+			\rowcolor{white}
+			VEFA & Vente en l'état futur d'achèvement, ou « achat sur plan » : le bien
+			est acheté avant sa construction et livré plusieurs mois, voire plusieurs
+			années, après la signature. \\
+			\hline
+			\rowcolor{gray!8}
+			Compromis & Avant-contrat par lequel vendeur et acheteur s'engagent, avant
+			le passage devant notaire. \\
+			\hline
+			\rowcolor{white}
+			Portage foncier & Acquisition d'un terrain conservé sans mise en valeur,
+			dans l'attente d'une valorisation liée à l'évolution de son environnement. \\
+			\hline
+			\rowcolor{gray!8}
+			Standing & Niveau de gamme d'un bien : économique, social, moyen standing,
+			haut standing, luxe. \\
+			\hline
+			\rowcolor{white}
+			Rendement brut & Loyer annuel rapporté au coût total d'acquisition. \\
+			\hline
+			\rowcolor{gray!8}
+			Rendement net & Rendement après charges, vacance locative et frais de
+			gestion, avant impôt. \\
+			\hline
+			\rowcolor{white}
+			Rendement net-net & Rendement net après imposition des revenus locatifs. \\
+			\hline
+			\rowcolor{gray!8}
+			Cash-flow & Trésorerie effectivement encaissée (ou déboursée) sur une
+			période, une fois les annuités d'emprunt payées. \\
+			\hline
+			\rowcolor{white}
+			Vacance locative & Part de l'année pendant laquelle le bien n'est pas loué. \\
+			\hline
+			\rowcolor{gray!8}
+			Plus-value & Écart entre le prix de revente d'un bien et son prix d'achat. \\
+			\hline
+			\rowcolor{white}
+			Valeur créée & Ce que l'opération a rapporté au client sur son horizon,
+			revente comprise, une fois tout ce qu'il a déboursé retranché. \\
+			\hline
+}
+
+\glossaire{Vocabulaire financier}{%
+			\rowcolor{white}
+			VAN & Valeur actuelle nette : somme des flux futurs ramenés à
+			aujourd'hui par un taux d'actualisation. \\
+			\hline
+			\rowcolor{gray!8}
+			TRI & Taux de rentabilité interne : taux d'actualisation qui annule la VAN,
+			interprété comme le rendement annuel de l'argent investi. \\
+			\hline
+			\rowcolor{white}
+			CRD & Capital restant dû sur un emprunt à une date donnée. \\
+			\hline
+			\rowcolor{gray!8}
+			Horizon & Durée sur laquelle le client projette de conserver le bien. \\
+			\hline
+			\rowcolor{white}
+			MAD & Dirham marocain, devise de référence de l'outil. \\
+			\hline
+}
+
+\glossaire{Vocabulaire technique}{%
+			\rowcolor{white}
+			Flask & Cadriciel (\textit{framework}) web écrit en Python, utilisé pour
+			développer l'application. \\
+			\hline
+			\rowcolor{gray!8}
+			Blueprint & Module d'une application Flask regroupant les pages d'un même
+			domaine fonctionnel. \\
+			\hline
+			\rowcolor{white}
+			ORM & \textit{Object-Relational Mapping} : correspondance entre les tables
+			d'une base de données et les objets du programme (ici SQLAlchemy). \\
+			\hline
+			\rowcolor{gray!8}
+			Migration & Script versionné qui fait évoluer le schéma de la base de
+			données sans perdre les données existantes. \\
+			\hline
+			\rowcolor{white}
+			CRUD & \textit{Create, Read, Update, Delete} : les quatre opérations de
+			base sur une donnée. \\
+			\hline
+			\rowcolor{gray!8}
+			CSRF & \textit{Cross-Site Request Forgery} : attaque consistant à faire
+			exécuter une action par un utilisateur authentifié à son insu. \\
+			\hline
+			\rowcolor{white}
+			Git & Système de gestion de versions du code source. \\
+			\hline
+			\rowcolor{gray!8}
+			Test unitaire & Programme qui vérifie automatiquement qu'une fonction
+			produit bien le résultat attendu. \\
+			\hline
+			\rowcolor{white}
+			WSGI & Interface standard entre un serveur web et une application Python. \\
+			\hline
+			\rowcolor{gray!8}
+			ECC & École Centrale Casablanca. \\
+			\hline
+}
+
+% ══════════════════════════════════════════════════════════════════════════════
+\printstyledtoc
+\pagenumbering{arabic}
+\setcounter{page}{1}
+
+% ══════════════════════════════════════════════════════════════════════════════
+\mainsectionstar{Introduction}
+
+Un investissement immobilier se juge sur des chiffres, mais ces chiffres ne
+disent rien tant qu'on ignore ce que le client attend de son argent, et à quelle
+échéance. C'est la leçon centrale des six semaines que j'ai passées chez
+\entreprise, cabinet de conseil en investissement immobilier installé à
+\villestage, du \datedebut{} au \datefin.
+
+La mission qui nous a été confiée, à \binome{} et à moi-même, était en apparence
+simple : doter le cabinet d'un outil informatique capable de calculer la
+rentabilité d'un investissement immobilier et de présenter le résultat à un
+client en rendez-vous. Le cabinet réalisait ces analyses au cas par cas, sur
+tableur, sans support homogène ni document remis en fin d'entretien. Il fallait
+industrialiser ce travail sans le dénaturer.
+
+Nous avons donc commencé par ce que notre formation nous avait appris à faire :
+écrire les formules, poser les conventions de calcul, construire un moteur
+financier, l'entourer de tests. Cette partie du travail a fonctionné. Mais elle
+reposait sur une hypothèse que nous n'avions jamais vérifiée --- qu'un
+investissement immobilier se juge d'abord au rendement locatif et que tout bien
+produit un loyer. À mi-parcours, un entretien de cadrage avec le tuteur a montré
+que les deux dossiers dont le cabinet est le plus fier ne comportaient
+\emph{aucun} loyer, et qu'aucun seuil de rentabilité ne servait à trancher : ce
+qui décide, c'est l'horizon du client.
+
+Ce rapport raconte ce déplacement. Il ne s'agit pas seulement d'un correctif
+technique : c'est le passage d'un outil pensé depuis la formule à un outil pensé
+depuis le geste métier, et c'est l'apprentissage que je retiens de ce stage.
+
+La première partie présente le cabinet, son secteur et les enjeux auxquels il
+fait face, puis le contexte et le contenu de la mission. La seconde analyse le
+déroulement du stage --- la manière dont le travail a été organisé, les
+difficultés rencontrées et la façon dont elles ont été traitées --- avant
+d'en tirer un bilan des apports et des manques. La conclusion revient sur ce que
+ce stage change à mon projet professionnel.
+
+% ══════════════════════════════════════════════════════════════════════════════
+\mainsection{L'organisme d'accueil et la mission}
+
+\subsection{Le secteur : le conseil en investissement immobilier au Maroc}
+
+Le marché immobilier marocain, et singulièrement celui du Grand Casablanca,
+présente une caractéristique qui explique l'existence même de cabinets comme
+\entreprise{} : il est à la fois très actif et faiblement outillé pour
+l'investisseur particulier. Les biens s'échangent, les prix évoluent, des
+quartiers entiers se transforment --- mais l'information sur ce que rapporte
+réellement un bien reste dispersée, détenue par les agences, les promoteurs et
+les intermédiaires, et rarement mise en forme pour permettre une comparaison.
+
+\figurecredit{0.92}{casablanca_vue_aerienne.jpg}
+{Vue aérienne de Casablanca. La densification du tissu urbain et l'ouverture de
+	nouveaux quartiers sont les moteurs de la valorisation foncière sur laquelle
+	repose une partie du conseil du cabinet.}
+{Photographie Jimmy Baikovicius, Wikimedia Commons, CC BY-SA 2.0.}
+
+Dans ce contexte, le conseil en investissement immobilier occupe une position
+d'intermédiation particulière. Il ne s'agit ni de l'agence immobilière, qui vend
+un bien, ni du conseiller financier réglementé, qui gère un patrimoine
+mobilier. Le cabinet de conseil se situe entre les deux : il part du besoin d'un
+client, cherche le bien qui y répond, chiffre ce que l'opération lui coûtera et
+lui rapportera, et l'accompagne jusqu'à la remise des clés.
+
+Trois traits du marché local structurent ce métier et se sont retrouvés,
+directement, dans les choix de conception de l'outil :
+
+\begin{itemize}
+	\item \textbf{Le foncier pèse autant que le locatif.} Une part significative
+	des opérations conseillées ne produit aucun loyer : achat d'un terrain
+	conservé plusieurs années, construction en vue d'une revente. La valeur y
+	vient de la plus-value, pas du rendement.
+	\item \textbf{L'achat sur plan est courant.} La VEFA décale la mise en
+	exploitation du bien de plusieurs mois à plusieurs années, alors que les
+	mensualités d'emprunt, elles, courent dès la signature.
+	\item \textbf{L'accès au crédit dépend du profil.} La nationalité et la
+	situation professionnelle du client conditionnent l'accès au financement
+	bancaire local, ce qui en fait des informations de premier entretien et non
+	des données administratives secondaires.
+\end{itemize}
+
+\subsection{\entreprise{} : activité, offre et structure}
+
+\entreprise{} est un cabinet de conseil en investissement immobilier basé à
+\villestage. \acompleter{date de création, forme juridique (SARL, SA…),
+	effectif, chiffre d'affaires ou volume de dossiers annuel --- à demander au
+	tuteur} Le cabinet accompagne principalement des investisseurs particuliers,
+résidents comme non-résidents, sur l'ensemble du cycle d'une acquisition.
+
+L'offre du cabinet couvre quatre familles de biens --- terrains, villas,
+appartements, immeubles --- sur toute la gamme de standing, de l'économique au
+luxe, et sur des biens neufs, anciens ou vendus sur plan. Cette amplitude n'est
+pas un argument commercial : c'est une contrainte de conception. Un outil qui ne
+saurait traiter qu'un appartement loué laisserait de côté une partie importante
+de l'activité réelle.
+
+\begin{encadre}
+	\textbf{\color{eccblue}Ce que le cabinet vend, en une phrase.} Non pas un bien,
+	mais un accompagnement : la capacité à transformer un besoin exprimé en une
+	acquisition chiffrée, puis à conduire le dossier jusqu'à la livraison.
+\end{encadre}
+
+Le processus de travail du cabinet, tel qu'il nous a été décrit lors de
+l'entretien de cadrage, se déroule en six étapes stables :
+
+\begin{enumerate}
+	\item \textbf{Recueil du besoin} --- un premier entretien où sont notés le
+	type de bien recherché, le standing, la superficie souhaitée, la
+	distribution intérieure pour un appartement (chambres, salles de bains,
+	salons, étage, orientation), les commodités attendues (transports, écoles,
+	commerces), la zone géographique, le budget prévu, le mode de financement,
+	l'objectif poursuivi et l'horizon d'investissement.
+	\item \textbf{Recherche} --- identification des biens correspondant aux critères.
+	\item \textbf{Présentation et visites} --- les biens retenus sont présentés,
+	puis visités.
+	\item \textbf{Compromis} --- signature du compromis ou du contrat de vente.
+	\item \textbf{Acte notarié} --- finalisation de l'achat devant notaire.
+	\item \textbf{Livraison} --- remise du bien au client.
+\end{enumerate}
+
+À chacune de ces étapes, une information systématique est recueillie sur le
+client lui-même : nom, situation professionnelle, nationalité et budget
+disponible. Ces quatre données sont demandées avant toute proposition.
+
+\subsection{Position sur le marché et enjeux actuels}
+
+\acompleter{position concurrentielle du cabinet : nombre de concurrents
+	identifiés sur le Grand Casablanca, éléments de différenciation revendiqués
+	--- à préciser avec le tuteur}
+
+De mon point de vue d'observateur externe, trois enjeux structurent l'activité du
+cabinet et donnent son sens à la mission qui nous a été confiée.
+
+\textbf{Premier enjeu : la traçabilité de l'argumentaire.} Le conseil du cabinet
+repose sur des calculs faits au cas par cas, souvent sur tableur. Ce mode de
+travail fonctionne tant que le conseiller qui a construit le tableau est présent
+pour l'expliquer. Il devient fragile dès qu'il faut retrouver, six mois plus
+tard, pourquoi tel chiffre a été retenu, ou dès qu'un autre conseiller reprend le
+dossier. Un outil partagé, dont les conventions de calcul sont écrites et
+imprimées sous chaque tableau, répond directement à ce risque.
+
+\textbf{Deuxième enjeu : la crédibilité en rendez-vous.} Le moment décisif du
+conseil est l'entretien. Un client qui repart avec un document propre, chiffré et
+daté n'est pas dans la même disposition qu'un client à qui l'on a montré un
+tableur à l'écran. Le cabinet a exprimé ce besoin de restitution --- un rapport
+remis en fin de rendez-vous --- comme une attente prioritaire.
+
+\textbf{Troisième enjeu : la diversité des opérations.} Le cabinet traite des
+dossiers dont la logique économique diffère radicalement : un appartement loué,
+un terrain porté dix ans, un immeuble construit pour être revendu en deux ans.
+Un outil qui n'en couvrirait qu'une famille serait un outil de démonstration,
+pas un outil de travail.
+
+\subsection{La mission : contexte, contenu et environnement de travail}
+
+\subsubsection{Contexte et objectif}
+
+La mission consistait à concevoir et développer \textbf{RentImmo}, une
+application web interne au cabinet, permettant à un conseiller de saisir un
+bien, de construire plusieurs hypothèses de financement, de les comparer et de
+remettre au client une synthèse imprimable. L'objectif chiffré fixé au cadrage
+était que l'ensemble de ce parcours tienne en moins de dix minutes, durée d'une
+séquence de rendez-vous.
+
+Le projet a été mené en binôme avec \binome, sur six semaines, avec un rythme de
+livraison hebdomadaire : chaque dimanche, un rapport d'avancement était transmis,
+et le code de la semaine était versionné dans un dépôt Git.
+
+\subsubsection{Équipe, service et environnement de travail}
+
+\acompleter{préciser : service ou entité de rattachement au sein du cabinet,
+	nombre de personnes y travaillant, rythme de présence (présentiel, hybride,
+	distanciel), fréquence des points avec le tuteur}
+
+L'organisation du travail a reposé sur une répartition claire au sein du binôme
+et sur un rythme de rendez-vous avec le tuteur. Le travail de développement
+lui-même a été largement autonome : nous définissions les objectifs de la semaine
+à partir d'une feuille de route établie en semaine~1, et le tuteur intervenait
+comme référent métier --- c'est-à-dire sur les questions de fond (que calcule-t-on,
+et pourquoi), non sur les choix techniques.
+
+Cette autonomie a été à la fois le principal atout et le principal risque du
+stage. Atout, parce qu'elle a permis d'avancer vite et de livrer l'intégralité du
+périmètre fonctionnel. Risque, parce qu'un outil développé loin de son
+utilisateur dérive vers ce que le développeur trouve intéressant plutôt que vers
+ce dont le métier a besoin --- ce qui, comme la seconde partie de ce rapport le
+détaille, s'est effectivement produit.
+
+\subsubsection{Les tâches confiées}
+
+\begin{table}[H]
+	\centering
+	\small
+	\setstretch{1.05}
+	\renewcommand{\arraystretch}{1.40}
+	\begin{tabular}{|>{\raggedright\arraybackslash}p{4.3cm}|>{\raggedright\arraybackslash}p{10.6cm}|}
+		\hline
+		\rowcolor{eccblue!15}
+		\textbf{\color{eccblue}Tâche} & \textbf{\color{eccblue}Objectif assigné} \\
+		\hline
+		\rowcolor{white}
+		Cadrage fonctionnel & Écrire le cahier des charges : périmètre, formules,
+		conventions de calcul, modèle de données. \\
+		\hline
+		\rowcolor{gray!8}
+		Moteur financier & Implémenter en Python les calculs d'acquisition, de
+		crédit, de rendement, de VAN et de TRI, et les couvrir de tests. \\
+		\hline
+		\rowcolor{white}
+		Application web & Développer les écrans de saisie et de restitution, avec
+		authentification et cloisonnement des dossiers par conseiller. \\
+		\hline
+		\rowcolor{gray!8}
+		Restitution client & Produire un rapport PDF et un classeur Excel aux
+		couleurs du cabinet. \\
+		\hline
+		\rowcolor{white}
+		Documentation & Rédiger un guide d'utilisation, un script de démonstration
+		et les rapports hebdomadaires. \\
+		\hline
+		\rowcolor{gray!8}
+		Mise en ligne & Rendre l'application accessible en ligne et documenter la
+		procédure de déploiement. \\
+		\hline
+	\end{tabular}
+\end{table}
+
+Deux tâches ne figuraient pas dans la commande initiale et se sont imposées en
+cours de stage : la \textbf{conduite d'un entretien de cadrage métier} avec le
+tuteur, sous forme d'un questionnaire écrit de huit questions, et la
+\textbf{refonte de l'application} qui a suivi les réponses reçues --- refonte
+dont la dernière étape, l'automatisation de la construction et de la
+confrontation des montages de financement, a été menée en toute fin de stage.
+Ces deux tâches constituent, avec le recul, le cœur de ce que le stage m'a
+appris.
+
+% ══════════════════════════════════════════════════════════════════════════════
+\mainsection{Analyse du déroulement et des apports du stage}
+
+\subsection{L'organisation du travail : une règle et un rythme}
+
+Une règle a été posée dès la première semaine et a structuré tout le
+projet : \textbf{aucune ligne de logique financière ne serait écrite avant que
+	les conventions de calcul ne soient rédigées}. Elle peut sembler formaliste ;
+elle s'est révélée décisive. La plupart des arbitrages délicats du projet
+n'étaient pas des problèmes de code mais des questions de définition : que
+compte-t-on exactement dans les charges d'un rendement « net » ? Les travaux
+font-ils partie du coût d'acquisition ou d'une dépense d'exploitation ?
+L'assurance emprunteur se calcule-t-elle sur le capital initial ou sur le capital
+restant dû ? Un champ laissé vide vaut-il zéro ou « hériter de la valeur par
+défaut » ?
+
+Chacune de ces questions admet plusieurs réponses défendables. Aucune n'admet
+deux réponses simultanées dans un même programme. Les avoir tranchées et écrites
+avant de coder a évité les incohérences ; les avoir affichées dans l'interface et
+imprimées dans les exports a donné au conseiller de quoi défendre chaque chiffre
+devant son client.
+
+\begin{table}[H]
+	\centering
+	\small
+	\setstretch{1.05}
+	\renewcommand{\arraystretch}{1.40}
+	\begin{tabular}{|>{\centering\arraybackslash}p{1.2cm}|>{\raggedright\arraybackslash}p{4.6cm}|>{\raggedright\arraybackslash}p{8.6cm}|}
+		\hline
+		\rowcolor{eccblue!15}
+		\textbf{\color{eccblue}Sem.} & \textbf{\color{eccblue}Objet} &
+		\textbf{\color{eccblue}Livré} \\
+		\hline
+		\rowcolor{white}
+		1 & Cadrage & Cahier des charges, feuille de route, conventions de calcul,
+		modèle de données. \\
+		\hline
+		\rowcolor{gray!8}
+		2 & Moteur et socle & Moteur financier en Python pur, modèles de données,
+		authentification, parcours client $\rightarrow$ projet $\rightarrow$ scénario. \\
+		\hline
+		\rowcolor{white}
+		3 & Restitution & Graphiques, comparaison de scénarios côte à côte,
+		aperçu recalculé à chaque saisie. \\
+		\hline
+		\rowcolor{gray!8}
+		4 & Documents client & Travaux détaillés par postes, export PDF, export
+		Excel, duplication de scénario. \\
+		\hline
+		\rowcolor{white}
+		5 & Consolidation & Cas réels vérifiés à la main, cas limites, jeu de
+		démonstration, guide d'utilisation. \\
+		\hline
+		\rowcolor{gray!8}
+		6 & Cadrage métier et refonte & Entretien avec le tuteur, refonte du
+		modèle et de l'interface, mise en ligne, remise. \\
+		\hline
+	\end{tabular}
+	\caption{Déroulé effectif du stage, semaine par semaine.}
+\end{table}
+
+Le rythme hebdomadaire --- un rapport chaque dimanche, un jeu de tests au vert à
+chaque fin de semaine --- a joué un rôle qui dépasse le suivi administratif. Il
+a imposé de terminer ce qui était commencé avant d'ouvrir un nouveau chantier.
+À la fin de la semaine~5, le développement prévu était achevé sans dette
+technique, ce qui a rendu possible la refonte de la semaine~6. Sans cette
+avance, l'entretien de cadrage n'aurait débouché sur rien d'autre qu'une liste
+de regrets.
+
+\subsection{Le tournant du stage : confronter l'outil au métier réel}
+
+\subsubsection{Une hypothèse jamais vérifiée}
+
+À la fin de la semaine~5, l'application faisait exactement ce que le cahier des
+charges annonçait. Elle calculait un coût d'acquisition, une mensualité, trois
+rendements, un cash-flow, une VAN et un TRI ; elle affichait le TRI et la VAN en
+tête de la page de résultats, parce que ce sont les indicateurs les plus
+sophistiqués ; elle supposait qu'un bien produit un loyer, parce que c'est ce
+qu'un bien fait dans les manuels.
+
+Nous avons alors adressé au tuteur un questionnaire de huit questions sur sa
+méthode réelle : quels indicateurs regarde-t-il en premier ? Existe-t-il des
+seuils de rentabilité ? Quelles informations recueille-t-il au premier
+entretien ? Peut-il décrire deux dossiers récents ?
+
+Les réponses ont invalidé trois hypothèses de conception sur quatre.
+
+\begin{citationbox}
+	« Les deux critères les plus récurrents sont le \textbf{rendement net} et le
+	\textbf{cash-flow} que le bien peut générer par la suite. Viennent ensuite les
+	autres éléments cités. »
+
+	\vspace{0.4em}
+	« Un investissement est considéré comme bon lorsqu'il permet au client de
+	générer de la valeur. Tout dépend donc de son \textbf{horizon
+		d'investissement} et du \textbf{facteur temps}. »
+
+	\vspace{0.4em}
+	{\footnotesize\color{smoke} Extraits de l'entretien de cadrage métier,
+		août 2026.}
+\end{citationbox}
+
+Trois enseignements en découlent. D'abord, le TRI et la VAN --- les indicateurs
+sur lesquels nous avions le plus travaillé --- sont des arguments, pas des
+critères de décision : le conseiller regarde d'abord le rendement net et le
+cash-flow. Ensuite, \textbf{il n'existe aucun seuil de rentabilité} : « un
+investissement peut être rentable pour une personne et ne pas l'être pour une
+autre », ce qui interdit tout verdict automatique du type « bonne affaire / à
+éviter ». Enfin, et c'est le point le plus lourd de conséquences, les deux
+dossiers cités en exemple par le tuteur ne comportaient \emph{aucun loyer}.
+
+\subsubsection{Les deux dossiers de référence}
+
+\begin{table}[H]
+	\centering
+	\small
+	\setstretch{1.05}
+	\renewcommand{\arraystretch}{1.40}
+	\begin{tabular}{|>{\raggedright\arraybackslash}p{2.6cm}|>{\raggedright\arraybackslash}p{5.9cm}|>{\raggedright\arraybackslash}p{5.9cm}|}
+		\hline
+		\rowcolor{eccblue!15}
+		& \textbf{\color{eccblue}Client 1 --- portage foncier} &
+		\textbf{\color{eccblue}Client 2 --- construction-revente} \\
+		\hline
+		\rowcolor{white}
+		Budget & environ 1 000 000 MAD & environ 1 000 000 MAD \\
+		\hline
+		\rowcolor{gray!8}
+		Bien & Terrain de 3 ha en zone ciblée & Terrain viabilisé de 500 m²
+		à 1 100 000 MAD \\
+		\hline
+		\rowcolor{white}
+		Opération & Conservé, sans mise en valeur & Immeuble R+4, 20 appartements,
+		revendus \\
+		\hline
+		\rowcolor{gray!8}
+		Horizon & 10 ans & 2 ans \\
+		\hline
+		\rowcolor{white}
+		Résultat & Un projet d'État s'implante à 1 km quatre ans plus tard ;
+		morcellement et revente de 2 ha, 1 ha conservé en réserve $\rightarrow$
+		\textbf{environ 15 000 000 MAD} de bénéfice &
+		\textbf{5 000 000 MAD} de plus-value nette \\
+		\hline
+	\end{tabular}
+	\caption{Les deux dossiers de référence décrits par le tuteur.}
+\end{table}
+
+Ces deux dossiers disent, à eux seuls, ce que l'outil devait devenir. À la sortie
+du client~2, celui-ci semble avoir réalisé la meilleure opération : cinq millions
+en deux ans. Sur l'horizon du client~1, le classement s'inverse. Le même capital,
+le même cabinet, deux résultats qui ne se comparent qu'à condition de fixer
+d'abord la durée. C'est exactement ce que le tuteur appelle le « facteur temps ».
+
+\figurecredit{0.86}{casablanca_marina_chantier.jpg}
+{Un chantier en cours à Casablanca. Pour un bien acheté sur plan, les mensualités
+	d'emprunt courent pendant que le bien ne produit encore rien : c'est ce
+	décalage que le moteur de calcul a dû apprendre à représenter.}
+{Photographie Farid Mernissi, Wikimedia Commons, CC BY-SA 4.0.}
+
+\subsubsection{Ce qui a été refait}
+
+La semaine~6 a été consacrée à la refonte. Elle a porté sur trois niveaux.
+
+\textbf{Le modèle de données.} La fiche client a reçu les trois informations que
+le cabinet recueille systématiquement et que nous ignorions : situation
+professionnelle, nationalité, budget disponible. Un \textbf{brief de recherche} a
+été ajouté, reprenant tous les critères du premier entretien, ainsi que
+l'objectif du client et son horizon. Le dossier a reçu un type d'opération
+(locatif ou terrain / revente), une étape d'avancement suivant les six phases du
+métier, et un délai de livraison en mois.
+
+\textbf{Le moteur de calcul.} Une opération sans loyer est désormais traitée
+nativement : toute la valeur y vient de la plus-value. Le délai de livraison
+diffère la mise en exploitation --- tant que le bien n'est pas livré il ne
+produit ni loyer ni charges, alors que les annuités d'emprunt courent déjà --- et
+une livraison en cours d'année est proratisée. Le cash-flow mis en avant est
+celui d'une année pleinement exploitée, et non celui de l'année~1 qui ne
+représente rien pour un bien encore en chantier.
+
+\textbf{La restitution.} L'ordre des indicateurs a été inversé sur tous les
+supports : rendement net et cash-flow en tête, valeur créée ensuite, TRI et VAN
+en second rang. Tout verdict automatique a été supprimé ; à la place, l'objectif
+et l'horizon du client sont rappelés à côté des chiffres. L'étude automatique
+ajoutée en fin de stage (\S\,\ref{sec:saisie}) ne revient pas sur ce principe : elle
+\emph{propose} un montage de financement pour un bien donné, jamais un jugement
+sur l'investissement lui-même, et toujours relativement à l'objectif que le
+client a déclaré. Les écrans s'adaptent
+au type d'opération : pas de rendement locatif affiché pour un terrain, la
+plus-value prend sa place.
+
+\begin{encadrecle}
+	\textbf{Validation.} Les deux dossiers du tuteur sont devenus des
+	\textbf{tests automatisés}, vérifiables à la main. Client~1 : 1 000 000 + 7 \%
+	de frais = 1 070 000 investis, revente à 16 070 000, soit
+	\textbf{15 000 000 de valeur créée} et un TRI d'environ 31 \% par an.
+	Client~2 : 1 100 000 + 7 \% + 8 000 000 de construction = 9 177 000, revente à
+	14 177 000, soit \textbf{5 000 000 de valeur créée}. Un troisième test vérifie
+	que \textbf{le classement des deux dossiers s'inverse avec l'horizon} : la
+	conclusion métier du tuteur est ainsi inscrite dans le code, et toute
+	régression future la ferait échouer.
+\end{encadrecle}
+
+\subsection{Difficultés rencontrées et manière dont elles ont été traitées}
+
+\subsubsection{Un algorithme qui refuse de converger}
+
+Le taux de rentabilité interne n'a pas de formule fermée : il se cherche par
+approximations successives. La méthode de Newton-Raphson, rapide, peut diverger
+ou sortir du domaine admissible lorsque les flux changent plusieurs fois de
+signe --- exactement le cas d'un investissement immobilier à crédit, où le
+cash-flow est négatif pendant des années avant l'encaissement de la revente.
+
+La solution retenue combine deux méthodes : Newton-Raphson d'abord, et, en cas
+d'échec, un repli sur une \textbf{bissection bornée} à un intervalle réaliste. Et
+lorsque aucune solution n'existe, l'outil affiche explicitement l'absence de
+valeur \textbf{plutôt qu'un chiffre faux}. Ce dernier point est un choix de
+conception, non une limite technique : un chiffre trompeur affiché en rendez-vous
+est plus dommageable qu'une case vide.
+
+\subsubsection{Un test qui échoue parce que le vérificateur se trompe}
+
+En semaine~5, un test construit sur un cas réel a échoué. Le réflexe a été de
+chercher l'erreur dans le moteur. Elle n'y était pas : la valeur de référence,
+que j'avais calculée à la main, était fausse de quelques dirhams sur une
+multiplication. Le programme, lui, avait raison.
+
+L'anecdote est mineure ; l'enseignement ne l'est pas. Le principe posé au
+cadrage --- \textbf{chaque chiffre vérifié deux fois, par le code et par un
+	calcul indépendant} --- avait été conçu pour détecter les erreurs du programme.
+Il a détecté une erreur de l'humain. C'est le même dispositif qui protège dans
+les deux sens, et j'ai cessé, ce jour-là, de considérer les tests comme une
+formalité de fin de développement.
+
+\subsubsection{Un bug invisible en développement, fatal en production}
+
+Le bug le plus instructif du stage n'a jamais provoqué d'erreur sur nos postes.
+La configuration de l'application lisait ses paramètres --- dont la clé secrète
+et l'adresse de la base de données --- depuis un fichier d'environnement, mais
+ce fichier était chargé \emph{après} que la configuration ait été évaluée. En
+développement, l'outil en ligne de commande de Flask charge ce fichier de son
+côté : le défaut restait masqué. Sous le serveur de production, ce filet n'existe
+pas : l'application serait partie avec ses valeurs par défaut, c'est-à-dire une
+clé secrète publique et une base de données vide.
+
+Le correctif tient en une ligne déplacée. Le trouver a demandé de comprendre
+\textbf{dans quel ordre les choses se produisent au démarrage}, et de vérifier
+l'application dans les deux modes d'exécution au lieu d'un seul. C'est le type de
+défaut qu'aucun test fonctionnel n'attrape, parce que l'environnement de test
+ressemble à l'environnement de développement.
+
+\subsubsection{Trop de champs à remplir}
+\label{sec:saisie}
+
+Une difficulté de conception, celle-là. À force d'ajouter les critères
+recueillis par le cabinet, les formulaires étaient devenus trop longs pour être
+remplis en rendez-vous --- ce qui contredisait l'exigence des dix minutes fixée
+au cadrage.
+
+La première réponse a consisté à distinguer trois catégories de champs plutôt
+qu'à en supprimer arbitrairement : ce qui est \textbf{obligatoire} parce que sans
+lui le calcul n'a pas de sens ou parce que le cabinet le recueille
+systématiquement ; ce qui est \textbf{suggéré} par des listes de valeurs
+fréquentes que le conseiller peut ignorer ; et ce qui est \textbf{replié}
+derrière un bloc dépliable, visible seulement quand on en a besoin. Ce travail a
+fait l'objet d'une note écrite justifiant chaque arbitrage, précisément parce
+qu'un choix d'interface qu'on ne sait pas expliquer est un choix qu'on n'aurait
+pas dû faire.
+
+Cette réponse traitait le symptôme. La cause était ailleurs, et je ne l'ai
+comprise qu'en regardant ce que le conseiller faisait réellement de l'écran de
+scénario : il y saisissait onze valeurs --- apport, taux, assurance, durée,
+horizon, revalorisations, frais de revente, taux d'actualisation --- pour
+découvrir que le montage ne convenait pas, puis recommençait. \textbf{L'outil
+lui demandait de deviner la réponse avant de la calculer.}
+
+D'où la dernière fonctionnalité développée, et celle dont je suis le plus
+satisfait : l'\textbf{étude automatique}. Le conseiller décrit le bien et le
+client ; l'application construit elle-même la famille des montages plausibles
+--- paiement comptant, crédit à apport minimal, renforcé ou maximal, sur quinze,
+vingt et vingt-cinq ans --- les calcule tous, les classe, et \textbf{propose
+celui qui répond le mieux à l'objectif déclaré du client}, en français courant :
+« avec un apport de tant, le bien paie ses charges et laisse tant par mois ; au
+bout de vingt ans, l'opération aura rapporté tant ».
+
+La difficulté n'était pas de programmer ce classement, mais de ne pas trahir au
+passage ce que le cabinet nous avait dit --- \emph{« un investissement peut être
+rentable pour une personne et ne pas l'être pour une autre »}. Proposer un
+montage sans réintroduire un seuil de rentabilité universel demandait quatre
+garde-fous, tous visibles à l'écran :
+
+\begin{itemize}
+	\item le classement est \textbf{relatif} : chaque critère est ramené entre le
+	meilleur et le moins bon des montages \emph{de cette étude}, pour un même bien
+	et un même horizon. Un score ne vaut donc qu'à l'intérieur d'une page, et deux
+	études ne se comparent pas ;
+	\item la \textbf{pondération est affichée} --- le cash-flow pèse 40~\% pour un
+	objectif de revenu locatif, la valeur créée 40~\% pour un objectif de
+	plus-value : le conseiller voit sur quoi l'outil a tranché, et peut le
+	contester ;
+	\item l'écran dit \textbf{ce que les autres montages font mieux}. C'est
+	typiquement là qu'apparaît l'effet de levier : l'achat comptant l'emporte
+	souvent sur le cash-flow tout en rendant moins par dirham engagé. Un
+	argumentaire qui ne nommerait pas ce que l'on perd serait de la vente, pas du
+	conseil ;
+	\item chaque montage affiche sa \textbf{composition complète}, paramètre par
+	paramètre, avec l'origine de chaque valeur : dossier, brief du client, zone de
+	marché, calcul, ou hypothèse par défaut. Un chiffre qu'on ne peut pas
+	justifier devant un client n'a pas sa place dans une proposition.
+\end{itemize}
+
+Un test résume l'intention mieux qu'un paragraphe : \emph{à bien identique et
+budget identique}, l'outil propose le crédit sur vingt-cinq ans à un client qui
+cherche du revenu, et celui sur quinze ans à un client qui vise la plus-value.
+La position du cabinet est ainsi devenue une propriété vérifiée du programme.
+
+\subsubsection{Deux historiques de code sans ancêtre commun}
+
+Au moment de publier le projet, le dépôt distant et le dépôt local se sont
+révélés avoir été créés indépendamment : deux historiques Git sans aucun commit
+partagé, que l'outil refusait donc de fusionner. La tentation était de tout
+écraser. J'ai préféré vérifier d'abord, fichier par fichier, qu'aucun travail de
+mon binôme ne serait perdu, puis fusionner explicitement les deux histoires en
+donnant la priorité à la version locale --- vérifiée --- des fichiers en conflit.
+
+Une seconde opération a suivi : une image de référence avait été versionnée par
+inadvertance. La retirer du suivi ne suffit pas, car elle reste dans l'historique
+d'un dépôt public. Il a fallu réécrire cet historique et republier. J'ai retenu
+de cet épisode que \textbf{ce qui est publié est difficile à dépublier}, et que
+la prudence se joue avant l'envoi, pas après.
+
+\subsubsection{Des graphiques qui ne trompent pas}
+
+Dernière difficulté, moins technique et plus inattendue : la rigueur graphique.
+Un outil destiné à convaincre en rendez-vous ne peut pas se permettre des
+graphiques ambigus. Des règles strictes ont été appliquées --- un seul axe
+vertical par graphique, couleurs attribuées dans un ordre fixe et contrôlées
+pour les principales formes de daltonisme, légende systématique dès deux séries,
+tableau chiffré en regard de chaque figure --- quitte à écarter des
+représentations séduisantes mais trompeuses, comme les doubles axes ou les
+jauges. Aucune information ne repose sur la couleur seule.
+
+\subsection{Le résultat livré}
+
+L'application livrée couvre l'intégralité du périmètre du cahier des charges,
+révisé après l'entretien de cadrage, et s'appuie sur une suite de
+\textbf{96 tests automatisés} au vert à la remise. Le parcours nominal tient en
+trois écrans --- fiche client et brief, dossier du bien, étude automatique ---
+et la saisie d'un montage à la main, qui était le chemin obligé, n'est plus qu'un
+recours pour un financement déjà négocié.
+
+\figurecredit{0.96}{app_resultats_haut.png}
+{Page de résultats d'un scénario, après refonte : le rendement net et le
+	cash-flow occupent la première ligne, la valeur créée, le TRI et la VAN la
+	seconde. Cet écran n'affiche aucun verdict ; l'objectif et l'horizon du client
+	sont rappelés en tête.}
+{Capture d'écran de l'application développée pendant le stage.}
+
+\vspace{-0.4em}
+\begin{table}[H]
+	\centering
+	\small
+	\setstretch{1.05}
+	\renewcommand{\arraystretch}{1.40}
+	\begin{tabular}{|>{\raggedright\arraybackslash}p{4.5cm}|>{\raggedright\arraybackslash}p{10.4cm}|}
+		\hline
+		\rowcolor{eccblue!15}
+		\textbf{\color{eccblue}Livrable} & \textbf{\color{eccblue}État à la remise} \\
+		\hline
+		\rowcolor{white}
+		Application web & Parcours complet, de la fiche client au document remis,
+		déployable en ligne. \\
+		\hline
+		\rowcolor{gray!8}
+		Étude automatique & Construction, confrontation et proposition motivée des
+		montages de financement, en langage clair, sans saisie supplémentaire. \\
+		\hline
+		\rowcolor{white}
+		Moteur financier & Module Python indépendant, testé contre des valeurs de
+		référence externes et contre les deux dossiers du cabinet. \\
+		\hline
+		\rowcolor{gray!8}
+		Cahier des charges & Rédigé en semaine~1, complété d'une note d'écart
+		après l'entretien de cadrage. \\
+		\hline
+		\rowcolor{white}
+		Documentation & Guide d'utilisation, script de démonstration minuté,
+		procédure de déploiement, note de choix d'interface. \\
+		\hline
+		\rowcolor{gray!8}
+		Rapports & Cinq rapports hebdomadaires et un rapport final de projet. \\
+		\hline
+	\end{tabular}
+	\caption{Livrables remis au cabinet le \datefin.}
+\end{table}
+
+\subsection{Analyse des apports du stage}
+
+\subsubsection{Points forts}
+
+\textbf{Un projet complet, de bout en bout.} J'ai vu un même travail passer de la
+question métier au document remis à un client. C'est rare dans un cadre
+scolaire, où l'on hérite le plus souvent d'un énoncé déjà formulé. Ici, une part
+substantielle de la difficulté résidait dans la formulation elle-même.
+
+\textbf{Un utilisateur réel, avec une opinion.} L'entretien de cadrage a produit
+plus de valeur en huit questions que trois semaines de développement autonome.
+J'ai appris que l'accès à l'utilisateur n'est pas une étape du projet mais sa
+condition, et qu'il faut aller la chercher tôt plutôt que la subir tard.
+
+\textbf{La contrainte de l'explicabilité.} Chaque chiffre devait pouvoir être
+justifié en une phrase devant un client. Cette contrainte a écarté d'elle-même
+les solutions élégantes mais opaques et m'a habitué à un critère que je n'avais
+pas : \emph{si je ne sais pas l'expliquer, je ne dois pas le livrer}.
+
+\subsubsection{Points faibles}
+
+\textbf{L'entretien de cadrage est arrivé trop tard.} Il aurait dû être conduit
+en semaine~1, pas en semaine~6. Cinq semaines de travail ont reposé sur des
+hypothèses non vérifiées ; la refonte a été possible parce que l'architecture
+s'y prêtait et parce que nous avions de l'avance, mais c'est une chance, pas une
+méthode. Rétrospectivement, la faute est claire : nous avons pris le silence de
+départ pour un accord.
+
+\textbf{Aucun test en situation réelle.} L'application n'a pas été utilisée
+devant un vrai client au cours du stage. Le jeu de démonstration et le script de
+rendez-vous en tiennent lieu, mais ils restent des simulations construites par
+ceux-là mêmes qui ont écrit l'outil.
+
+\textbf{Des zones métier laissées en suspens.} L'échéancier des paiements en
+VEFA, le calcul de la capacité d'emprunt et le traitement fiscal de la plus-value
+n'ont pas été traités. Ils sont documentés comme tels, ce qui est honnête, mais
+ce sont des manques.
+
+\subsubsection{Compétences acquises}
+
+\begin{table}[H]
+	\centering
+	\small
+	\setstretch{1.05}
+	\renewcommand{\arraystretch}{1.40}
+	\begin{tabular}{|>{\raggedright\arraybackslash}p{4.2cm}|>{\raggedright\arraybackslash}p{10.7cm}|}
+		\hline
+		\rowcolor{eccblue!15}
+		\textbf{\color{eccblue}Domaine} & \textbf{\color{eccblue}Ce que j'ai appris à faire} \\
+		\hline
+		\rowcolor{white}
+		Techniques & Structurer une application web (Flask, base de données,
+		migrations), isoler une logique métier pure et la tester, générer des
+		documents PDF et Excel, déployer une application en ligne. \\
+		\hline
+		\rowcolor{gray!8}
+		Financières & Manipuler les indicateurs d'un investissement --- rendement,
+		cash-flow, VAN, TRI, amortissement d'un emprunt --- et surtout comprendre
+		ce que chacun ne dit pas. \\
+		\hline
+		\rowcolor{white}
+		Méthodologiques & Écrire les conventions avant le code, vérifier chaque
+		chiffre par deux voies indépendantes, versionner et documenter au rythme
+		hebdomadaire. \\
+		\hline
+		\rowcolor{gray!8}
+		Relationnelles & Formuler des questions métier exploitables, entendre une
+		réponse qui invalide son propre travail, et transformer un retour critique
+		en plan d'action plutôt qu'en justification. \\
+		\hline
+	\end{tabular}
+\end{table}
+
+\subsubsection{Compétences qui m'ont manqué}
+
+Trois manques se sont fait sentir. D'abord, une \textbf{culture du marché
+	immobilier local} : je découvrais en même temps le métier et son vocabulaire, ce
+qui m'a fait perdre du temps sur des notions qu'un entretien préalable aurait
+levées en une heure. Ensuite, des \textbf{méthodes de recueil du besoin} : je ne
+disposais d'aucune technique structurée d'entretien utilisateur, et le
+questionnaire que nous avons envoyé au tuteur a été improvisé --- il aurait été
+plus efficace, et surtout plus précoce, si j'avais su comment on conduit
+ce type d'échange. Enfin, des \textbf{réflexes d'exploitation} : la différence
+entre « ça marche sur ma machine » et « ça marche en production » ne m'était pas
+familière, et c'est un bug de configuration qui me l'a apprise.
+
+\subsubsection{Lien avec la formation à l'ECC}
+
+Plusieurs acquis de la première année ont été directement mobilisés.
+La \textbf{programmation} et l'\textbf{algorithmique} ont servi au-delà de la
+syntaxe : la recherche du TRI est une résolution numérique d'équation, et le
+choix Newton-Raphson puis bissection est un arbitrage classique entre vitesse de
+convergence et robustesse --- exactement le type de raisonnement vu en cours de
+méthodes numériques. Les \textbf{mathématiques financières} ont fourni
+l'actualisation et le calcul d'annuités constantes. La \textbf{communication
+	écrite} a été sollicitée en permanence : cahier des charges, rapports
+hebdomadaires, guide d'utilisation.
+
+\acompleter{citer ici les intitulés exacts des cours de 1A concernés
+	--- l'exercice attend des références précises à la formation}
+
+\subsection{Enseignements sur le fonctionnement de l'entreprise}
+
+Trois observations sur l'organisation du cabinet me paraissent mériter d'être
+consignées.
+
+\textbf{La décision appartient au client, et cela structure tout l'outillage.}
+Ma première réaction, à la lecture de la réponse « il n'existe pas de seuil »,
+a été de la trouver imprécise. Elle est exactement l'inverse : le cabinet a
+choisi de ne pas se substituer au client, et cette position se traduit
+directement dans le produit --- pas de seuil de rentabilité, mais des chiffres
+présentés à côté de l'objectif et de l'horizon que le client a lui-même
+exprimés. Une règle de conduite professionnelle est ici devenue une contrainte
+technique : c'est elle qui a dicté, jusque dans le détail, la manière dont
+l'étude automatique classe les montages --- relativement, pour un client donné,
+pondération affichée, et en disant ce que les montages écartés faisaient mieux.
+
+\textbf{Le savoir-faire est dans les têtes, pas dans les procédures.} Le
+processus en six étapes n'était écrit nulle part avant que nous ne le
+transcrivions : il existait comme une pratique partagée. Un cabinet de cette
+taille fonctionne très bien ainsi tant que ses effectifs sont stables, et la
+formalisation --- que notre outil impose de fait --- est autant un risque
+(rigidifier ce qui était souple) qu'un progrès.
+
+\textbf{La communication passe par l'écrit quand elle doit engager.} Les
+échanges informels ont porté l'essentiel du quotidien, mais les décisions qui
+comptaient --- les conventions de calcul, les réponses au questionnaire, les
+écarts constatés --- ont toutes été fixées par écrit. C'est ce qui a permis, en
+semaine~6, de mesurer précisément l'écart entre ce que nous avions construit et
+ce que le métier attendait : les deux étaient documentés.
+
+% ══════════════════════════════════════════════════════════════════════════════
+\mainsectionstar{Conclusion}
+
+Six semaines après, l'outil livré fait autre chose que ce que nous avions prévu
+d'écrire. Il ne décrète pas qu'un investissement est bon, et il ne suppose plus
+qu'un bien rapporte un loyer. Il présente à un conseiller ce que son client a dit
+vouloir, sur la durée que son client a fixée, et lui donne de quoi le justifier
+chiffre par chiffre. Quand il finit par proposer quelque chose --- le montage de
+financement le mieux placé parmi ceux qu'il a lui-même construits --- il affiche
+en même temps la règle qui l'a fait choisir et ce que les autres options
+faisaient mieux, de sorte que la proposition reste discutable. Ce déplacement --- d'un outil qui décide
+vers un outil qui documente une décision --- est le résultat le plus solide du
+stage, et il ne vient pas d'une compétence technique : il vient d'avoir posé des
+questions à quelqu'un qui exerce le métier.
+
+Sur le plan technique, ce stage m'a confirmé un goût. J'ai aimé construire un
+système dont chaque partie est vérifiable, et j'ai découvert que la partie la
+plus intéressante n'était pas le code mais l'endroit où le code rencontre une
+règle de métier. Un moteur financier qui donne le bon chiffre est une affaire de
+quelques centaines de lignes ; savoir \emph{quel} chiffre doit être donné est
+une affaire d'entretien, de convention écrite et de restitution.
+
+C'est ce qui oriente la suite. Pour mon prochain stage, je chercherai un
+environnement où cette rencontre est au centre : ingénierie logicielle appliquée
+à un domaine métier exigeant --- finance, énergie, industrie --- plutôt que
+développement pour lui-même. Je souhaite aussi être confronté à une équipe plus
+étoffée : ce stage s'est déroulé en binôme, avec une autonomie large, et je n'ai
+donc pas éprouvé ce que signifie tenir sa place dans une organisation de
+plusieurs dizaines de personnes, avec ses processus de revue et ses arbitrages
+collectifs.
+
+Enfin, deux lacunes identifiées appellent un plan concret. La \textbf{conduite
+	d'entretien utilisateur} : je compte m'y former par la lecture méthodique et
+en imposant, dès le premier jour de ma prochaine mission, un entretien de
+cadrage écrit avec l'utilisateur final --- l'erreur commise ici est trop coûteuse
+pour être répétée. La \textbf{mise en exploitation} : je veux comprendre ce qui
+se passe entre un programme qui fonctionne et un service qui tourne, en
+pratiquant sur mes propres projets le déploiement, la configuration et la
+supervision, plutôt qu'en les découvrant à la veille d'une remise.
+
+\begin{encadrecle}
+	\textbf{En une phrase.} J'ai commencé ce stage en croyant qu'il s'agissait de
+	calculer juste ; je le termine en sachant qu'il s'agissait d'abord de calculer
+	\emph{ce qu'il fallait}, et que cette question-là ne se résout pas devant un
+	écran.
+\end{encadrecle}
+
+% ══════════════════════════════════════════════════════════════════════════════
+\mainsectionstar{Sources}
+
+Conformément aux consignes de rédaction, les éléments repris de sources externes
+sont signalés ci-dessous. Le contenu métier de ce rapport provient d'une source
+primaire unique : l'entretien de cadrage conduit avec le tuteur.
+
+\begin{itemize}
+	\item \textbf{Entretien de cadrage métier}, \entreprise, août 2026 ---
+	questionnaire écrit de huit questions et réponses du tuteur. Les extraits
+	cités sont reproduits littéralement ; l'intégralité est consignée dans la
+	note d'écart remise au cabinet.
+	\item \textbf{Documents produits pendant le stage} : cahier des charges
+	(semaine~1), rapports hebdomadaires n\textsuperscript{os}~1 à 5, rapport final
+	de projet, guide d'utilisation, note de choix d'interface, note d'écart et
+	d'adaptation. Ces documents sont les nôtres.
+	\item \textbf{Documentations techniques officielles} consultées pour la mise
+	en œuvre : Flask, SQLAlchemy, WTForms, WeasyPrint, openpyxl, Chart.js,
+	pytest, Git.
+	\item \textbf{Photographies} : Wikimedia Commons, sous licences Creative
+	Commons ; auteur et licence indiqués sous chaque figure.
+	\item \textbf{Captures d'écran} : productions du stage, réalisées sur
+	l'application développée avec son jeu de données de démonstration.
+\end{itemize}
+
+% ══════════════════════════════════════════════════════════════════════════════
+\newpage
+\appendix
+\mainsectionstar{Annexes}
+\renewcommand{\thesubsection}{\Alph{subsection}}
+\setcounter{subsection}{0}
+
+\subsection{Le parcours de l'application, écran par écran}
+
+\figurecredit{0.94}{app_vitrine.png}
+{Page d'accueil publique : le cabinet, sa méthode en six étapes et ses questions
+	fréquentes. C'est la seule page visible sans compte.}{}
+
+\figurecredit{0.94}{app_tableau_de_bord.png}
+{Tableau de bord du conseiller : l'avancement des dossiers suit les six étapes du
+	processus décrit par le cabinet.}{}
+
+\figurecredit{0.94}{app_brief.png}
+{Brief de recherche : les critères recueillis au premier entretien. Ce formulaire
+	n'existait pas avant l'entretien de cadrage.}{}
+
+\newpage
+\figurecredit{0.94}{app_projet_terrain.png}
+{Dossier d'une opération sans loyer --- un terrain porté sur dix ans. L'écran
+	s'adapte : aucun rendement locatif n'est demandé ni affiché.}{}
+
+\figurecredit{0.94}{app_comparaison.png}
+{Comparaison de trois montages de financement pour un même bien : l'écran
+	d'arbitrage du rendez-vous.}{}
+
+\newpage
+\figurecredit{0.94}{app_etude_carte.png}
+{Étude automatique : les sept montages possibles ont été construits, calculés et
+	classés pour l'objectif déclaré du client ; le mieux placé est proposé en une
+	phrase, avec ses quatre chiffres, ce qui plaide pour lui, ce que les autres
+	font mieux, et ce qu'il faut dire au client avant qu'il s'engage.}{}
+
+\subsection{Le processus métier du cabinet}
+
+\begin{center}
+	\begin{tikzpicture}[node distance=0.42cm, font=\small]
+		\tikzset{etape/.style={rectangle, rounded corners=3pt, draw=eccblue!60,
+				fill=eccblue!8, text width=2.35cm, align=center, minimum height=1.5cm,
+				inner sep=4pt}}
+		\node[etape] (a) {\textbf{1}\\Recueil du besoin};
+		\node[etape, right=of a] (b) {\textbf{2}\\Recherche};
+		\node[etape, right=of b] (c) {\textbf{3}\\Présentation et visites};
+		\node[etape, right=of c] (d) {\textbf{4}\\Compromis};
+		\node[etape, below=0.9cm of b] (e) {\textbf{5}\\Acte notarié};
+		\node[etape, right=of e] (f) {\textbf{6}\\Livraison};
+		\draw[-{Stealth[length=5pt]}, eccblue!70, thick] (a) -- (b);
+		\draw[-{Stealth[length=5pt]}, eccblue!70, thick] (b) -- (c);
+		\draw[-{Stealth[length=5pt]}, eccblue!70, thick] (c) -- (d);
+		\draw[-{Stealth[length=5pt]}, eccblue!70, thick] (d.south) |- ([yshift=0.45cm]e.north) -- (e.north);
+		\draw[-{Stealth[length=5pt]}, eccblue!70, thick] (e) -- (f);
+		\node[below=0.35cm of e, text width=12cm, align=center,
+		font=\footnotesize\itshape, color=darkgray]
+		at ([xshift=1.6cm,yshift=-0.9cm]e.south)
+		{Les six étapes suivies par le cabinet, transcrites depuis l'entretien de
+			cadrage. Elles sont devenues les six statuts d'un dossier dans
+			l'application.};
+	\end{tikzpicture}
+\end{center}
+
+\subsection{Ce qui a changé après l'entretien de cadrage}
+
+\begin{table}[H]
+	\centering
+	\small
+	\setstretch{1.05}
+	\renewcommand{\arraystretch}{1.40}
+	\begin{tabular}{|>{\centering\arraybackslash}p{0.7cm}|>{\raggedright\arraybackslash}p{6.8cm}|>{\raggedright\arraybackslash}p{6.8cm}|}
+		\hline
+		\rowcolor{eccblue!15}
+		\textbf{\color{eccblue}\#} & \textbf{\color{eccblue}Écart constaté} &
+		\textbf{\color{eccblue}Correction apportée} \\
+		\hline
+		\rowcolor{white}
+		1 & TRI et VAN affichés en tête & Rendement net et cash-flow remontés en
+		première position sur tous les supports \\
+		\hline
+		\rowcolor{gray!8}
+		2 & Un loyer supposé dans tous les cas & Opération sans loyer traitée
+		nativement, valeur créée par la plus-value \\
+		\hline
+		\rowcolor{white}
+		3 & Facteur temps secondaire & Horizon et délai de livraison devenus des
+		paramètres de premier plan \\
+		\hline
+		\rowcolor{gray!8}
+		4 & Phase amont absente & Brief de recherche ajouté au modèle de données \\
+		\hline
+		\rowcolor{white}
+		5 & Fiche client incomplète & Situation professionnelle, nationalité et
+		budget disponible ajoutés \\
+		\hline
+		\rowcolor{gray!8}
+		6 & Déroulé du dossier non suivi & Six statuts d'avancement ajoutés \\
+		\hline
+		\rowcolor{white}
+		7 & VEFA traitée comme un bien louable & Délai de livraison modélisé et
+		proratisé \\
+		\hline
+	\end{tabular}
+	\caption{Les sept écarts relevés entre le cahier des charges initial et la
+		pratique du cabinet.}
+\end{table}
+
+\subsection{Points laissés hors périmètre}
+
+Signalés comme utiles par le cabinet mais non réalisés, faute de temps avant la
+remise. Ils sont documentés pour que la reprise du projet parte d'un état connu :
+
+\begin{itemize}
+	\item \textbf{Échéancier VEFA par tranches} : les appels de fonds suivent
+	l'avancement du chantier ; l'outil modélise le décalage de livraison, pas
+	l'étalement des paiements.
+	\item \textbf{Calcul de capacité d'emprunt} à partir de la situation
+	professionnelle et du budget disponible.
+	\item \textbf{Rapprochement automatique} entre le brief d'un client et un
+	portefeuille de biens : l'outil enregistre le besoin, il ne cherche pas encore
+	les biens.
+	\item \textbf{Suivi des visites} (dates, retours du client) au sein de l'étape
+	correspondante.
+	\item \textbf{Validation formelle des taux par défaut} des zones de marché
+	(Maroc : frais 7 \%, imposition effective 15 \%), aujourd'hui des valeurs de
+	travail documentées comme telles.
+\end{itemize}
+
+\subsection{Liste des informations à compléter avant envoi}
+
+\begin{encadre}
+	Les éléments suivants apparaissent en rouge dans le corps du rapport et doivent
+	être renseignés avant l'envoi :
+	\begin{itemize}\itemsep0.15em
+		\item numéro d'étudiant, en tête du fichier source ;
+		\item nom, prénom et fonction du tuteur, en tête du fichier source ;
+		\item modalité du stage (présentiel, hybride, distanciel) et rythme de
+		présence ;
+		\item date de création, forme juridique et effectif du cabinet ;
+		\item service ou entité de rattachement et nombre de personnes y travaillant ;
+		\item position concurrentielle du cabinet sur le Grand Casablanca ;
+		\item noms des collaborateurs rencontrés, pour les remerciements ;
+		\item intitulés exacts des cours de première année mobilisés.
+	\end{itemize}
+	Le marqueur \verb|\acompleter{...}| du fichier source signale chacun d'eux ;
+	une recherche sur ce mot-clé permet de tous les retrouver.
+\end{encadre}
+
+\end{document}
