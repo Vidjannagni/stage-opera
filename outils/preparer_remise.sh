@@ -9,18 +9,26 @@ cd "$(dirname "$0")/.."
 
 DESTINATION="remise"
 ETAPE="$DESTINATION/RentImmo"
-rm -rf "$DESTINATION"
-mkdir -p "$ETAPE/code" "$ETAPE/documents/rapports_hebdomadaires"
 
 # L'archive est prise sur le dernier commit : ce qui n'est pas commité ne
 # partirait pas dans la remise, et le silence sur ce point coûterait cher.
+# Cette vérification passe avant toute écriture, sans quoi le ménage du dossier
+# de remise se signalerait lui-même comme une modification en attente.
 if [ -n "$(git status --porcelain)" ]; then
   echo "⚠  Des modifications ne sont pas commitées — elles ne seront PAS dans"
   echo "   l'archive, qui est prise sur le dernier commit :"
   git status --short | sed 's/^/     /'
-  read -r -p "   Continuer quand même ? [o/N] " reponse
-  [ "$reponse" = "o" ] || [ "$reponse" = "O" ] || { echo "Abandon."; exit 1; }
+  if [ -t 0 ]; then
+    read -r -p "   Continuer quand même ? [o/N] " reponse
+    case "$reponse" in [oO]) ;; *) echo "Abandon." ; exit 1 ;; esac
+  else
+    echo "   Abandon : commitez d'abord, ou relancez ce script dans un terminal."
+    exit 1
+  fi
 fi
+
+rm -rf "$DESTINATION"
+mkdir -p "$ETAPE/code" "$ETAPE/documents/rapports_hebdomadaires"
 
 echo "── Code source (archive Git du dernier commit)…"
 git archive --format=tar HEAD | tar -x -C "$ETAPE/code"
