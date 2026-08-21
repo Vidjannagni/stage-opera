@@ -17,6 +17,8 @@ Le cabinet Choubel Consulting accompagne des investisseurs immobiliers et avait 
 
 \textbf{Le résultat est conforme au cahier des charges, livré dans les délais.} L'application « RentImmo » permet à un conseiller de créer un dossier client, saisir un bien, construire et comparer des scénarios de financement, et remettre au client un rapport aux couleurs du cabinet — le tout en moins de dix minutes, critère d'acceptation fixé au cadrage et tenu par le jeu de démonstration livré.
 
+Le cahier des charges a toutefois été \textbf{révisé en cours de projet}, à la suite de l'entretien de cadrage métier conduit avec le cabinet : l'outil couvre désormais la phase amont (recueil du besoin), les opérations \textbf{sans loyer}, l'\textbf{achat sur plan}, et il construit lui-même les montages de financement au lieu de les faire saisir. La partie~2 du présent rapport est consacrée à ce tournant, qui est le fait marquant du projet.
+
 Le choix structurant du projet, arbitré dès la semaine 1, est le \textbf{paramétrage par zone de marché} : chaque zone porte ses taux de frais d'acquisition, son taux d'imposition effectif et sa devise ; le \textbf{Maroc est la zone par défaut} (MAD), un préréglage France et une zone personnalisée complètent l'offre, et tout calcul s'actualise au changement de zone. Ce mécanisme rend l'outil utilisable sur plusieurs marchés sans modification de code.
 
 \vspace{0.4cm}
@@ -30,7 +32,7 @@ Le choix structurant du projet, arbitré dès la semaine 1, est le \textbf{param
 		\textbf{\color{eccblue}Livrable} & \textbf{\color{eccblue}État à la remise} \\
 		\hline
 		\rowcolor{white}
-		Code source & Dépôt Git prêt à l'exécution, un commit propre par semaine, 45 tests au vert. \\
+		Code source & Dépôt Git prêt à l'exécution, un commit propre par semaine, \textbf{96 tests} au vert. \\
 		\rowcolor{gray!8}
 		Cahier des charges & Rédigé et versionné (périmètre, formules, conventions, modèle de données). \\
 		\rowcolor{white}
@@ -38,10 +40,74 @@ Le choix structurant du projet, arbitré dès la semaine 1, est le \textbf{param
 		\rowcolor{gray!8}
 		Script de démonstration & Déroulé minuté de 10 minutes, jeu de données rejouable (\texttt{flask demo-data}). \\
 		\rowcolor{white}
+		Notes d'analyse & Retour du cabinet et écarts constatés, choix d'interface, méthode de l'étude automatique. \\
+		\rowcolor{gray!8}
 		Rapports hebdomadaires & Cinq rapports transmis chaque dimanche, plus le présent rapport final. \\
 		\hline
 	\end{tabular}
 \end{table}
+
+% ══════════════════════════════════════════════════════════════════════════════
+\mainsection{Le tournant : cadrage métier et refonte}
+
+\subsection{Ce que le cabinet nous a répondu}
+Un questionnaire écrit de huit questions a été adressé au cabinet sur sa méthode de travail réelle. Trois réponses ont invalidé des hypothèses que nous n'avions jamais vérifiées. D'abord, les indicateurs regardés en premier sont le \textbf{rendement net} et le \textbf{cash-flow} : le TRI et la VAN servent à argumenter, pas à décider. Ensuite, \textbf{il n'existe aucun seuil de rentabilité} — « un investissement peut être rentable pour une personne et ne pas l'être pour une autre » : ce qui tranche, c'est l'\textbf{horizon} du client et le facteur temps. Enfin, les deux dossiers dont le cabinet est le plus fier — un portage foncier sur dix ans et une construction-revente sur deux ans — ne comportent \textbf{aucun loyer}, alors que notre modèle en supposait toujours un.
+
+\subsection{Les sept écarts et leur correction}
+
+\begin{table}[H]
+	\centering
+	\small
+	\renewcommand{\arraystretch}{1.40}
+	\begin{tabular}{|>{\centering\arraybackslash}p{0.7cm}|>{\raggedright\arraybackslash}p{6.6cm}|>{\raggedright\arraybackslash}p{7.4cm}|}
+		\hline
+		\rowcolor{eccblue!15}
+		\textbf{\color{eccblue}\#} & \textbf{\color{eccblue}Écart constaté} & \textbf{\color{eccblue}Correction apportée} \\
+		\hline
+		\rowcolor{white}
+		1 & TRI et VAN affichés en tête & Rendement net et cash-flow remontés en première position sur tous les supports \\
+		\hline
+		\rowcolor{gray!8}
+		2 & Un loyer supposé dans tous les cas & Opération sans loyer traitée nativement : la valeur vient de la plus-value \\
+		\hline
+		\rowcolor{white}
+		3 & Facteur temps secondaire & Horizon du client et délai de livraison devenus des paramètres de premier plan \\
+		\hline
+		\rowcolor{gray!8}
+		4 & Phase amont absente & Brief de recherche ajouté : critères, objectif et horizon du client \\
+		\hline
+		\rowcolor{white}
+		5 & Fiche client incomplète & Situation professionnelle, nationalité et budget disponible ajoutés \\
+		\hline
+		\rowcolor{gray!8}
+		6 & Déroulé du dossier non suivi & Six étapes, de la recherche à la livraison, suivies dans l'outil \\
+		\hline
+		\rowcolor{white}
+		7 & Achat sur plan traité comme un bien louable & Délai de livraison modélisé et proratisé : ni loyer ni charges avant livraison, mais des annuités qui courent \\
+		\hline
+	\end{tabular}
+\end{table}
+
+Les deux dossiers de référence du cabinet sont devenus des \textbf{tests automatisés}, vérifiables à la main : 1 070 000 MAD investis et une revente à 16 070 000 pour le premier, 9 177 000 investis et une revente à 14 177 000 pour le second. Un test dédié vérifie que \textbf{leur classement s'inverse avec l'horizon} — c'est la conclusion métier du cabinet, devenue une propriété vérifiée du programme.
+
+\subsection{L'étude automatique}
+Le reproche fait à l'outil en fin de projet était le nombre de valeurs à saisir : onze pour un seul scénario de financement, sans savoir lequel essayer. La réponse a été de \textbf{retirer cette saisie du chemin principal}. À partir du bien, du budget du client et de son objectif, l'application construit désormais elle-même la famille des montages plausibles — paiement comptant, crédit à apport minimal, renforcé ou maximal, sur 15, 20 et 25 ans — les calcule tous, les classe et \textbf{propose le mieux placé, expliqué en français courant}.
+
+La règle de financement employée est explicite : \textit{une banque prête sur le bien, pas sur les frais}, l'apport minimal d'un dossier étant donc la somme des frais d'acquisition et des travaux. Le taux proposé suit la durée du prêt, faute de quoi l'outil recommanderait mécaniquement la durée la plus longue.
+
+Le point sensible était de \textbf{ne pas réintroduire par la fenêtre le seuil de rentabilité que le cabinet nous avait dit ne pas exister}. Quatre garde-fous, tous visibles à l'écran, l'en empêchent :
+
+\begin{itemize}
+	\item le classement est \textbf{relatif} : chaque critère est ramené entre le meilleur et le moins bon des montages \emph{de cette étude}, pour un même bien et un même horizon. Un score ne vaut qu'à l'intérieur d'une page, et deux études ne se comparent pas ;
+	\item la \textbf{pondération est affichée} : le cash-flow pèse 40\,\% pour un objectif de revenu locatif, la valeur créée 40\,\% pour un objectif de plus-value. Le conseiller voit sur quoi l'outil a tranché, et peut le contester ;
+	\item l'écran dit \textbf{ce que les autres montages font mieux} — c'est là qu'apparaît l'effet de levier, l'achat comptant l'emportant souvent sur le cash-flow tout en rendant moins par dirham engagé ;
+	\item chaque montage affiche sa \textbf{composition complète}, paramètre par paramètre, avec l'origine de chaque valeur : dossier, brief du client, zone de marché, calcul ou hypothèse par défaut.
+\end{itemize}
+
+Un montage retenu s'enregistre comme un scénario ordinaire : il rejoint la page de résultats, la comparaison et les exports, et reste modifiable champ par champ. La méthode complète est décrite dans la note \texttt{docs/etude\_automatique.md}.
+
+\subsection{Une saisie allégée}
+Trois mesures complètent la refonte de l'interface. Un formulaire vierge \textbf{s'ouvre vide} et non rempli de zéros, ce qui rend enfin visibles les exemples en filigrane. Les \textbf{charges courantes s'estiment d'un clic} à partir du prix et du loyer, chaque règle employée étant affichée et aucune valeur déjà saisie n'étant écrasée. Enfin, le tableau de bord rappelle en permanence le parcours en trois temps : le client et son besoin, le bien, l'étude.
 
 % ══════════════════════════════════════════════════════════════════════════════
 \mainsection{Démarche et réalisation technique}
@@ -50,10 +116,10 @@ Le choix structurant du projet, arbitré dès la semaine 1, est le \textbf{param
 La règle posée en semaine 1 — \textit{aucune ligne de logique financière avant que les conventions de calcul ne soient écrites} — a structuré tout le projet : cadrage et formules d'abord, moteur ensuite, interface enfin. Le dépôt Git suit la feuille de route (un commit par semaine), chaque semaine s'achevant sur une suite de tests au vert. Les conventions sensibles (périmètre des charges du rendement net, travaux intégrés au coût d'acquisition, assurance sur capital initial, fiscalité au taux effectif) sont documentées dans le code, affichées dans l'interface et imprimées dans les exports.
 
 \subsection{Architecture}
-L'application suit le schéma \textit{app factory} de Flask avec des blueprints par domaine (authentification, clients, projets, scénarios, exports). Le \textbf{moteur financier est un module Python pur}, sans dépendance à Flask, testé isolément contre des valeurs de référence externes ; les résultats ne sont jamais stockés mais recalculés à chaque affichage, ce qui rend toute incohérence entre hypothèses et indicateurs structurellement impossible. La persistance repose sur SQLAlchemy avec migrations (SQLite en local, PostgreSQL en déploiement par simple variable d'environnement) ; l'interface sur Jinja2, Bootstrap et Chart.js, avec un aperçu recalculé à chaque saisie via un point d'accès JSON ; les exports sur WeasyPrint (PDF) et openpyxl (Excel). La sécurité couvre mots de passe hachés, protection CSRF généralisée et \textbf{cloisonnement strict des dossiers par conseiller}, vérifié par les tests.
+L'application suit le schéma \textit{app factory} de Flask avec des blueprints par domaine (authentification, clients, projets, scénarios, études, exports). Le \textbf{moteur financier est un module Python pur}, sans dépendance à Flask, testé isolément contre des valeurs de référence externes ; les résultats ne sont jamais stockés mais recalculés à chaque affichage, ce qui rend toute incohérence entre hypothèses et indicateurs structurellement impossible. La persistance repose sur SQLAlchemy avec migrations (SQLite en local, PostgreSQL en déploiement par simple variable d'environnement) ; l'interface sur Jinja2, Bootstrap et Chart.js, avec un aperçu recalculé à chaque saisie via un point d'accès JSON ; les exports sur WeasyPrint (PDF) et openpyxl (Excel). La sécurité couvre mots de passe hachés, protection CSRF généralisée et \textbf{cloisonnement strict des dossiers par conseiller}, vérifié par les tests.
 
 \subsection{Validation}
-La suite de 45 tests couvre trois niveaux : le \textbf{moteur} (mensualité confrontée au centime aux simulateurs de référence, TRI annulant la VAN, cas limites — taux nul, flux sans solution) ; les \textbf{parcours d'intégration} (inscription $\rightarrow$ client $\rightarrow$ projet $\rightarrow$ scénario $\rightarrow$ export, cloisonnement entre comptes) ; et des \textbf{cas réels} recalculés à la main, dont un dossier France dimensionné pour une vérification exacte et le changement de zone d'un projet, exigence centrale du cadrage. Le lancement derrière Gunicorn a été vérifié pour le déploiement.
+La suite de \textbf{96 tests} couvre quatre niveaux : le \textbf{moteur} (mensualité confrontée au centime aux simulateurs de référence, TRI annulant la VAN, cas limites — taux nul, flux sans solution) ; les \textbf{parcours d'intégration} (inscription $\rightarrow$ client $\rightarrow$ projet $\rightarrow$ scénario $\rightarrow$ export, cloisonnement entre comptes) ; des \textbf{cas réels} recalculés à la main, dont un dossier France dimensionné pour une vérification exacte et le changement de zone d'un projet, exigence centrale du cadrage ; et enfin les \textbf{règles métier de l'étude automatique} — apport minimal, écartement motivé des montages hors budget, et le fait que l'objectif déclaré du client change le montage proposé. Le lancement derrière Gunicorn a été vérifié pour le déploiement.
 
 % ══════════════════════════════════════════════════════════════════════════════
 \mainsection{Enseignements et perspectives}
@@ -70,14 +136,17 @@ Les \textbf{valeurs par défaut des zones de marché} (Maroc : frais 7\,\%, impo
 	\item \textbf{Administration des zones} : écran de gestion des préréglages (aujourd'hui seedés depuis un fichier), avec historisation des taux.
 	\item \textbf{Comparaison inter-biens} : étendre le comparateur, aujourd'hui limité aux scénarios d'un même bien, à des biens différents d'un même client.
 	\item \textbf{Déploiement mutualisé} : hébergement en ligne du cabinet (la configuration PostgreSQL/Gunicorn est prête), avec sauvegardes et HTTPS.
-	\item \textbf{Export de la comparaison} : décliner le rapport PDF sur l'écran de comparaison multi-scénarios.
+	\item \textbf{Export de la comparaison} : décliner le rapport PDF sur l'écran de comparaison multi-scénarios, et sur la page d'étude automatique.
+	\item \textbf{Capacité d'emprunt} : l'étude filtre aujourd'hui sur l'apport, faute de collecter les revenus du client ; un contrôle du taux d'endettement affinerait les montages proposés.
+	\item \textbf{Échéancier VEFA par tranches} : le décalage de livraison est modélisé, pas l'étalement des appels de fonds selon l'avancement du chantier.
+	\item \textbf{Rapprochement entre le brief et un portefeuille de biens} : l'outil enregistre le besoin, il ne cherche pas encore les biens qui y répondent.
 \end{itemize}
 
 \vspace{0.6cm}
 \begin{tcolorbox}[colback=eccblue!5,colframe=eccblue!60,boxrule=0.6pt,arc=2pt,
 	left=8pt,right=8pt,top=6pt,bottom=6pt]
 	\small
-	\textbf{\color{eccblue}Conclusion.} Le projet livre, dans les délais, un outil de conseil complet, testé et documenté, dont les choix de conception — zones de marché paramétrables, moteur pur recalculé, conventions écrites — le rendent immédiatement utilisable en rendez-vous et durablement extensible.
+	\textbf{\color{eccblue}Conclusion.} Le projet livre, dans les délais, un outil de conseil complet, testé et documenté, dont les choix de conception — zones de marché paramétrables, moteur pur recalculé, conventions écrites — le rendent immédiatement utilisable en rendez-vous et durablement extensible. Le cadrage métier de la dernière semaine en a déplacé le centre de gravité : d'un outil qui calcule ce qu'on lui saisit vers un outil qui \textbf{construit les montages, les confronte et explique celui qu'il propose}, sans jamais se substituer à la décision du client.
 \end{tcolorbox}
 
 \end{document}
