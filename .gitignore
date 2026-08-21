@@ -37,3 +37,7 @@ remise/
 app/static/img/accueil.*
 original-*.webp
 Image collée*.png
+
+# Pièces jointes reçues de l'école : ce sont des documents d'entrée, pas des
+# productions du projet.
+Rapport_stage_acad/Dates soutenances *.zip

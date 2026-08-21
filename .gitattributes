@@ -1,0 +1,5 @@
+# `git archive HEAD` sert à constituer la remise du cabinet
+# (outils/preparer_remise.sh). Le rapport de stage académique et la soutenance
+# s'adressent à l'école, pas au client : ils restent versionnés, mais hors de
+# l'archive remise au cabinet.
+Rapport_stage_acad/ export-ignore
