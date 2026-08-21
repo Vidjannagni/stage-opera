@@ -47,6 +47,7 @@ def create_app(config_name: str | None = None) -> Flask:
     from .blueprints.projets import bp as projets_bp
     from .blueprints.scenarios import bp as scenarios_bp
     from .blueprints.exports import bp as exports_bp
+    from .blueprints.etudes import bp as etudes_bp
 
     app.register_blueprint(main_bp)
     app.register_blueprint(auth_bp, url_prefix="/auth")
@@ -54,6 +55,7 @@ def create_app(config_name: str | None = None) -> Flask:
     app.register_blueprint(projets_bp, url_prefix="/projets")
     app.register_blueprint(scenarios_bp, url_prefix="/scenarios")
     app.register_blueprint(exports_bp, url_prefix="/exports")
+    app.register_blueprint(etudes_bp, url_prefix="/etudes")
 
     @app.context_processor
     def injecter_suggestions():
@@ -62,12 +64,30 @@ def create_app(config_name: str | None = None) -> Flask:
 
         return {"SUGGESTIONS": TOUTES}
 
+    @app.template_filter("pourcent")
+    def pourcent(valeur, decimales: int = 2) -> str:
+        """Pourcentage à la française : 5.27 → « 5,27 % ».
+
+        Les montants étaient déjà écrits à la française (espace de milliers),
+        les pourcentages non : « 5.27 % » au milieu d'une phrase française est
+        une faute de composition, et l'écart sautait aux yeux dès qu'un même
+        écran affichait les deux.
+        """
+        from .core.format_fr import pct_texte
+
+        return "—" if valeur is None else pct_texte(valeur, decimales)
+
     @app.template_filter("montant")
-    def montant(valeur) -> str:
-        """Format monétaire : 1 234 567 (arrondi à l'unité, séparateur espace)."""
+    def montant(valeur, decimales: int = 0) -> str:
+        """Format monétaire français : 1 234 567 — ou 7 752,15 avec décimales.
+
+        Les mensualités sont les seuls montants affichés au centime : c'est ce
+        que la banque prélève, l'arrondir donnerait un chiffre invérifiable.
+        """
         if valeur is None:
             return "—"
-        return f"{valeur:,.0f}".replace(",", " ").replace("−", "-")
+        texte = f"{valeur:,.{decimales}f}".replace(",", " ").replace("−", "-")
+        return texte.replace(".", ",") if decimales else texte
 
     register_cli(app)
     return app

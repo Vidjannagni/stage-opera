@@ -3,6 +3,7 @@ from flask import Blueprint, abort, flash, redirect, render_template, url_for
 from flask_login import current_user, login_required
 
 from ...core.acquisition import cout_acquisition, frais_acquisition
+from ...core.estimation import REGLES as REGLES_ESTIMATION
 from ...core.rendement import rendements
 from ...extensions import db
 from ...models import Client, LigneTravaux, Projet, ZonePreset
@@ -67,7 +68,7 @@ def nouveau(client_id: int):
             form.zone_id.data = zone_defaut.id
     return render_template(
         "projets/form.html", form=form, client=client, zones=zones,
-        titre=f"Nouveau projet pour {client.nom}",
+        regles=REGLES_ESTIMATION, titre=f"Nouveau projet pour {client.nom}",
     )
 
 
@@ -151,7 +152,7 @@ def modifier(projet_id: int):
         return redirect(url_for("projets.detail", projet_id=projet.id))
     return render_template(
         "projets/form.html", form=form, client=projet.client, zones=zones,
-        titre=f"Modifier « {projet.nom} »",
+        regles=REGLES_ESTIMATION, titre=f"Modifier « {projet.nom} »",
     )
 
 

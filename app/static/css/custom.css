@@ -323,8 +323,62 @@ h1, h2, h3, h4, h5 { letter-spacing: -.02em; font-weight: 650; }
 /* ── Pied de page ───────────────────────────────────────────────────────── */
 footer { background: var(--surface); }
 
+/* ── Étude automatique ──────────────────────────────────────────────────────
+   La page où l'outil propose un montage. Elle doit se lire comme une réponse,
+   pas comme un tableau de bord : une carte détachée du reste, une phrase en
+   grand, puis les chiffres qui l'appuient. */
+
+.carte-reco {
+  border: 1px solid #c4ece6;
+  border-left: 4px solid var(--ecc-accent);
+  box-shadow: var(--ombre-forte);
+  background: linear-gradient(160deg, #f6fefd 0%, var(--surface) 46%);
+}
+
+.phrase-reco {
+  font-size: 1.06rem;
+  line-height: 1.62;
+  color: var(--encre);
+  margin-bottom: 1.35rem;
+}
+
+.score-reco {
+  font-size: 1.9rem; font-weight: 700; line-height: 1;
+  color: var(--ecc-accent-fonce);
+  font-variant-numeric: tabular-nums;
+}
+
+.score-reco span { font-size: .9rem; font-weight: 500; color: var(--encre-douce); }
+
+/* Les trois registres de l'explication se distinguent par leur puce, pas par
+   la seule couleur : la page doit rester lisible imprimée en noir et blanc. */
+.liste-explication { list-style: none; padding-left: 0; margin-bottom: 0; }
+
+.liste-explication li {
+  position: relative;
+  padding-left: 1.5rem;
+  margin-bottom: .55rem;
+  font-size: .92rem;
+  line-height: 1.5;
+}
+
+.liste-explication li::before {
+  content: "+"; position: absolute; left: 0; top: -.05rem;
+  font-weight: 700; color: var(--positif);
+}
+
+.liste-nuance li::before { content: "\2013"; color: var(--encre-douce); }
+.liste-vigilance li::before { content: "!"; color: var(--ecc-ambre); }
+
+.ligne-retenue { background: #f2fbfa; }
+.ligne-retenue td { border-color: #d7f0ec; }
+
 @media print {
   .navbar, footer, .btn, form, .breadcrumb { display: none !important; }
+  /* Le classement de l'étude vit dans un formulaire (cases à cocher) : il doit
+     malgré tout figurer sur la version imprimée remise au client. */
+  form.imprimable { display: block !important; }
+  form.imprimable .form-check-input { display: none; }
   body { background: #fff; background-image: none; }
   .card, .stat { box-shadow: none; border-color: #ccc; }
 }

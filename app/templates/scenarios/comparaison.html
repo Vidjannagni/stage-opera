@@ -46,7 +46,7 @@
         {% if projet.est_locatif %}
         <tr class="table-light">
           <td class="fw-semibold">Rendement net</td>
-          {% for c in comparaison %}<td class="text-end fw-bold">{{ "%.2f" | format(c.r.rendements.net) }} %</td>{% endfor %}
+          {% for c in comparaison %}<td class="text-end fw-bold">{{ c.r.rendements.net | pourcent }}</td>{% endfor %}
         </tr>
         <tr class="table-light">
           <td class="fw-semibold">Cash-flow mensuel</td>
@@ -71,7 +71,7 @@
         {% if projet.est_locatif %}
         <tr>
           <td>Rendement net-net</td>
-          {% for c in comparaison %}<td class="text-end">{{ "%.2f" | format(c.r.rendements.net_net) }} %</td>{% endfor %}
+          {% for c in comparaison %}<td class="text-end">{{ c.r.rendements.net_net | pourcent }}</td>{% endfor %}
         </tr>
         {% endif %}
         <tr>
@@ -82,12 +82,12 @@
           <td>TRI sur l'horizon</td>
           {% for c in comparaison %}
           <td class="text-end">
-            {% if c.r.indicateurs.tri is not none %}{{ "%.2f" | format(c.r.indicateurs.tri) }} %{% else %}—{% endif %}
+            {% if c.r.indicateurs.tri is not none %}{{ c.r.indicateurs.tri | pourcent }}{% else %}—{% endif %}
           </td>
           {% endfor %}
         </tr>
         <tr>
-          <td>VAN ({{ "%.1f" | format(comparaison[0].scenario.taux_actualisation) }} %)</td>
+          <td>VAN ({{ comparaison[0].scenario.taux_actualisation | pourcent(1) }})</td>
           {% for c in comparaison %}
           <td class="text-end {{ 'valeur-positive' if c.r.indicateurs.van >= 0 else 'valeur-negative' }}">
             {{ c.r.indicateurs.van | montant }} {{ devise }}</td>
@@ -105,7 +105,7 @@
         <tr>
           <td>Mensualité (assurance incluse)</td>
           {% for c in comparaison %}<td class="text-end">
-            {% if c.scenario.mode == "credit" %}{{ "%.2f" | format(c.r.financement.mensualite_totale) }} {{ devise }}{% else %}—{% endif %}
+            {% if c.scenario.mode == "credit" %}{{ c.r.financement.mensualite_totale | montant(2) }} {{ devise }}{% else %}—{% endif %}
           </td>{% endfor %}
         </tr>
         <tr>

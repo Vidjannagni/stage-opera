@@ -62,7 +62,7 @@
 <div class="row g-3 mb-3">
   {% if locatif %}
   <div class="col-md-6">
-    {{ tuile("Rendement net", "%.2f %%" | format(r.rendements.net), rang="primaire",
+    {{ tuile("Rendement net", r.rendements.net | pourcent, rang="primaire",
              aide="Après charges, vacance et frais de gestion") }}
   </div>
   <div class="col-md-6">
@@ -90,7 +90,7 @@
 <div class="row g-3 mb-4">
   {% if locatif %}
   <div class="col-6 col-lg-3">
-    {{ tuile("Rendement net-net", "%.2f %%" | format(r.rendements.net_net), rang="secondaire",
+    {{ tuile("Rendement net-net", r.rendements.net_net | pourcent, rang="secondaire",
              aide="Après impôt") }}
   </div>
   <div class="col-6 col-lg-3">
@@ -109,13 +109,13 @@
   </div>
   {% endif %}
   <div class="col-6 col-lg-3">
-    {{ tuile("TRI", ("%.2f %%" | format(r.indicateurs.tri)) if r.indicateurs.tri is not none else "—",
+    {{ tuile("TRI", (r.indicateurs.tri | pourcent) if r.indicateurs.tri is not none else "—",
              rang="secondaire", aide="Rendement annuel de l'argent investi") }}
   </div>
   <div class="col-6 col-lg-3">
     {{ tuile("VAN", (r.indicateurs.van | montant) ~ " " ~ devise, rang="secondaire",
              ton=("positif" if r.indicateurs.van >= 0 else "negatif"),
-             aide="Actualisée à %.1f %%" | format(scenario.taux_actualisation)) }}
+             aide="Actualisée à " ~ (scenario.taux_actualisation | pourcent(1))) }}
   </div>
 </div>
 
@@ -128,7 +128,7 @@
         <tbody>
           <tr><td>Prix du bien</td><td class="text-end">{{ r.acquisition.prix | montant }} {{ devise }}</td></tr>
           <tr>
-            <td>Frais d'acquisition ({{ "%.1f" | format(r.acquisition.taux_frais_pct) }} % — zone {{ projet.zone.nom }})</td>
+            <td>Frais d'acquisition ({{ r.acquisition.taux_frais_pct | pourcent(1) }} — zone {{ projet.zone.nom }})</td>
             <td class="text-end">{{ r.acquisition.frais | montant }} {{ devise }}</td>
           </tr>
           <tr><td>Travaux / construction</td><td class="text-end">{{ r.acquisition.travaux | montant }} {{ devise }}</td></tr>
@@ -144,7 +144,7 @@
           {% if scenario.mode == "credit" %}
           <tr><td>Apport</td><td class="text-end">{{ r.financement.apport | montant }} {{ devise }}</td></tr>
           <tr><td>Capital emprunté</td><td class="text-end">{{ r.financement.capital_emprunte | montant }} {{ devise }}</td></tr>
-          <tr><td>Mensualité (assurance incluse)</td><td class="text-end">{{ "%.2f" | format(r.financement.mensualite_totale) }} {{ devise }}</td></tr>
+          <tr><td>Mensualité (assurance incluse)</td><td class="text-end">{{ r.financement.mensualite_totale | montant(2) }} {{ devise }}</td></tr>
           <tr><td>Coût des intérêts</td><td class="text-end">{{ r.financement.cout_interets | montant }} {{ devise }}</td></tr>
           <tr><td>Coût de l'assurance</td><td class="text-end">{{ r.financement.cout_assurance | montant }} {{ devise }}</td></tr>
           <tr class="fw-bold"><td>Coût total du crédit</td><td class="text-end">{{ r.financement.cout_total_credit | montant }} {{ devise }}</td></tr>
@@ -167,7 +167,7 @@
           <tr><td>Vacance locative</td><td class="text-end">−{{ r.exploitation.vacance | montant }} {{ devise }}</td></tr>
           <tr><td>Charges totales</td><td class="text-end">−{{ r.exploitation.charges_totales | montant }} {{ devise }}</td></tr>
           <tr>
-            <td>Impôt (taux effectif {{ "%.1f" | format(projet.taux_imposition) }} %)</td>
+            <td>Impôt (taux effectif {{ projet.taux_imposition | pourcent(1) }})</td>
             <td class="text-end">−{{ r.exploitation.impot_annuel | montant }} {{ devise }}</td>
           </tr>
           <tr class="fw-bold">
@@ -187,7 +187,7 @@
           <tr>
             <td>Valeur du bien
               {% if r.revente.prix_revente_saisi %}<span class="etiquette etiquette-sourde">prix saisi</span>
-              {% else %}<span class="text-muted small">(revalorisation {{ "%.1f" | format(scenario.revalorisation_bien_pct) }} %/an)</span>{% endif %}
+              {% else %}<span class="text-muted small">(revalorisation {{ scenario.revalorisation_bien_pct | pourcent(1) }}/an)</span>{% endif %}
             </td>
             <td class="text-end">{{ r.revente.valeur_bien_horizon | montant }} {{ devise }}</td>
           </tr>
@@ -196,7 +196,7 @@
             <td class="text-end {{ 'valeur-positive' if r.revente.plus_value_brute >= 0 else 'valeur-negative' }}">
               {{ r.revente.plus_value_brute | montant }} {{ devise }}</td>
           </tr>
-          <tr><td>Frais de revente ({{ "%.1f" | format(scenario.frais_revente_pct) }} %)</td>
+          <tr><td>Frais de revente ({{ scenario.frais_revente_pct | pourcent(1) }})</td>
               <td class="text-end">−{{ r.revente.frais_revente | montant }} {{ devise }}</td></tr>
           <tr><td>Capital restant dû</td><td class="text-end">−{{ r.revente.capital_restant_du | montant }} {{ devise }}</td></tr>
           <tr class="fw-bold"><td>Encaissé à la revente</td>
@@ -210,9 +210,9 @@
       <div class="card-header">Rendements</div>
       <table class="table table-sm mb-0">
         <tbody>
-          <tr class="fw-semibold"><td>Net de charges</td><td class="text-end">{{ "%.2f" | format(r.rendements.net) }} %</td></tr>
-          <tr class="fw-semibold"><td>Net-net (après impôt)</td><td class="text-end">{{ "%.2f" | format(r.rendements.net_net) }} %</td></tr>
-          <tr><td class="text-muted">Brut</td><td class="text-end text-muted">{{ "%.2f" | format(r.rendements.brut) }} %</td></tr>
+          <tr class="fw-semibold"><td>Net de charges</td><td class="text-end">{{ r.rendements.net | pourcent }}</td></tr>
+          <tr class="fw-semibold"><td>Net-net (après impôt)</td><td class="text-end">{{ r.rendements.net_net | pourcent }}</td></tr>
+          <tr><td class="text-muted">Brut</td><td class="text-end text-muted">{{ r.rendements.brut | pourcent }}</td></tr>
         </tbody>
       </table>
     </div>

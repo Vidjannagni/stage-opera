@@ -26,8 +26,13 @@
       {% if projet.delai_livraison_mois %} · livraison dans {{ projet.delai_livraison_mois }} mois{% endif %}
     </p>
   </div>
-  <div class="d-flex gap-2">
-    <a href="{{ url_for('scenarios.nouveau', projet_id=projet.id) }}" class="btn btn-primary">+ Nouveau scénario</a>
+  <div class="d-flex gap-2 flex-wrap">
+    <a href="{{ url_for('etudes.etude', projet_id=projet.id) }}" class="btn btn-primary">
+      Lancer l'étude automatique
+    </a>
+    <a href="{{ url_for('scenarios.nouveau', projet_id=projet.id) }}" class="btn btn-outline-primary">
+      + Scénario à la main
+    </a>
     <a href="{{ url_for('projets.modifier', projet_id=projet.id) }}" class="btn btn-outline-secondary">Modifier</a>
   </div>
 </div>
@@ -52,7 +57,7 @@
   <div class="col-6 col-lg-3">{{ tuile("Prix du bien", (projet.prix_bien | montant) ~ " " ~ devise) }}</div>
   <div class="col-6 col-lg-3">
     {{ tuile("Frais d'acquisition", (frais | montant) ~ " " ~ devise,
-             aide="%.1f %% — zone %s" | format(projet.taux_frais_acquisition, projet.zone.nom)) }}
+             aide=(projet.taux_frais_acquisition | pourcent(1)) ~ " — zone " ~ projet.zone.nom) }}
   </div>
   <div class="col-6 col-lg-3">
     {{ tuile("Travaux / construction", (projet.budget_travaux | montant) ~ " " ~ devise) }}
@@ -67,23 +72,24 @@
 <div class="titre-section">Rendements une fois le bien exploité</div>
 <div class="row g-3 mb-4">
   <div class="col-md-4">
-    {{ tuile("Rendement net", "%.2f %%" | format(rdts.net), rang="primaire",
+    {{ tuile("Rendement net", rdts.net | pourcent, rang="primaire",
              aide="Après charges, vacance et gestion") }}
   </div>
   <div class="col-md-4">
-    {{ tuile("Rendement net-net", "%.2f %%" | format(rdts.net_net), rang="primaire",
-             aide="Après impôt au taux effectif de %.1f %%" | format(projet.taux_imposition)) }}
+    {{ tuile("Rendement net-net", rdts.net_net | pourcent, rang="primaire",
+             aide="Après impôt au taux effectif de " ~ (projet.taux_imposition | pourcent(1))) }}
   </div>
   <div class="col-md-4">
-    {{ tuile("Rendement brut", "%.2f %%" | format(rdts.brut), rang="secondaire",
+    {{ tuile("Rendement brut", rdts.brut | pourcent, rang="secondaire",
              aide="Loyers annuels rapportés au coût total") }}
   </div>
 </div>
 {% else %}
 <div class="rappel mb-4">
   Opération <strong>sans loyer</strong> : la valeur vient entièrement de la
-  plus-value. Créez un scénario et renseignez le prix de revente à l'horizon
-  pour obtenir la valeur créée et le TRI.
+  plus-value. Lancez l'<a href="{{ url_for('etudes.etude', projet_id=projet.id) }}">étude
+  automatique</a> et renseignez-y le prix de revente s'il est connu — sinon
+  l'outil applique une revalorisation annuelle, qu'il signale comme telle.
 </div>
 {% endif %}
 
@@ -155,6 +161,11 @@
 
 {# ── Scénarios ───────────────────────────────────────────────────────────── #}
 <div class="titre-section">Scénarios de financement</div>
+<p class="text-muted small">
+  Deux chemins mènent ici : l'<a href="{{ url_for('etudes.etude', projet_id=projet.id) }}">étude
+  automatique</a>, qui construit les montages plausibles et propose le mieux placé
+  pour l'objectif du client, ou la saisie à la main d'un montage déjà négocié.
+</p>
 {% set scenarios = projet.scenarios.all() %}
 {% if scenarios %}
 <form method="get" action="{{ url_for('scenarios.comparer') }}">
@@ -176,7 +187,7 @@
           <td class="fw-semibold">{{ s.nom }}</td>
           <td>{{ "Crédit" if s.mode == "credit" else "Cash" }}</td>
           <td class="text-end">{{ s.apport | montant }} {{ devise }}</td>
-          <td class="text-end">{% if s.mode == "credit" %}{{ "%.2f" | format(s.taux_interet) }} %{% else %}—{% endif %}</td>
+          <td class="text-end">{% if s.mode == "credit" %}{{ s.taux_interet | pourcent }}{% else %}—{% endif %}</td>
           <td class="text-end">{% if s.mode == "credit" %}{{ s.duree_annees }} ans{% else %}—{% endif %}</td>
           <td class="text-end">{{ s.horizon_annees }} ans</td>
           <td class="text-end">
@@ -194,8 +205,13 @@
 {% endif %}
 </form>
 {% else %}
-  {{ vide("Aucun scénario — créez-en un pour obtenir cash-flow, valeur créée, TRI et VAN.",
-          "Créer un scénario", url_for('scenarios.nouveau', projet_id=projet.id)) }}
+  {{ vide("Aucun scénario enregistré. L'étude automatique construit les montages
+           possibles à partir du bien, du budget et de l'objectif du client, puis
+           propose le mieux placé — sans rien saisir de plus.",
+          "Lancer l'étude automatique", url_for('etudes.etude', projet_id=projet.id)) }}
+  <p class="text-center small text-muted mt-2">
+    ou <a href="{{ url_for('scenarios.nouveau', projet_id=projet.id) }}">saisir un montage à la main</a>
+  </p>
 {% endif %}
 
 <form method="post" action="{{ url_for('projets.supprimer', projet_id=projet.id) }}" class="mt-5"

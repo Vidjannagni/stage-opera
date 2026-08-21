@@ -2,7 +2,7 @@ from flask_wtf import FlaskForm
 from wtforms import FloatField, IntegerField, SelectField, StringField, SubmitField
 from wtforms.validators import DataRequired, Length, NumberRange, Optional
 
-from ..projets.forms import zero_si_vide
+from ..projets.forms import ChampMontant, zero_si_vide
 
 
 class ScenarioForm(FlaskForm):
@@ -16,8 +16,8 @@ class ScenarioForm(FlaskForm):
         validators=[DataRequired()],
     )
 
-    apport = FloatField(
-        "Apport", default=0.0,
+    apport = ChampMontant(
+        "Apport",
         validators=[Optional(), NumberRange(min=0)], filters=[zero_si_vide],
         render_kw={"placeholder": "Ex. : 300 000"},
     )
@@ -46,7 +46,7 @@ class ScenarioForm(FlaskForm):
         "Revalorisation annuelle du bien (%)", default=1.5,
         validators=[Optional(), NumberRange(min=-10, max=20)], filters=[zero_si_vide],
     )
-    prix_revente = FloatField(
+    prix_revente = ChampMontant(
         "Prix de revente à l'horizon",
         validators=[Optional(), NumberRange(min=0)],
         render_kw={"placeholder": "Ex. : 16 070 000 — laisser vide si inconnu"},

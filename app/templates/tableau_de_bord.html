@@ -12,6 +12,58 @@
   <a href="{{ url_for('clients.nouveau') }}" class="btn btn-primary">+ Nouveau dossier client</a>
 </div>
 
+{# ── Le parcours, rappelé en trois temps ────────────────────────────────────
+   Le reproche fait à l'outil était de ne pas dire par où commencer. Ces trois
+   cartes tiennent lieu de mode d'emploi permanent : elles disent l'ordre des
+   écrans et ce que chacun coûte en saisie. #}
+<div class="row g-3 mb-4">
+  <div class="col-md-4">
+    <div class="card h-100 carte-etape">
+      <div class="card-body d-flex gap-3">
+        <span class="medaillon fw-bold">1</span>
+        <div>
+          <strong class="d-block">Le client et son besoin</strong>
+          <span class="small text-muted">
+            Nom, situation, budget, puis le brief : objectif et horizon.
+            C'est ce qui rendra les chiffres interprétables.
+          </span>
+          <div class="mt-2"><a class="small" href="{{ url_for('clients.nouveau') }}">Ouvrir une fiche client</a></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card h-100 carte-etape">
+      <div class="card-body d-flex gap-3">
+        <span class="medaillon fw-bold">2</span>
+        <div>
+          <strong class="d-block">Le bien</strong>
+          <span class="small text-muted">
+            Quatre informations suffisent : zone, prix, loyer attendu, nom du
+            dossier. Les charges courantes s'estiment d'un clic.
+          </span>
+          <div class="mt-2"><a class="small" href="{{ url_for('clients.liste') }}">Choisir un client</a></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card h-100 carte-etape">
+      <div class="card-body d-flex gap-3">
+        <span class="medaillon medaillon-accent fw-bold">3</span>
+        <div>
+          <strong class="d-block">L'étude automatique</strong>
+          <span class="small text-muted">
+            L'outil construit les montages possibles, les confronte et propose
+            le mieux placé, en langage clair. Aucune saisie supplémentaire.
+          </span>
+          <div class="mt-2"><a class="small" href="{{ url_for('projets.liste') }}">Voir les dossiers</a></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 {% if not clients %}
   {{ vide("Aucun dossier pour le moment. Tout commence par un client et son brief de recherche.",
           "Créer le premier dossier", url_for('clients.nouveau')) }}
@@ -60,7 +112,7 @@
       <div class="table-responsive">
         <table class="table table-hover align-middle mb-0">
           <thead>
-            <tr><th>Dossier</th><th>Client</th><th>Étape</th><th class="text-end">Scénarios</th></tr>
+            <tr><th>Dossier</th><th>Client</th><th>Étape</th><th class="text-end">Scénarios</th><th></th></tr>
           </thead>
           <tbody>
             {% for projet in derniers %}
@@ -72,6 +124,10 @@
               <td><a href="{{ url_for('clients.detail', client_id=projet.client_id) }}">{{ projet.client.nom }}</a></td>
               <td><span class="etiquette">{{ projet.statut_libelle }}</span></td>
               <td class="text-end">{{ projet.scenarios.count() }}</td>
+              <td class="text-end">
+                <a class="btn btn-sm btn-outline-primary"
+                   href="{{ url_for('etudes.etude', projet_id=projet.id) }}">Étudier</a>
+              </td>
             </tr>
             {% endfor %}
           </tbody>

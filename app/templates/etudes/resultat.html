@@ -1,0 +1,341 @@
+{% extends "base.html" %}
+{% from "_ui.html" import tuile %}
+
+{% block title %}Étude automatique — {{ projet.nom }} — RentImmo{% endblock %}
+
+{% set devise = e.devise %}
+{% set locatif = projet.est_locatif %}
+{% set params = {"objectif": cadrage.objectif, "horizon": cadrage.horizon_annees,
+                 "budget": budget, "prix_revente": prix_revente} %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{{ url_for('clients.detail', client_id=projet.client_id) }}">{{ projet.client.nom }}</a></li>
+    <li class="breadcrumb-item"><a href="{{ url_for('projets.detail', projet_id=projet.id) }}">{{ projet.nom }}</a></li>
+    <li class="breadcrumb-item active">Étude automatique</li>
+  </ol>
+</nav>
+
+<div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3">
+  <div>
+    <h2 class="mb-1">Étude automatique</h2>
+    <p class="text-muted mb-0">
+      {{ projet.nom }} · {{ e.classement | length + e.ecartes | length }} montages construits,
+      calculés et classés pour {{ projet.client.nom }}.
+    </p>
+  </div>
+  <a href="{{ url_for('projets.detail', projet_id=projet.id) }}" class="btn btn-outline-secondary">Retour au dossier</a>
+</div>
+
+{# ── Ce sur quoi l'étude repose : jamais implicite ───────────────────────── #}
+<div class="rappel mb-4">
+  Classement établi pour un objectif de <strong>{{ cadrage.objectif_libelle }}</strong>
+  sur <strong>{{ cadrage.horizon_annees }} ans</strong>,
+  {% if budget is not none %}
+  avec un budget disponible de <strong>{{ budget | montant }} {{ devise }}</strong>.
+  {% else %}
+  <strong>sans budget déclaré</strong> — aucun montage n'a donc pu être écarté pour cause de financement.
+  {% endif %}
+  {% if cadrage.surcharge %}
+  <span class="etiquette etiquette-accent">hypothèses ajustées pour cette simulation</span>
+  {% endif %}
+  <a href="#ajuster" class="ms-1">Ajuster</a>
+</div>
+
+{% if e.aucun_tenable %}
+<div class="alert alert-warning">
+  <strong>Aucun montage ne tient dans le budget déclaré.</strong>
+  Les montages ci-dessous sont classés pour information : chacun demande plus
+  d'apport que ce dont dispose {{ projet.client.nom }}. Trois sorties possibles —
+  revoir le budget, viser un bien moins cher, ou négocier un financement des frais.
+</div>
+{% endif %}
+
+{% if e.meilleur %}
+{% set reco = e.explication %}
+{% set gagnant = e.meilleur %}
+
+{# ══ La proposition ═══════════════════════════════════════════════════════ #}
+<div class="card carte-reco mb-4">
+  <div class="card-body p-4">
+    <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-2">
+      <div>
+        <span class="etiquette etiquette-accent mb-2 d-inline-block">Montage proposé</span>
+        <h3 class="mb-0">{{ reco.titre }}</h3>
+      </div>
+      <div class="text-end">
+        <div class="stat-libelle">Rang 1 sur {{ e.classement | length }}</div>
+        <div class="score-reco">{{ "%.0f" | format(gagnant.score) }}<span>/100</span></div>
+      </div>
+    </div>
+
+    <p class="phrase-reco">{{ reco.resume }}</p>
+
+    <div class="row g-3 mb-4">
+      {% for chiffre in reco.chiffres_cles %}
+      <div class="col-6 col-lg-3">
+        {{ tuile(chiffre.libelle, chiffre.valeur, ton=chiffre.ton,
+                 rang=("primaire" if loop.index <= 2 else "secondaire")) }}
+      </div>
+      {% endfor %}
+    </div>
+
+    <div class="row g-4">
+      <div class="col-lg-6">
+        <div class="titre-section">Pourquoi celui-ci</div>
+        <ul class="liste-explication">
+          {% for argument in reco.arguments %}<li>{{ argument }}</li>{% endfor %}
+        </ul>
+        {% if reco.nuances %}
+        <div class="titre-section mt-3">Ce que les autres font mieux</div>
+        <ul class="liste-explication liste-nuance">
+          {% for nuance in reco.nuances %}<li>{{ nuance }}</li>{% endfor %}
+        </ul>
+        {% endif %}
+      </div>
+      <div class="col-lg-6">
+        <div class="titre-section">À dire au client avant qu'il s'engage</div>
+        {% if reco.vigilance %}
+        <ul class="liste-explication liste-vigilance">
+          {% for point in reco.vigilance %}<li>{{ point }}</li>{% endfor %}
+        </ul>
+        {% else %}
+        <p class="text-muted small">Aucun point d'alerte particulier sur ce montage.</p>
+        {% endif %}
+      </div>
+    </div>
+
+    <form method="post" action="{{ url_for('etudes.retenir', projet_id=projet.id) }}"
+          class="d-flex gap-2 flex-wrap mt-4">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      {% for cle, valeur in params.items() %}{% if valeur is not none %}
+      <input type="hidden" name="{{ cle }}" value="{{ valeur }}">{% endif %}{% endfor %}
+      <input type="hidden" name="rangs" value="1">
+      <button class="btn btn-primary">Enregistrer ce montage comme scénario</button>
+      <a href="{{ url_for('scenarios.nouveau', projet_id=projet.id) }}"
+         class="btn btn-outline-secondary">Saisir plutôt un montage à la main</a>
+    </form>
+  </div>
+</div>
+
+{# ══ Face à face avec le suivant ══════════════════════════════════════════ #}
+{% if reco.comparaison %}
+<div class="titre-section">Face au montage classé juste après</div>
+<div class="card mb-4">
+  <div class="table-responsive">
+    <table class="table align-middle mb-0">
+      <thead>
+        <tr>
+          <th></th>
+          <th>{{ reco.titre }}</th>
+          <th>{{ e.second.candidat.nom }}</th>
+          <th class="text-end">Avantage</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for ligne in reco.comparaison %}
+        <tr>
+          <td class="text-muted">{{ ligne.libelle }}</td>
+          <td class="fw-semibold">{{ ligne.meilleur }}</td>
+          <td>{{ ligne.second }}</td>
+          <td class="text-end small text-muted">{{ ligne.avantage }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endif %}
+{% endif %}
+
+{# ══ Le classement complet ════════════════════════════════════════════════ #}
+<div class="titre-section">Tous les montages étudiés</div>
+<form method="post" action="{{ url_for('etudes.retenir', projet_id=projet.id) }}" class="imprimable">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  {% for cle, valeur in params.items() %}{% if valeur is not none %}
+  <input type="hidden" name="{{ cle }}" value="{{ valeur }}">{% endif %}{% endfor %}
+  <div class="card mb-3">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead>
+          <tr>
+            <th></th><th>#</th><th>Montage</th>
+            <th class="text-end">Apport</th>
+            <th class="text-end">{{ "Cash-flow / mois" if locatif else "Effort / mois" }}</th>
+            {% if locatif %}<th class="text-end">Rendement net</th>{% endif %}
+            <th class="text-end">Valeur créée</th>
+            <th class="text-end">TRI</th>
+            <th class="text-end">Score</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for etude in e.classement %}
+          <tr class="{{ 'ligne-retenue' if etude.rang == 1 }}">
+            <td>
+              <input class="form-check-input" type="checkbox" name="rangs" value="{{ etude.rang }}"
+                     {{ "checked" if etude.rang == 1 }}
+                     aria-label="Retenir {{ etude.candidat.nom }}">
+            </td>
+            <td class="fw-bold text-muted">{{ etude.rang }}</td>
+            <td>
+              <span class="fw-semibold">{{ etude.candidat.nom }}</span>
+              <div class="small text-muted">{{ etude.candidat.famille_libelle }}</div>
+            </td>
+            <td class="text-end">{{ etude.criteres.effort_initial | montant }} {{ devise }}</td>
+            <td class="text-end {{ 'valeur-positive' if etude.criteres.cashflow >= 0 else 'valeur-negative' }}">
+              {{ etude.criteres.cashflow | montant }} {{ devise }}
+            </td>
+            {% if locatif %}
+            <td class="text-end">{{ etude.criteres.rendement_net | pourcent }}</td>
+            {% endif %}
+            <td class="text-end {{ 'valeur-positive' if etude.criteres.valeur_creee >= 0 else 'valeur-negative' }}">
+              {{ etude.criteres.valeur_creee | montant }} {{ devise }}
+            </td>
+            <td class="text-end">
+              {{ (etude.criteres.tri | pourcent) if etude.criteres.tri is not none else "—" }}
+            </td>
+            <td class="text-end fw-semibold">{{ "%.0f" | format(etude.score) }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <button class="btn btn-outline-primary mb-4" type="submit">
+    Enregistrer la sélection en scénarios
+  </button>
+</form>
+
+{# ══ Ce qui a été écarté, et pourquoi ═════════════════════════════════════ #}
+{% if e.ecartes %}
+<div class="titre-section">Montages écartés</div>
+<div class="card mb-4">
+  <ul class="list-group list-group-flush">
+    {% for etude in e.ecartes %}
+    <li class="list-group-item d-flex justify-content-between align-items-start gap-3 flex-wrap">
+      <span class="fw-semibold">{{ etude.candidat.nom }}</span>
+      <span class="text-muted small text-end">{{ etude.ecarte }}</span>
+    </li>
+    {% endfor %}
+  </ul>
+</div>
+{% endif %}
+
+{# ══ Comment tout cela a été construit ════════════════════════════════════ #}
+<details class="avance mb-3">
+  <summary>Composition détaillée de chaque montage</summary>
+  <div class="contenu-avance">
+    {% for etude in e.classement + (e.ecartes if not e.aucun_tenable else []) %}
+    <div class="card mb-3">
+      <div class="card-header d-flex justify-content-between">
+        <span>{{ etude.candidat.nom }}</span>
+        <span class="text-lowercase fw-normal" style="letter-spacing: 0">
+          {% if etude.ecarte %}écarté{% else %}rang {{ etude.rang }}{% endif %}
+        </span>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-sm mb-0">
+          <thead>
+            <tr><th>Paramètre</th><th class="text-end">Valeur retenue</th><th>D'où elle vient</th></tr>
+          </thead>
+          <tbody>
+            {% for ligne in etude.candidat.constitution %}
+            <tr>
+              <td>{{ ligne.libelle }}</td>
+              <td class="text-end">{{ ligne.valeur }}</td>
+              <td class="small text-muted">{{ ligne.origine }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</details>
+
+<details class="avance mb-3">
+  <summary>Comment le classement est calculé</summary>
+  <div class="contenu-avance">
+    <div class="card">
+      <div class="card-body">
+        <p class="small">
+          Le cabinet ne fixe pas de seuil de rentabilité : un même bien peut être
+          bon pour un client et mauvais pour un autre. Le classement n'est donc
+          <strong>pas une note absolue</strong>. Chaque critère est ramené entre
+          le meilleur et le moins bon des montages de <em>cette</em> étude, puis
+          pondéré selon l'objectif déclaré du client. Un score n'a de sens qu'à
+          l'intérieur de cette page.
+        </p>
+        <table class="table table-sm w-auto">
+          <thead><tr><th>Critère</th><th class="text-end">Poids pour « {{ cadrage.objectif_libelle }} »</th></tr></thead>
+          <tbody>
+            {% for cle, poids in e.poids.items() %}
+            <tr>
+              <td>{{ e.criteres[cle].libelle }}
+                {% if e.criteres[cle].sens < 0 %}<span class="text-muted small">(moins il y en a, mieux c'est)</span>{% endif %}
+              </td>
+              <td class="text-end">{{ (poids * 100) | pourcent(0) }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        <p class="small text-muted mb-0">
+          Les montages sont construits sur une règle de financement explicite :
+          une banque prête sur le bien, pas sur les frais. L'apport minimal d'un
+          dossier est donc la somme des frais d'acquisition et des travaux.
+          Les taux proposés suivent la durée
+          ({% for duree, taux in hypotheses.TAUX_PAR_DUREE.items() %}{{ duree }} ans : {{ taux | pourcent }}{{ ", " if not loop.last }}{% endfor %}),
+          l'assurance {{ hypotheses.TAUX_ASSURANCE | pourcent }} — toutes ces
+          valeurs sont modifiables sur un scénario enregistré.
+        </p>
+      </div>
+    </div>
+  </div>
+</details>
+
+{# ══ Ajuster ══════════════════════════════════════════════════════════════ #}
+<details class="avance mb-4" id="ajuster" {{ "open" if cadrage.surcharge }}>
+  <summary>Ajuster l'étude — objectif, horizon, budget, prix de sortie</summary>
+  <div class="contenu-avance">
+    <div class="card">
+      <div class="card-body">
+        <p class="small text-muted">
+          Ces ajustements ne valent que pour cette simulation : la fiche du client
+          n'est pas modifiée.
+        </p>
+        <form method="get" action="{{ url_for('etudes.etude', projet_id=projet.id) }}" class="row g-3">
+          <div class="col-md-3">
+            <label class="form-label" for="objectif">Objectif du client</label>
+            <select class="form-select" name="objectif" id="objectif">
+              {% for code, libelle in objectifs %}
+              <option value="{{ code }}" {{ "selected" if code == cadrage.objectif }}>{{ libelle }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-md-2">
+            <label class="form-label" for="horizon">Horizon (années)</label>
+            <input class="form-control" type="number" name="horizon" id="horizon"
+                   min="1" max="50" value="{{ cadrage.horizon_annees }}">
+          </div>
+          <div class="col-md-3">
+            <label class="form-label" for="budget">Budget disponible</label>
+            <input class="form-control" type="number" name="budget" id="budget" min="0" step="1000"
+                   value="{{ budget if budget is not none }}" placeholder="Laisser vide si inconnu">
+          </div>
+          <div class="col-md-3">
+            <label class="form-label" for="prix_revente">Prix de revente connu</label>
+            <input class="form-control" type="number" name="prix_revente" id="prix_revente" min="0" step="1000"
+                   value="{{ prix_revente if prix_revente is not none }}"
+                   placeholder="Vide = revalorisation annuelle">
+          </div>
+          <div class="col-md-1 d-flex align-items-end">
+            <button class="btn btn-primary w-100">Relancer</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</details>
+{% endblock %}

@@ -33,14 +33,35 @@ scénarios.
 
 **Message clé : le vrai coût d'entrée n'est pas le prix de l'annonce.**
 
-## Séquence 3 — Le scénario crédit (2 min)
+## Séquence 3 — L'étude automatique (2 min)
 
-1. Ouvrir **« Crédit 20 ans »** (apport 300 000, taux 4,9 %).
+C'est le moment fort de la démonstration : **ne rien saisir, et obtenir une
+réponse argumentée.**
+
+1. Depuis le dossier : **Lancer l'étude automatique**.
+2. Lire la carte de proposition **à voix haute, telle quelle** : c'est une phrase
+   de français, pas un tableau. « Avec un apport de… le bien paie ses charges…
+   au bout de 20 ans, l'opération lui aura rapporté… »
+3. Montrer les trois registres : *pourquoi celui-ci*, *ce que les autres font
+   mieux*, *ce qu'il faut vous dire avant de vous engager*. Insister sur le
+   deuxième : « l'outil vous dit aussi ce que ce montage vous coûte. »
+4. Dérouler **la composition détaillée** d'un montage : chaque paramètre indique
+   d'où il vient. « Rien ici n'est sorti d'un chapeau. »
+5. Si un montage a été écarté, lire son motif : « le comptant demandait
+   1 434 000 : il manquait… »
+6. **Ajuster l'étude** → horizon 5 ans, relancer : le classement change sous les
+   yeux du client. « Votre horizon change la réponse, pas seulement les chiffres. »
+
+**Message clé : l'outil ne vous vend pas un montage, il vous montre pourquoi
+celui-là.**
+
+## Séquence 3 bis — Entrer dans le montage retenu (1 min)
+
+1. **Enregistrer ce montage comme scénario** : on arrive sur la page de résultats
+   habituelle. « Ce que la machine a proposé reste modifiable ligne à ligne. »
 2. Lire les deux tuiles de tête **dans cet ordre** : rendement net, puis
    cash-flow mensuel. « Votre effort d'épargne est de X MAD par mois. »
-3. Deuxième rang : valeur créée sur 20 ans, puis TRI et VAN — « les chiffres
-   qu'un banquier vous demandera ».
-4. Graphique du **cash-flow cumulé** : montrer l'année où la courbe repasse au
+3. Graphique du **cash-flow cumulé** : montrer l'année où la courbe repasse au
    positif.
 
 ## Séquence 4 — Jouer une variante en direct (1 min)

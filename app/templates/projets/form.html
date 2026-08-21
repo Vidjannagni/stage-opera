@@ -14,8 +14,10 @@
 
 <h3 class="mb-1">{{ titre }}</h3>
 <p class="text-muted mb-4">
-  Ne remplissez que ce que vous savez : les champs laissés vides valent zéro.
-  Les réglages techniques sont repliés en bas de page.
+  Quatre informations suffisent pour lancer une étude : le <strong>nom du
+  dossier</strong>, la <strong>zone</strong>, le <strong>prix</strong> et le
+  <strong>loyer attendu</strong>. Le reste peut être estimé d'un clic, ou
+  laissé de côté — les champs vides valent zéro.
 </p>
 
 <form method="post" novalidate>
@@ -53,6 +55,15 @@
         <div class="card-header">Exploitation locative</div>
         <div class="card-body">
           {{ render_field(form.loyer_mensuel) }}
+          <div class="d-flex align-items-center gap-2 flex-wrap mb-3">
+            <button type="button" class="btn btn-sm btn-outline-primary" id="estimer-charges">
+              Estimer les charges courantes
+            </button>
+            <span class="form-text mb-0">
+              À partir du prix et du loyer. Aucune valeur déjà saisie n'est remplacée.
+            </span>
+          </div>
+          <div id="note-estimation" class="rappel mb-3" role="status" hidden></div>
           <div class="row">
             <div class="col-md-6">{{ render_field(form.charges_copro_annuelles) }}</div>
             <div class="col-md-6">{{ render_field(form.taxe_annuelle) }}</div>
@@ -136,6 +147,56 @@
 
   selectZone.addEventListener("change", actualiserZone);
   actualiserZone();
+
+  // Estimation des charges : le conseiller garde la main, rien n'est écrasé.
+  // Les règles viennent du serveur (app/core/estimation.py) : l'interface et le
+  // moteur ne peuvent pas diverger.
+  const REGLES = {{ regles | tojson }};
+  const boutonEstimer = document.getElementById("estimer-charges");
+  const noteEstimation = document.getElementById("note-estimation");
+
+  function valeurNumerique(id) {
+    const champ = document.getElementById(id);
+    return champ ? Number(champ.value.replace(/\s/g, "").replace(",", ".")) || 0 : 0;
+  }
+
+  function estimerCharges() {
+    const prix = valeurNumerique("prix_bien");
+    const loyer = valeurNumerique("loyer_mensuel");
+    if (!prix && !loyer) {
+      noteEstimation.hidden = false;
+      noteEstimation.textContent =
+        "Renseignez d'abord le prix du bien et le loyer attendu : l'estimation en découle.";
+      return;
+    }
+    const bases = { loyer_annuel: 12 * loyer, prix: prix, constante: 0 };
+    const appliquees = [];
+    for (const [nom, regle] of Object.entries(REGLES)) {
+      const champ = document.getElementById(nom);
+      if (!champ) continue;
+      const dejaSaisi = champ.value.trim() !== "";
+      if (dejaSaisi) continue;  // une valeur saisie — fût-elle nulle — fait foi
+      let valeur = regle.base === "constante"
+        ? regle.taux
+        : (bases[regle.base] * regle.taux) / 100;
+      if (regle.base !== "constante") {
+        const pas = valeur >= 1000 ? 100 : 10;
+        valeur = Math.round(valeur / pas) * pas;
+      }
+      champ.value = valeur;
+      appliquees.push(`<li><strong>${regle.libelle}</strong> : ${regle.regle}</li>`);
+    }
+    noteEstimation.hidden = false;
+    noteEstimation.innerHTML = appliquees.length
+      ? "<strong>Valeurs estimées, à vérifier.</strong> Elles restent modifiables, " +
+        "et l'assurance comme l'entretien se trouvent dans les réglages avancés." +
+        `<ul class="mb-0 mt-2 small">${appliquees.join("")}</ul>`
+      : "Tous les champs concernés sont déjà renseignés : rien n'a été modifié.";
+    const avance = document.querySelector("details.avance");
+    if (avance && appliquees.length) avance.open = true;
+  }
+
+  boutonEstimer.addEventListener("click", estimerCharges);
 
   // Une opération de type terrain n'a pas d'exploitation locative à saisir.
   const champOperation = document.getElementById("type_operation");

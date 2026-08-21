@@ -10,6 +10,12 @@ def zero_si_vide(valeur):
 
     Ne pas appliquer aux champs *_override : NULL y signifie « utiliser la
     valeur de la zone ».
+
+    C'est ce filtre qui permet aux champs de charges de n'avoir *aucune* valeur
+    par défaut : un formulaire vierge s'affiche vide, avec ses exemples en
+    filigrane, au lieu d'une colonne de « 0.0 » qui donne l'impression d'un
+    formulaire déjà rempli — et qui empêchait de distinguer « pas de frais de
+    gestion » de « champ pas encore rempli ».
     """
     return 0.0 if valeur is None else valeur
 
@@ -17,6 +23,31 @@ def zero_si_vide(valeur):
 def zero_entier_si_vide(valeur):
     """Variante entière de `zero_si_vide`, pour les colonnes Integer."""
     return 0 if valeur is None else valeur
+
+
+class ChampMontant(FloatField):
+    """Champ numérique où **zéro s'affiche comme un champ vide**.
+
+    Sans cela, un formulaire vierge s'ouvrait sur une colonne de « 0.0 » :
+    l'écran paraissait déjà rempli, les exemples en filigrane n'apparaissaient
+    jamais, et le conseiller devait effacer chaque zéro avant de saisir. Comme
+    le formulaire annonce que « les champs vides valent zéro », afficher le
+    vide plutôt que le zéro dit exactement la même chose, en moins encombrant.
+    """
+
+    def _value(self):
+        if self.raw_data:
+            return self.raw_data[0]
+        return "" if not self.data else str(self.data)
+
+
+class ChampEntier(IntegerField):
+    """Variante entière de `ChampMontant` (délai de livraison, durées)."""
+
+    def _value(self):
+        if self.raw_data:
+            return self.raw_data[0]
+        return "" if not self.data else str(self.data)
 
 
 class ProjetForm(FlaskForm):
@@ -48,8 +79,8 @@ class ProjetForm(FlaskForm):
         "Prix du bien", validators=[DataRequired(), NumberRange(min=1)],
         render_kw={"placeholder": "Ex. : 1 200 000"},
     )
-    budget_travaux = FloatField(
-        "Budget travaux / construction", default=0.0,
+    budget_travaux = ChampMontant(
+        "Budget travaux / construction",
         validators=[Optional(), NumberRange(min=0)], filters=[zero_si_vide],
         render_kw={"placeholder": "Ex. : 150 000 — ou 0 si rien à prévoir"},
     )
@@ -58,43 +89,43 @@ class ProjetForm(FlaskForm):
         validators=[Optional(), NumberRange(min=0, max=100)],
         description="Laisser vide pour utiliser le taux de la zone.",
     )
-    delai_livraison_mois = IntegerField(
-        "Délai de livraison (mois)", default=0,
+    delai_livraison_mois = ChampEntier(
+        "Délai de livraison (mois)",
         render_kw={"placeholder": "0 pour un bien déjà livré, 24 pour une VEFA"},
         validators=[Optional(), NumberRange(min=0, max=120)], filters=[zero_entier_si_vide],
         description="Achat sur plan (VEFA) : mois avant livraison. "
                     "Aucun loyer n'est perçu d'ici là.",
     )
 
-    loyer_mensuel = FloatField(
-        "Loyer mensuel attendu", default=0.0,
+    loyer_mensuel = ChampMontant(
+        "Loyer mensuel attendu",
         validators=[Optional(), NumberRange(min=0)], filters=[zero_si_vide],
         render_kw={"placeholder": "Ex. : 8 500"},
     )
-    charges_copro_annuelles = FloatField(
-        "Charges de copropriété (annuelles)", default=0.0,
+    charges_copro_annuelles = ChampMontant(
+        "Charges de copropriété (annuelles)",
         validators=[Optional(), NumberRange(min=0)], filters=[zero_si_vide],
     )
-    assurance_annuelle = FloatField(
-        "Assurance (annuelle)", default=0.0,
+    assurance_annuelle = ChampMontant(
+        "Assurance (annuelle)",
         validators=[Optional(), NumberRange(min=0)], filters=[zero_si_vide],
     )
-    frais_gestion_pct = FloatField(
-        "Frais de gestion (% du loyer)", default=0.0,
+    frais_gestion_pct = ChampMontant(
+        "Frais de gestion (% du loyer)",
         validators=[Optional(), NumberRange(min=0, max=100)], filters=[zero_si_vide],
         render_kw={"placeholder": "Ex. : 5 — laisser vide en gestion directe"},
     )
-    vacance_pct = FloatField(
-        "Vacance locative (% du loyer)", default=0.0,
+    vacance_pct = ChampMontant(
+        "Vacance locative (% du loyer)",
         validators=[Optional(), NumberRange(min=0, max=100)], filters=[zero_si_vide],
         render_kw={"placeholder": "Ex. : 5 — soit environ trois semaines par an"},
     )
-    entretien_annuel = FloatField(
-        "Entretien (annuel)", default=0.0,
+    entretien_annuel = ChampMontant(
+        "Entretien (annuel)",
         validators=[Optional(), NumberRange(min=0)], filters=[zero_si_vide],
     )
-    taxe_annuelle = FloatField(
-        "Taxe annuelle (foncière / services communaux)", default=0.0,
+    taxe_annuelle = ChampMontant(
+        "Taxe annuelle (foncière / services communaux)",
         validators=[Optional(), NumberRange(min=0)], filters=[zero_si_vide],
     )
     taux_imposition_override = FloatField(

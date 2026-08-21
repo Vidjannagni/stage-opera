@@ -132,6 +132,21 @@ Le mentor décrit un premier entretien où l'on note ce que le client sait dire.
 Les formulaires suivent ce principe : **seuls les champs qu'on remplit devant un
 client sont visibles**, le reste est replié dans un bloc « Réglages avancés ».
 
+Trois mesures s'y sont ajoutées après le reproche fait à l'outil — « il y a trop
+de choses à remplir » :
+
+1. **Le formulaire de scénario est sorti du chemin principal.** L'étude
+   automatique construit les montages ; on ne saisit plus onze valeurs pour
+   découvrir qu'un montage ne convenait pas (cf.
+   [`etude_automatique.md`](etude_automatique.md)).
+2. **Un formulaire vierge s'ouvre vide, pas rempli de zéros.** Les champs de
+   charges affichaient « 0.0 » : l'écran paraissait déjà rempli, les exemples en
+   filigrane n'apparaissaient jamais, et il fallait effacer chaque zéro avant de
+   saisir. Puisque le formulaire annonce que « les champs vides valent zéro »,
+   afficher le vide dit la même chose en moins encombrant (`ChampMontant`).
+3. **Les charges courantes s'estiment d'un clic**, à partir du prix et du loyer
+   — voir la section 10.
+
 | Formulaire | Visible par défaut | Replié |
 |---|---|---|
 | Dossier | Bien, zone, étape, prix, travaux, délai de livraison, loyer, charges de copropriété, taxe, gestion, vacance | Surcharges de taux de la zone, assurance, entretien |
@@ -144,6 +159,13 @@ n'influe que sur la VAN, indicateur de second rang.
 
 Rien n'a été supprimé : tous les champs restent accessibles en un clic, et le
 moteur de calcul est inchangé.
+
+### Le brief : les précisions se replient
+
+Le bloc « distribution souhaitée » (chambres, salles de bains, salons, étage,
+orientation) est désormais replié. Le cabinet cite ces critères en terminant par
+« etc. » : ce sont des souhaits, pas des conditions. Le formulaire du brief tient
+ainsi à l'écran sans faire défiler.
 
 ## 6. Ce qui est obligatoire, et pourquoi
 
@@ -221,3 +243,77 @@ naturellement plusieurs entrées.
 - **Mode sombre** : l'outil est projeté ou imprimé, deux contextes où le fond
   clair est préférable. L'ajouter aurait doublé le travail de contraste sans
   bénéfice pour l'usage visé.
+
+## 10. L'estimation des charges : proposer sans décider
+
+Un conseiller connaît toujours le prix et le loyer ; devant un client, il connaît
+rarement le montant exact du syndic, de la taxe ou de l'assurance. Ces champs
+restaient donc à zéro — ce qui **gonfle artificiellement le rendement net**.
+
+Le bouton « Estimer les charges courantes » applique des règles calibrées sur le
+marché marocain (`app/core/estimation.py`), toutes affichées après le clic :
+
+| Champ | Règle | Pourquoi celle-là |
+|---|---|---|
+| Charges de copropriété | 8 % du loyer annuel | Ordre de grandeur d'un syndic de moyen standing. |
+| Taxe annuelle | 10,5 % du loyer annuel | Taux de la taxe de services communaux sur la valeur locative, en zone urbaine. |
+| Assurance | 0,15 % du prix | Multirisque habitation d'un propriétaire non occupant. |
+| Entretien | 0,5 % du prix et par an | Provision d'usage pour l'entretien courant. |
+| Frais de gestion | 5 % du loyer | Tarif courant d'une agence de gestion locative. |
+| Vacance locative | 5 % du loyer | Environ trois semaines de vide par an. |
+
+Trois précautions, sans lesquelles une estimation serait malhonnête :
+
+- **rien n'est estimé en silence** : l'action est explicite, les champs remplis
+  sont visibles, et la règle employée est affichée sous le bouton ;
+- **une valeur saisie n'est jamais écrasée**, y compris un zéro — « pas de frais
+  de gestion » est une information, pas une case oubliée ;
+- **les montants sont arrondis à la centaine** : afficher « 8 160 » donnerait à
+  une estimation une précision qu'elle n'a pas.
+
+Les coefficients vivent côté serveur et sont transmis au navigateur : l'interface
+et le moteur ne peuvent pas diverger.
+
+## 11. La page d'étude se lit comme une réponse
+
+L'écran de proposition rompt volontairement avec la grille des autres pages : une
+**carte détachée**, un liseré d'accent, une phrase en grand caractère, puis les
+chiffres qui l'appuient. C'est le seul écran de l'application qui affirme quelque
+chose ; il devait se distinguer d'un tableau de bord.
+
+Trois registres y sont séparés, chacun avec sa propre puce — un « + » pour les
+avantages, un tiret pour ce que les autres montages font mieux, un « ! » pour les
+points de vigilance. La distinction ne repose donc pas sur la couleur seule, et
+survit à une impression en noir et blanc. Le classement complet, bien qu'il vive
+dans un formulaire (cases à cocher), reste imprimé : c'est la page que l'on remet
+au client.
+
+## 12. Le document remis au client
+
+Le rapport PDF exporté par l'application est composé **comme les rapports du
+projet**, et non comme une page web imprimée. Les correspondances sont
+littérales :
+
+| Élément du gabarit LaTeX | Transposition dans le PDF |
+|---|---|
+| Page de garde sur fond navy, pastille de titre, sous-titre en teinte d'accent | Bandeau de tête du document, mêmes couleurs, mêmes étiquettes en capitales |
+| Bandeau de partie : pastille numérotée, barre bleue, titre centré en italique | Reproduit en CSS, section par section |
+| Tableaux entièrement quadrillés, en-tête sur fond bleu, lignes alternées | `table.grille` : filets sur **toutes** les lignes, en-tête `#dbe7f1`, alternance blanc / gris |
+| Police à empattements (Computer Modern) | Pile `Latin Modern Roman`, puis Nimbus Roman, Liberation Serif, Times |
+| Pied de page : auteur, numéro de page en bleu, cabinet | Identique, via les marges nommées de `@page` |
+
+Trois exigences de lisibilité s'y ajoutent, qui ne viennent pas du gabarit mais
+de l'usage :
+
+- **les en-têtes de colonnes se répètent** quand un tableau se coupe entre deux
+  pages (`<thead>`) — une colonne de chiffres sans intitulé, en haut d'une page,
+  ne se lit pas ;
+- **les montants sont alignés au chiffre près** (`tabular-nums`) et jamais
+  coupés en fin de ligne ;
+- **le texte est justifié avec un retrait d'alinéa**, comme dans les rapports,
+  et les blocs de conventions restent en fer à gauche pour se distinguer du
+  corps.
+
+La mise en page n'utilise ni *flexbox* ni grille CSS : uniquement des tableaux
+et des blocs, les modèles les mieux supportés par WeasyPrint. Un export remis à
+un client ne doit jamais casser.

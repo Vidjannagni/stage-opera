@@ -114,8 +114,18 @@ Nom du client, situation professionnelle, nationalité, budget disponible.
   valeur créée ensuite, TRI et VAN en second rang. Même ordre sur la page de
   résultats, l'aperçu instantané, l'écran de comparaison, le rapport PDF et le
   classeur Excel.
-- **Aucun verdict automatique.** L'objectif et l'horizon du client sont rappelés
-  à côté des chiffres ; l'arbitrage reste au client, conformément à la réponse 3.
+- **Aucun seuil universel.** L'objectif et l'horizon du client sont rappelés à
+  côté des chiffres ; l'arbitrage reste au client, conformément à la réponse 3.
+
+  *Évolution ultérieure.* L'outil **propose** désormais un montage, via l'étude
+  automatique — mais sans jamais introduire de seuil : le classement est calculé
+  **relativement à l'objectif déclaré du client**, entre montages portant sur le
+  même bien et le même horizon ; la pondération employée est affichée ; ce que
+  les autres montages font mieux est dit explicitement ; et les montages écartés
+  le sont avec leur motif chiffré. La réponse 3 est ainsi respectée dans son
+  fond — « tout dépend de son horizon et du facteur temps » — tout en évitant au
+  conseiller d'avoir à deviner quel montage essayer.
+  Méthode complète : [`etude_automatique.md`](etude_automatique.md).
 - Les écrans s'adaptent au type d'opération : pas de rendement locatif affiché
   pour un terrain, plus-value mise en avant à la place.
 
@@ -141,7 +151,8 @@ Signalés comme utiles mais non implémentés, faute de temps avant la remise :
   chantier. Nous modélisons le décalage de livraison, pas l'étalement des
   paiements.
 - **Calcul de capacité d'emprunt** à partir de la situation professionnelle et du
-  budget disponible.
+  budget disponible. L'étude automatique filtre sur l'**apport** (budget déclaré),
+  pas sur le taux d'endettement : nous ne collectons pas les revenus du client.
 - **Moteur de rapprochement** entre le brief d'un client et un portefeuille de
   biens : l'outil enregistre le besoin, il ne cherche pas encore les biens.
 - **Suivi des visites** (dates, retours du client) au sein de l'étape « visites ».

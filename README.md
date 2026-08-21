@@ -17,9 +17,15 @@ diffère la mise en exploitation. **Paramétrable par zone de marché** (Maroc p
 défaut, France, zone personnalisée) : frais d'acquisition, fiscalité et devise
 s'actualisent selon la zone.
 
-L'application **n'affiche aucun seuil ni verdict** : les indicateurs se lisent
-au regard de l'objectif et de l'horizon du client (cf.
-`docs/retour_cabinet.md`).
+Depuis un dossier, l'**étude automatique** construit seule les montages
+plausibles (comptant, crédit à apport minimal, renforcé ou maximal, sur 15, 20
+et 25 ans), les confronte et **propose le mieux placé, expliqué en langage
+clair** — avec ce que les autres font mieux, les points de vigilance et la
+composition complète de chaque montage (cf. `docs/etude_automatique.md`).
+
+L'application **n'applique aucun seuil universel de rentabilité** : quand elle
+propose un montage, c'est relativement à l'objectif et à l'horizon déclarés par
+le client, en affichant la pondération employée (cf. `docs/retour_cabinet.md`).
 
 ## Installation (local)
 
@@ -66,6 +72,7 @@ appartement locatif à Casablanca (3 scénarios) et un terrain en portage sur
 
 - `docs/retour_cabinet.md` — entretien de cadrage métier avec le cabinet, écarts
   constatés et modifications apportées.
+- `docs/etude_automatique.md` — comment les montages sont construits, classés et expliqués.
 - `docs/choix_interface.md` — justification des choix visuels et ergonomiques.
 - `docs/guide_utilisation.md` — guide du conseiller, dans l'ordre d'un rendez-vous.
 - `docs/script_demonstration.md` — déroulé de démonstration face à un investisseur.
@@ -104,7 +111,7 @@ par l'hébergeur), et `CODE_INSCRIPTION` pour réserver la création de compte.
 app/
 ├── core/        # moteur de calcul financier (Python pur, testé)
 ├── models/      # User, Client, Brief, Projet, Scenario, ZonePreset, LigneTravaux
-├── blueprints/  # auth, clients, projets, scenarios, exports
+├── blueprints/  # auth, clients, projets, scenarios, etudes, exports
 ├── templates/   # Jinja2 + Bootstrap 5
 └── static/      # CSS, JS (Chart.js)
 data/zones.json  # préréglages des zones de marché

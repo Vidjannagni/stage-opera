@@ -128,7 +128,8 @@
       cellule("valeur").className =
         "fw-bold fs-5 " + (valeur >= 0 ? "valeur-positive" : "valeur-negative");
 
-      const tri = r.indicateurs.tri !== null ? `${r.indicateurs.tri.toFixed(2)} %` : "—";
+      const tri = r.indicateurs.tri !== null
+        ? `${r.indicateurs.tri.toFixed(2).replace(".", ",")} %` : "—";
       cellule("tri_van").textContent = `${tri} · ${fmt(r.indicateurs.van)} ${DEVISE}`;
     } catch (e) { /* réseau indisponible : l'aperçu reste tel quel */ }
   }

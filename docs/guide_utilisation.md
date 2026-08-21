@@ -56,7 +56,11 @@ plus-value, constitution de patrimoine) et l'**horizon d'investissement**.
 
 ## 4. Créer le dossier du bien
 
-Depuis la fiche client : **+ Nouveau dossier**.
+Depuis la fiche client : **+ Nouveau dossier**. **Quatre informations suffisent**
+pour lancer une étude : le nom du dossier, la zone, le prix et le loyer attendu.
+Le bouton **Estimer les charges courantes** remplit le reste à partir du prix et
+du loyer, en affichant la règle employée pour chaque montant ; les valeurs déjà
+saisies ne sont jamais écrasées, et tout reste modifiable.
 
 - **Type d'opération** — le réglage à choisir en premier :
   - *Locatif* : le bien sera mis en location ;
@@ -79,10 +83,46 @@ La carte **Travaux détaillés** permet de chiffrer poste par poste. Dès qu'un
 poste existe, **le budget devient la somme des postes** — utile pour justifier le
 chiffre devant le client.
 
-## 6. Construire les scénarios
+## 6. Lancer l'étude automatique
 
-**+ Nouveau scénario** depuis le dossier. Deux modes : **crédit** (apport, taux,
-assurance, durée) ou **cash**.
+C'est le chemin normal, et le plus rapide : depuis le dossier, **Lancer l'étude
+automatique**. Rien de plus à saisir.
+
+L'outil construit les montages plausibles — paiement comptant, crédit à apport
+minimal, à apport renforcé, ou avec tout le budget en apport, sur 15, 20 et
+25 ans — les calcule, les classe **selon l'objectif et l'horizon du client**, et
+propose le mieux placé. La page donne, dans l'ordre :
+
+1. **le montage proposé**, résumé en une phrase et en quatre chiffres : apport,
+   effort ou cash-flow mensuel, valeur créée à l'horizon, rendement net ;
+2. **pourquoi celui-ci** — les écarts chiffrés avec le montage suivant ;
+3. **ce que les autres font mieux** — dit franchement : l'achat comptant gagne
+   souvent sur le cash-flow tout en rendant moins par dirham engagé ;
+4. **ce qu'il faut dire au client** avant qu'il s'engage ;
+5. **le classement complet**, et les montages **écartés** avec leur motif chiffré
+   (« il manque 70 000 MAD ») ;
+6. **la composition détaillée** de chaque montage, paramètre par paramètre, avec
+   l'origine de chaque valeur.
+
+**Ajuster l'étude** (en bas de page) rejoue la simulation avec un autre objectif,
+un autre horizon, un autre budget ou un prix de revente connu — **sans modifier
+la fiche du client**. C'est là qu'on répond au « et si je revendais dans cinq
+ans ? » posé en séance.
+
+Un montage retenu s'enregistre en **scénario ordinaire** : cochez-le, puis
+« Enregistrer la sélection ». Il rejoint alors la page de résultats, la
+comparaison et les exports, et reste modifiable champ par champ.
+
+> **Ce que le classement n'est pas.** Un score n'est pas une note absolue : il ne
+> vaut qu'à l'intérieur d'une étude, pour un client donné. La page affiche la
+> pondération employée. La décision reste au client — l'outil prépare la
+> conversation, il ne la remplace pas.
+
+## 7. Construire un scénario à la main (si besoin)
+
+**+ Scénario à la main** depuis le dossier, quand le montage est déjà connu :
+taux négocié avec la banque, apport imposé, durée arrêtée. Deux modes :
+**crédit** (apport, taux, assurance, durée) ou **cash**.
 
 Les **hypothèses de projection** pilotent les indicateurs de sortie : horizon,
 revalorisation du loyer et du bien, frais de revente, taux d'actualisation. Le
@@ -93,7 +133,7 @@ construction-revente ou d'un lotissement.
 La carte **Aperçu instantané** recalcule cash-flow, valeur créée, mensualité,
 TRI et VAN **à chaque saisie**, avant même d'enregistrer.
 
-## 7. Lire la page de résultats
+## 8. Lire la page de résultats
 
 Les indicateurs sont présentés dans l'ordre où le cabinet les regarde.
 
@@ -118,14 +158,14 @@ mention « en chantier ».
 **Dupliquer** crée une variante pour tester une autre hypothèse sans perdre
 l'original.
 
-## 8. Comparer les scénarios
+## 9. Comparer les scénarios
 
 Sur la page du dossier, cochez 2 à 4 scénarios puis **Comparer la sélection** :
 tableau côte à côte (dans le même ordre de lecture) et courbes de cash-flow
 cumulé superposées. Le croisement des courbes montre à partir de quelle année un
 montage devient plus intéressant que l'autre.
 
-## 9. Remettre un document au client
+## 10. Remettre un document au client
 
 Depuis la page de résultats :
 
@@ -134,11 +174,16 @@ Depuis la page de résultats :
 - **Export Excel** : feuilles *Hypothèses*, *Indicateurs*, *Projection* et
   *Amortissement*, pour les clients qui veulent retravailler les chiffres.
 
-## 10. Bonnes pratiques et limites
+## 11. Bonnes pratiques et limites
 
-- **L'outil ne conclut jamais à votre place.** Il n'affiche aucun verdict et
-  aucun seuil : il présente les chiffres au regard de l'objectif et de l'horizon
-  du client, à qui revient l'arbitrage.
+- **L'outil n'applique aucun seuil de rentabilité.** Il présente les chiffres au
+  regard de l'objectif et de l'horizon du client, à qui revient l'arbitrage.
+- **L'étude automatique propose, elle ne tranche pas.** Elle désigne bien un
+  montage de financement, mais elle affiche en même temps la pondération qui l'a
+  fait choisir, ce que les autres montages font mieux, et la composition
+  complète de chacun : la proposition reste discutable devant le client. Un
+  classement ne vaut d'ailleurs qu'à l'intérieur d'une étude — deux études ne se
+  comparent pas.
 - Les **valeurs par défaut des zones** (frais, imposition) sont des valeurs de
   travail : vérifiez-les quand la situation du client est spécifique, et
   utilisez les champs de surcharge du dossier.

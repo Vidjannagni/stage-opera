@@ -39,18 +39,25 @@
         </div>
       </div>
 
-      <div class="card mb-4" id="carte-distribution">
-        <div class="card-header">Distribution souhaitée</div>
-        <div class="card-body">
-          <div class="row">
-            <div class="col-md-4">{{ render_field(form.nb_chambres) }}</div>
-            <div class="col-md-4">{{ render_field(form.nb_salles_bains) }}</div>
-            <div class="col-md-4">{{ render_field(form.nb_salons) }}</div>
-            <div class="col-md-6">{{ render_field(form.etage) }}</div>
-            <div class="col-md-6">{{ render_field(form.orientation) }}</div>
+      {# Le cabinet cite ces précisions en terminant par « etc. » : ce sont des
+         souhaits, pas des conditions. Elles se replient donc, et le formulaire
+         tient à l'écran sans faire défiler. #}
+      <details class="avance mb-4" id="carte-distribution">
+        <summary>Distribution souhaitée — chambres, étage, orientation (facultatif)</summary>
+        <div class="contenu-avance">
+          <div class="card">
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-4">{{ render_field(form.nb_chambres) }}</div>
+                <div class="col-md-4">{{ render_field(form.nb_salles_bains) }}</div>
+                <div class="col-md-4">{{ render_field(form.nb_salons) }}</div>
+                <div class="col-md-6">{{ render_field(form.etage) }}</div>
+                <div class="col-md-6">{{ render_field(form.orientation) }}</div>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
+      </details>
     </div>
 
     <div class="col-lg-6">

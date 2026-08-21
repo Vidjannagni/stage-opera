@@ -109,7 +109,7 @@
         <tr>
           <th>Dossier</th><th>Type</th><th>Zone</th>
           <th class="text-end">Prix</th><th class="text-end">Loyer</th>
-          <th>Étape</th><th class="text-end">Scénarios</th>
+          <th>Étape</th><th class="text-end">Scénarios</th><th></th>
         </tr>
       </thead>
       <tbody>
@@ -124,6 +124,10 @@
           </td>
           <td><span class="etiquette">{{ projet.statut_libelle }}</span></td>
           <td class="text-end">{{ projet.scenarios.count() }}</td>
+          <td class="text-end">
+            <a class="btn btn-sm btn-outline-primary"
+               href="{{ url_for('etudes.etude', projet_id=projet.id) }}">Étudier</a>
+          </td>
         </tr>
         {% endfor %}
       </tbody>
