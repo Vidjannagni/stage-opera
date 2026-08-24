@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% from "_form_helpers.html" import render_field %}
+
+{% block title %}Mon compte — RentImmo{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6">
+    <h3 class="mb-1">Mon compte</h3>
+    <p class="text-muted mb-4">
+      {{ current_user.nom }} — {{ current_user.email }}
+    </p>
+
+    <div class="card">
+      <div class="card-header">Changer mon mot de passe</div>
+      <div class="card-body">
+        <form method="post" novalidate>
+          {{ form.hidden_tag() }}
+          {{ render_field(form.actuel) }}
+          {{ render_field(form.nouveau) }}
+          {{ render_field(form.confirm) }}
+          <div class="d-flex gap-2 mt-4">
+            {{ form.submit(class="btn btn-primary") }}
+            <a href="{{ url_for('main.index') }}" class="btn btn-outline-secondary">Retour</a>
+          </div>
+        </form>
+        <p class="form-text mt-3 mb-0">
+          Si l'administrateur de l'outil vous a remis un mot de passe
+          provisoire, changez-le ici : il ne doit rester connu de personne
+          d'autre que vous.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

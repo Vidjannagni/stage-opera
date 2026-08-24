@@ -42,9 +42,17 @@ cp docs/guide_utilisation.md docs/script_demonstration.md \
    docs/retour_cabinet.md docs/deploiement.md \
    docs/choix_interface.md docs/etude_automatique.md "$ETAPE/documents/"
 
+# Le document de remise s'adresse au cabinet, pas à un lecteur technique :
+# il ouvre le dossier plutôt que de se perdre au milieu des notes d'analyse.
+cp docs/remise_cabinet.md "$ETAPE/A_LIRE_remise_cabinet.md"
+
 cat > "$ETAPE/LISEZMOI.txt" <<'FIN'
 RentImmo — Dossier de remise (21 août 2026)
 Choubel Consulting — René DANSOU & Marius HOUNKPETOHOU
+
+  A_LIRE_remise_cabinet.md
+              Ce que fait l'outil, comment y accéder, ce qu'il faut savoir
+              de son hébergement et de vos données. À lire en premier.
 
   code/       Code source complet, prêt à l'exécution :
                 cd code && ./lancer.sh --demo

@@ -76,6 +76,8 @@ appartement locatif à Casablanca (3 scénarios) et un terrain en portage sur
 - `docs/choix_interface.md` — justification des choix visuels et ergonomiques.
 - `docs/guide_utilisation.md` — guide du conseiller, dans l'ordre d'un rendez-vous.
 - `docs/script_demonstration.md` — déroulé de démonstration face à un investisseur.
+- `docs/remise_cabinet.md` — document remis au cabinet : accès, données, limites de
+  l'hébergement, et comment le cabinet reprend la main sur l'outil.
 - `cahier_des_charges.pdf` — périmètre, formules et conventions de calcul.
 - `feuille_de_route.pdf` — planning des six semaines.
 - `rapports/` — rapports hebdomadaires 2 à 5 et rapport final (LaTeX + PDF).

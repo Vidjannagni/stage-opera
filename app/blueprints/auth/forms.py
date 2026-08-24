@@ -26,3 +26,25 @@ class RegisterForm(FlaskForm):
         description="Fourni par le cabinet.",
     )
     submit = SubmitField("Créer le compte")
+
+
+class MotDePasseForm(FlaskForm):
+    """Changement de mot de passe par le conseiller lui-même.
+
+    L'outil n'envoie pas de courriel : celui qui a perdu son mot de passe s'en
+    voit attribuer un provisoire par l'administrateur (``flask
+    conseiller-mot-de-passe``). Cet écran est ce qui rend ce détour acceptable
+    — le conseiller reprend la main dès sa première connexion, et
+    l'administrateur ne reste pas détenteur d'un mot de passe en clair.
+    """
+
+    actuel = PasswordField("Mot de passe actuel", validators=[DataRequired()])
+    nouveau = PasswordField(
+        "Nouveau mot de passe",
+        validators=[DataRequired(), Length(min=8, message="8 caractères minimum")],
+    )
+    confirm = PasswordField(
+        "Confirmation",
+        validators=[DataRequired(), EqualTo("nouveau", message="Les mots de passe diffèrent")],
+    )
+    submit = SubmitField("Changer le mot de passe")

@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}{{ titre }} — RentImmo{% endblock %}
+
+{% block content %}
+{# Une erreur n'est pas une impasse : la page dit ce qui s'est passé, en
+   français, et donne toujours un chemin de retour. #}
+<div class="vide mt-5">
+  <div class="code-erreur">{{ code }}</div>
+  <h3 class="mb-2">{{ titre }}</h3>
+  <p class="mb-4">{{ message }}</p>
+  <div class="d-flex gap-2 justify-content-center flex-wrap">
+    {% if current_user.is_authenticated %}
+    <a href="{{ url_for('main.index') }}" class="btn btn-primary">Retour au tableau de bord</a>
+    <a href="{{ url_for('clients.liste') }}" class="btn btn-outline-secondary">Mes clients</a>
+    {% else %}
+    <a href="{{ url_for('main.index') }}" class="btn btn-primary">Retour à l'accueil</a>
+    <a href="{{ url_for('auth.login') }}" class="btn btn-outline-secondary">Se connecter</a>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

@@ -15,9 +15,16 @@
           {{ render_field(form.password) }}
           <div class="d-grid mt-4">{{ form.submit(class="btn btn-primary") }}</div>
         </form>
-        <p class="mt-3 mb-0 small text-muted">
+        <p class="mt-3 mb-1 small text-muted">
           Pas encore de compte ?
           <a href="{{ url_for('auth.register') }}">Créer un compte consultant</a>
+        </p>
+        {# L'outil n'envoie pas de courriel : le dire ici évite qu'un
+           conseiller cherche un lien « mot de passe oublié » qui n'existe pas. #}
+        <p class="mb-0 small text-muted">
+          Mot de passe oublié ? L'outil n'envoie pas de courriel :
+          demandez-en un provisoire à l'administrateur de l'outil, puis
+          changez-le depuis <em>Mon compte</em>.
         </p>
       </div>
     </div>

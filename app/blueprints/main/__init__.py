@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from flask import Blueprint, current_app, render_template
+from flask import Blueprint, Response, current_app, render_template
 from flask_login import current_user
 
 from ...models import Client, Projet
@@ -16,6 +16,14 @@ VISUEL_ACCUEIL = "img/accueil.webp"
 def visuel_accueil() -> str | None:
     chemin = Path(current_app.static_folder) / VISUEL_ACCUEIL
     return VISUEL_ACCUEIL if chemin.is_file() else None
+
+
+@bp.route("/robots.txt")
+def robots():
+    """Aucun moteur n'a de raison d'explorer un outil de gestion de dossiers
+    clients. La balise `noindex` de chaque page dit la même chose ; ce fichier
+    l'annonce avant même le premier chargement."""
+    return Response("User-agent: *\nDisallow: /\n", mimetype="text/plain")
 
 
 @bp.route("/")

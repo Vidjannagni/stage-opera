@@ -3,7 +3,9 @@ from datetime import date
 from io import BytesIO
 from pathlib import Path
 
-from flask import Blueprint, current_app, render_template, send_file
+from flask import (
+    Blueprint, current_app, flash, redirect, render_template, send_file, url_for,
+)
 from flask_login import login_required
 from werkzeug.utils import secure_filename
 
@@ -18,7 +20,25 @@ bp = Blueprint("exports", __name__)
 @bp.route("/scenario/<int:scenario_id>/pdf")
 @login_required
 def scenario_pdf(scenario_id: int):
-    from weasyprint import HTML  # import différé : dépendances système lourdes
+    """Document remis au client.
+
+    WeasyPrint s'appuie sur des bibliothèques système (Pango, Cairo) que les
+    hébergements gratuits ne fournissent pas toujours. L'import est différé
+    pour que leur absence n'empêche pas l'application de démarrer, et rattrapé
+    ici pour qu'elle ne se solde pas par une page d'erreur muette : le
+    conseiller doit savoir que c'est cet hébergement qui ne sait pas produire
+    de PDF, et que l'export Excel, lui, fonctionne.
+    """
+    try:
+        from weasyprint import HTML
+    except (ImportError, OSError) as manque:
+        current_app.logger.warning("Export PDF indisponible : %s", manque)
+        flash(
+            "L'export PDF n'est pas disponible sur cet hébergement : il demande "
+            "des bibliothèques système absentes du serveur. L'export Excel "
+            "contient les mêmes chiffres.", "warning",
+        )
+        return redirect(url_for("scenarios.resultats", scenario_id=scenario_id))
 
     scenario = scenario_du_conseiller(scenario_id)
     projet = scenario.projet

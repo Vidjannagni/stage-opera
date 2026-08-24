@@ -327,6 +327,16 @@ h1, h2, h3, h4, h5 { letter-spacing: -.02em; font-weight: 650; }
 .carte-brief .card-header { background: transparent; border-bottom-color: #cfe0ee; }
 .carte-brief dt { font-size: .82rem; }
 
+/* ── Pages d'erreur ─────────────────────────────────────────────────────── */
+.code-erreur {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 3.4rem;
+  line-height: 1;
+  color: var(--ecc-blue);
+  opacity: .28;
+  margin-bottom: .4rem;
+}
+
 /* ── Pied de page ───────────────────────────────────────────────────────── */
 footer { background: var(--surface); }
 

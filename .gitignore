@@ -41,3 +41,7 @@ Image collée*.png
 # Pièces jointes reçues de l'école : ce sont des documents d'entrée, pas des
 # productions du projet.
 Rapport_stage_acad/Dates soutenances *.zip
+
+# Copies de la base produites par « flask sauvegarder » : ce sont des données
+# de clients, elles n'ont rien à faire dans un dépôt.
+sauvegardes/

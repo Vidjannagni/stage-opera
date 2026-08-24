@@ -6,7 +6,7 @@ from flask_login import current_user, login_required, login_user, logout_user
 
 from ...extensions import db
 from ...models import User
-from .forms import LoginForm, RegisterForm
+from .forms import LoginForm, MotDePasseForm, RegisterForm
 
 bp = Blueprint("auth", __name__)
 
@@ -52,6 +52,26 @@ def register():
     return render_template(
         "auth/register.html", form=form, code_requis=bool(code_attendu)
     )
+
+
+@bp.route("/mon-compte", methods=["GET", "POST"])
+@login_required
+def mon_compte():
+    """Le conseiller change son mot de passe lui-même.
+
+    Sans cet écran, un mot de passe provisoire attribué en console resterait
+    le mot de passe définitif du conseiller, connu de l'administrateur.
+    """
+    form = MotDePasseForm()
+    if form.validate_on_submit():
+        if not current_user.check_password(form.actuel.data):
+            flash("Mot de passe actuel incorrect.", "danger")
+        else:
+            current_user.set_password(form.nouveau.data)
+            db.session.commit()
+            flash("Mot de passe changé.", "success")
+            return redirect(url_for("main.index"))
+    return render_template("auth/mon_compte.html", form=form)
 
 
 @bp.route("/logout", methods=["POST"])

@@ -26,7 +26,9 @@ os.environ["FLASK_ENV"] = "prod"
 os.environ["SECRET_KEY"] = "REMPLACEZ_PAR_LA_CLE_GENEREE"
 
 # ── 3. À adapter : réserve la création de compte aux porteurs du code ────────
-#     Sans cette ligne, quiconque connaît l'adresse peut s'inscrire.
+#     Obligatoire : sans cette ligne, l'application refuse de démarrer, pour
+#     qu'une adresse publique ne reste pas ouverte à l'inscription par oubli.
+#     La valeur « ouvert » permet d'assumer une inscription libre.
 os.environ["CODE_INSCRIPTION"] = "REMPLACEZ_PAR_UNE_PHRASE_A_VOUS"
 
 # La base SQLite du dossier instance/ suffit pour quelques conseillers ;
