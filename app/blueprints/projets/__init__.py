@@ -2,6 +2,7 @@
 from flask import Blueprint, abort, flash, redirect, render_template, url_for
 from flask_login import current_user, login_required
 
+from ...core import coherence
 from ...core.acquisition import cout_acquisition, frais_acquisition
 from ...core.estimation import REGLES as REGLES_ESTIMATION
 from ...core.rendement import rendements
@@ -49,6 +50,22 @@ def liste():
     return render_template("projets/liste.html", projets=projets)
 
 
+def signaler_les_ecarts(projet: Projet) -> None:
+    """Dit ce qui, dans le dossier enregistré, s'éloigne du brief du client.
+
+    Un avertissement, jamais un refus : proposer plus grand ou plus cher est un
+    acte de conseil, mais il doit être dit par le conseiller plutôt que
+    découvert par le client.
+    """
+    releves = coherence.ecarts(
+        projet.client.brief, projet,
+        cout_acquisition(projet.prix_bien, projet.taux_frais_acquisition,
+                         projet.budget_travaux),
+    )
+    for ecart in releves:
+        flash(f"Écart avec le brief — {ecart['phrase']}", "warning")
+
+
 @bp.route("/nouveau/<int:client_id>", methods=["GET", "POST"])
 @login_required
 def nouveau(client_id: int):
@@ -61,14 +78,18 @@ def nouveau(client_id: int):
         db.session.add(projet)
         db.session.commit()
         flash(f"Projet « {projet.nom} » créé.", "success")
+        signaler_les_ecarts(projet)
         return redirect(url_for("projets.detail", projet_id=projet.id))
     if not form.is_submitted():
         zone_defaut = ZonePreset.query.filter_by(par_defaut=True).first()
         if zone_defaut:
             form.zone_id.data = zone_defaut.id
+    # Ce que le brief dit déjà n'est pas redemandé : il sert de point de départ.
+    form.preremplir_avec_le_brief(client.brief)
     return render_template(
         "projets/form.html", form=form, client=client, zones=zones,
         regles=REGLES_ESTIMATION, titre=f"Nouveau projet pour {client.nom}",
+        brief=client.brief, criteres_brief=coherence.resume(client.brief),
     )
 
 
@@ -89,9 +110,12 @@ def detail(projet_id: int):
         + 12.0 * projet.loyer_mensuel * projet.vacance_pct / 100.0
     )
     rdts = rendements(projet.loyer_mensuel, charges, cout_total, projet.taux_imposition)
+    brief = projet.client.brief
     return render_template(
         "projets/detail.html", projet=projet, frais=frais,
         cout_total=cout_total, rdts=rdts, form_travaux=LigneTravauxForm(),
+        brief=brief, criteres_brief=coherence.resume(brief),
+        ecarts=coherence.ecarts(brief, projet, cout_total),
     )
 
 
@@ -149,10 +173,12 @@ def modifier(projet_id: int):
         form.populate_obj(projet)
         db.session.commit()
         flash("Projet mis à jour — les indicateurs sont recalculés.", "success")
+        signaler_les_ecarts(projet)
         return redirect(url_for("projets.detail", projet_id=projet.id))
     return render_template(
         "projets/form.html", form=form, client=projet.client, zones=zones,
         regles=REGLES_ESTIMATION, titre=f"Modifier « {projet.nom} »",
+        brief=projet.client.brief, criteres_brief=coherence.resume(projet.client.brief),
     )
 
 

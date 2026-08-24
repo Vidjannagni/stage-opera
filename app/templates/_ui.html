@@ -32,3 +32,57 @@
   {% if action_libelle %}<a href="{{ action_url }}" class="btn btn-primary">{{ action_libelle }}</a>{% endif %}
 </div>
 {% endmacro %}
+
+{# Ce que le client cherche, rappelé à côté du bien qu'on lui chiffre.
+
+   Le brief et le dossier sont deux objets distincts : l'un dit la demande
+   (fourchettes, objectif), l'autre chiffre un bien précis. Les afficher côte
+   à côte évite qu'on redemande ce qui est déjà su, et rend visible l'écart
+   entre les deux. #}
+{% macro resume_brief(lignes, url_brief, titre="Ce que le client cherche") %}
+<div class="card mb-4 carte-brief">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <span>{{ titre }}</span>
+    {% if url_brief %}<a class="small" href="{{ url_brief }}">Modifier le brief</a>{% endif %}
+  </div>
+  <div class="card-body py-3">
+    <dl class="row small mb-0">
+      {% for libelle, valeur in lignes %}
+      <dt class="col-5 col-lg-4 fw-normal text-muted">{{ libelle }}</dt>
+      <dd class="col-7 col-lg-8 mb-1">{{ valeur }}</dd>
+      {% endfor %}
+    </dl>
+  </div>
+</div>
+{% endmacro %}
+
+{# Les écarts entre le brief et le bien chiffré. Ce ne sont pas des erreurs :
+   proposer autre chose que ce qui a été demandé est un acte de conseil. Mais
+   il doit être dit par le conseiller, pas découvert par le client. #}
+{% macro ecarts_brief(ecarts) %}
+{% if not ecarts %}
+<div class="card mb-4">
+  <div class="card-header">Ce dossier reste dans le cadre du brief</div>
+  <div class="card-body py-3">
+    <p class="small text-muted mb-0">
+      Type d'opération, superficie et coût d'entrée sont conformes à ce que le
+      client a demandé. Reste à savoir si le montage lui convient : c'est
+      l'objet des scénarios, lus à l'aune de son objectif et de son horizon.
+    </p>
+  </div>
+</div>
+{% else %}
+<div class="card mb-4 border-warning">
+  <div class="card-header">Ce dossier s'écarte du brief</div>
+  <div class="card-body py-3">
+    <ul class="small mb-2">
+      {% for ecart in ecarts %}<li>{{ ecart.phrase }}</li>{% endfor %}
+    </ul>
+    <p class="form-text mb-0">
+      Rien n'est bloqué : un bien plus grand ou plus cher peut être le bon.
+      À dire au client, plutôt qu'à lui laisser découvrir.
+    </p>
+  </div>
+</div>
+{% endif %}
+{% endmacro %}

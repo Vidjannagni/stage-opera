@@ -2,6 +2,7 @@ from flask_wtf import FlaskForm
 from wtforms import FloatField, IntegerField, SelectField, StringField, SubmitField
 from wtforms.validators import DataRequired, Length, NumberRange, Optional
 
+from ...core import coherence
 from ...models import Projet
 
 
@@ -51,6 +52,21 @@ class ChampEntier(IntegerField):
 
 
 class ProjetForm(FlaskForm):
+    """Le chiffrage d'un bien précis, proposé à un client.
+
+    À ne pas confondre avec le brief : celui-ci dit ce que le client cherche
+    (fourchettes, objectif), celui-là chiffre **un bien** qu'on lui propose.
+
+    Le formulaire suit l'avancement du dossier. Tant qu'on en est à la
+    recherche, aucun bien n'est arrêté : demander son adresse et sa superficie
+    n'aurait pas de sens, et les fourchettes du brief suffisent — le prix
+    saisi est alors une hypothèse de travail. Ces champs apparaissent à partir
+    de la présentation au client, quand le bien existe vraiment.
+    """
+
+    #: Ce qui ne se demande qu'une fois un bien identifié.
+    CHAMPS_DU_BIEN = ("adresse", "surface_m2")
+
     nom = StringField(
         "Nom du dossier", validators=[DataRequired(), Length(max=160)],
         render_kw={"placeholder": "Ex. : Appartement Gauthier — Casablanca"},
@@ -136,12 +152,59 @@ class ProjetForm(FlaskForm):
 
     submit = SubmitField("Enregistrer")
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.appliquer_statut(self.statut.data)
+
+    def appliquer_statut(self, statut: str | None) -> None:
+        """Adapte les questions à l'avancement du dossier.
+
+        Rien n'est effacé au passage — contrairement au brief, où un champ sans
+        objet pour le type de bien est vidé. Ici l'étape avance : une superficie
+        saisie hier reste vraie demain, elle est seulement demandée plus tard.
+        """
+        cherche_encore = statut == coherence.STATUT_SANS_BIEN
+        self.prix_bien.label.text = "Prix envisagé" if cherche_encore else "Prix du bien"
+        self.prix_bien.description = (
+            "Hypothèse de travail, à confirmer une fois le bien trouvé."
+            if cherche_encore else None
+        )
+        self.surface_m2.label.text = (
+            "Superficie du bien (m²)" if not cherche_encore else "Superficie (m²)"
+        )
+
+    def preremplir_avec_le_brief(self, brief) -> None:
+        """Reprend du brief ce qui est déjà connu, pour ne pas le redemander.
+
+        Tout reste modifiable : ce sont des valeurs de départ, pas des
+        contraintes. Un conseiller qui propose autre chose que ce qui a été
+        demandé le fait sciemment — et l'écart lui est signalé.
+        """
+        if brief is None or self.is_submitted():
+            return
+        if not self.adresse.data:
+            self.adresse.data = brief.zone_recherchee
+        if not self.nom.data:
+            self.nom.data = f"{brief.type_bien} — {brief.zone_recherchee or ''}".strip(" —")
+        # Un client venu chercher un terrain n'attend pas un chiffrage locatif.
+        if brief.type_bien == "Terrain":
+            self.type_operation.data = "terrain"
+        self.surface_m2.render_kw = dict(
+            self.surface_m2.render_kw or {},
+            placeholder=_attendu(brief.superficie_min, brief.superficie_max, "m² demandés"),
+        )
+        self.prix_bien.render_kw = dict(
+            self.prix_bien.render_kw or {},
+            placeholder=_attendu(brief.budget_min, brief.budget_max, "de budget annoncé"),
+        )
+
     def validate(self, extra_validators=None) -> bool:
         """Un dossier locatif sans loyer ne produirait aucun indicateur.
 
         On ne l'exige que dans ce cas : une opération de type terrain n'a par
         définition pas de loyer, et le champ y vaut légitimement zéro.
         """
+        self.appliquer_statut(self.statut.data)
         if not super().validate(extra_validators):
             return False
         if self.type_operation.data == "locatif" and not self.loyer_mensuel.data:
@@ -151,6 +214,21 @@ class ProjetForm(FlaskForm):
             )
             return False
         return True
+
+
+def _attendu(bas, haut, suffixe: str) -> str:
+    """Filigrane rappelant la fourchette du brief : « Ex. : 70 à 100 m² demandés »."""
+    from ...core.format_fr import montant_texte
+
+    if bas and haut:
+        fourchette = f"{montant_texte(bas)} à {montant_texte(haut)}"
+    elif haut:
+        fourchette = f"jusqu'à {montant_texte(haut)}"
+    elif bas:
+        fourchette = f"à partir de {montant_texte(bas)}"
+    else:
+        return ""
+    return f"{fourchette} {suffixe}"
 
 
 class LigneTravauxForm(FlaskForm):

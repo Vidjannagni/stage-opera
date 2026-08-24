@@ -206,10 +206,34 @@ def register_cli(app: Flask) -> None:
                      taux_interet=0, taux_assurance=0, duree_annees=20, **communs),
         ])
 
-        # Second dossier : opération sans loyer, pour montrer que la valeur
-        # peut venir entièrement de la plus-value (cas type du cabinet).
+        # Second client : une opération sans loyer, pour montrer que la valeur
+        # peut venir entièrement de la plus-value (cas type du cabinet). C'est
+        # bien un second dossier client, et pas un second bien du premier : le
+        # brief de M. Alaoui dit qu'il cherche un appartement, et l'outil
+        # signalerait — à raison — qu'un terrain ne répond pas à sa demande.
+        cliente = Client(
+            user_id=demo.id, nom="Mme Benali", email="s.benali@example.com",
+            telephone="+212 6 11 11 11 11",
+            situation_professionnelle="Profession libérale",
+            nationalite="Marocaine", budget_disponible=1_200_000,
+            notes="Portage foncier ; pas de besoin de revenu immédiat.",
+        )
+        db.session.add(cliente)
+        db.session.flush()
+
+        db.session.add(Brief(
+            client_id=cliente.id, type_bien="Terrain",
+            zone_recherchee="Axe Casablanca — Berrechid",
+            superficie_min=20_000, superficie_max=30_000,
+            viabilisation="Voirie goudronnée", topographie="Plat",
+            zone_urbanisme="Zone villa", constructibilite="Constructible",
+            commodites="Accès routier goudronné, Quartier en développement",
+            type_acquisition="terrain_nu", budget_min=900_000, budget_max=1_200_000,
+            mode_financement="comptant", objectif="plus_value", horizon_annees=10,
+        ))
+
         terrain = Projet(
-            client_id=client.id, zone_id=zone_maroc.id,
+            client_id=cliente.id, zone_id=zone_maroc.id,
             nom="Terrain 3 ha — périphérie de Casablanca",
             adresse="Axe Casablanca — Berrechid", surface_m2=30_000,
             type_operation="terrain", statut="compromis",

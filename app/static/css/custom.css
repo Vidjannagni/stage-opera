@@ -320,6 +320,13 @@ h1, h2, h3, h4, h5 { letter-spacing: -.02em; font-weight: 650; }
 
 .rappel strong { color: var(--ecc-blue); }
 
+/* ── Rappel du brief à côté du bien chiffré ─────────────────────────────────
+   Le brief dit la demande, le dossier chiffre une réponse : la carte se
+   distingue des cartes de saisie pour qu'on ne confonde pas les deux. */
+.carte-brief { background: linear-gradient(100deg, var(--ecc-blue-clair), #f7fbfd); }
+.carte-brief .card-header { background: transparent; border-bottom-color: #cfe0ee; }
+.carte-brief dt { font-size: .82rem; }
+
 /* ── Pied de page ───────────────────────────────────────────────────────── */
 footer { background: var(--surface); }
 

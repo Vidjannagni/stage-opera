@@ -1,12 +1,14 @@
 # RentImmo — Script de démonstration (≈ 10 minutes)
 
-*Cas d'usage : accompagnement de M. Alaoui, chef d'entreprise marocain, budget
-1,5 M MAD, qui hésite entre un appartement locatif à Casablanca et un terrain en
-périphérie.*
+*Cas d'usage : deux clients aux objectifs opposés. **M. Alaoui**, chef
+d'entreprise marocain, budget 1,5 M MAD, cherche un appartement locatif à
+Casablanca — un revenu régulier. **Mme Benali**, profession libérale, cherche
+un terrain en périphérie — une plus-value à dix ans. Le même outil doit
+répondre aux deux sans les juger à la même aune.*
 
 **Préparation** : `flask demo-data` puis connexion `demo@choubel.com` /
-`demo1234`. Le dossier « M. Alaoui » contient son brief, deux biens et quatre
-scénarios.
+`demo1234`. Le compte contient les deux dossiers clients, leurs briefs, deux
+biens et quatre scénarios.
 
 ---
 
@@ -18,7 +20,12 @@ scénarios.
    demandons systématiquement. »
 3. Dérouler le **brief de recherche** : type, standing, superficie, zone,
    commodités, mode de financement.
-4. S'arrêter sur l'encart bleu : **objectif = revenu locatif, horizon 20 ans**.
+4. Basculer le **type de bien** sur « Terrain » sous les yeux du cabinet : le
+   standing et la distribution disparaissent, la viabilisation, le relief et le
+   zonage apparaissent, et l'achat sur plan n'est plus proposé. « Le formulaire
+   ne pose que les questions qui ont un sens pour le bien cherché. »
+5. Remettre « Appartement », puis s'arrêter sur l'encart bleu :
+   **objectif = revenu locatif, horizon 20 ans**.
 
 **Message clé : nous partons de votre besoin, pas d'un bien à vendre.**
 
@@ -76,8 +83,8 @@ celui-là.**
 1. Cocher **Crédit 20 ans**, **Crédit 25 ans**, **Achat cash** → **Comparer**.
    Commenter dans l'ordre du tableau : rendement net, cash-flow, valeur créée,
    puis TRI et VAN.
-2. Revenir à la fiche client et ouvrir le second dossier :
-   **« Terrain 3 ha — périphérie »**, scénario **Portage 10 ans**.
+2. Passer au dossier de **Mme Benali** — objectif *plus-value*, horizon 10 ans —
+   et ouvrir **« Terrain 3 ha — périphérie »**, scénario **Portage 10 ans**.
 3. Montrer que l'écran a changé de nature : **aucun rendement locatif**, la
    **valeur créée (15 000 000 MAD)** et la **plus-value** passent en tête.
 4. Phrase type : « ce terrain ne rapporte rien pendant dix ans, et c'est

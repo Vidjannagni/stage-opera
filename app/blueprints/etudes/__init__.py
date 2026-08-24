@@ -33,6 +33,12 @@ class Cadrage:
 
     objectif: str
     horizon_annees: int
+    #: Ce que le client disait envisager pour payer. Non surchargeable : c'est
+    #: une donnée de son dossier, pas une hypothèse de simulation. L'étude
+    #: construit les montages sans en tenir compte — écarter un crédit sans
+    #: l'avoir chiffré serait décider à sa place — mais elle le rappelle si le
+    #: montage le mieux placé n'est pas celui qu'il avait en tête.
+    mode_financement: str | None = None
     #: Vrai si l'une des deux valeurs ne vient pas du brief enregistré.
     surcharge: bool = False
 
@@ -56,6 +62,7 @@ def cadrage_demande(projet, args) -> Cadrage:
         horizon = horizon_brief
     return Cadrage(
         objectif=objectif, horizon_annees=horizon,
+        mode_financement=brief.mode_financement if brief else None,
         surcharge=(objectif != objectif_brief or horizon != horizon_brief),
     )
 

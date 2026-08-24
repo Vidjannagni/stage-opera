@@ -252,6 +252,53 @@ Trois précautions :
 
 Ces règles sont couvertes par `tests/test_champs_par_type.py`.
 
+## 7 ter. Le brief et le dossier, et le lien qui manquait
+
+Deux objets se répondent dans l'outil, et rien ne les distinguait à l'écran :
+
+| | Brief | Dossier (projet) |
+| --- | --- | --- |
+| Dit quoi | ce que le client **cherche** | ce qu'on lui **propose** |
+| Contenu | fourchettes, objectif, horizon | prix, travaux, loyer d'**un bien** |
+| Combien | un par client | autant que de biens étudiés |
+| Calculs | aucun | rendements, cash-flow, VAN, TRI |
+
+Faute de lien entre les deux, on pouvait chiffrer un 45 m² à deux millions pour
+un client venu chercher 70 m² à un million et demi sans que rien ne le signale,
+et le formulaire du dossier redemandait ce que le brief savait déjà. Trois
+changements en découlent.
+
+**Le brief est rappelé là où on chiffre.** La page du dossier et son formulaire
+affichent « ce que le client cherche » à côté du bien étudié. Ce qui est déjà
+connu sert de valeur de départ — nom du dossier, localisation, type d'opération
+— et les fourchettes apparaissent en filigrane des champs concernés.
+
+**Le formulaire suit l'étape du dossier.** Tant qu'on en est à la *recherche*,
+aucun bien n'est arrêté : demander son adresse et sa superficie n'a pas de sens,
+et le prix saisi est annoncé comme une hypothèse de travail. Les deux champs
+apparaissent dès la *présentation au client*. À la différence du brief, **rien
+n'est effacé** : un champ n'y est pas *sans objet*, il est *pas encore connu*,
+et une superficie saisie hier reste vraie demain.
+
+**Les écarts sont nommés, jamais bloqués** (`app/core/coherence.py`). Superficie
+hors fourchette, coût d'entrée hors budget, dossier sans loyer pour un client
+venu chercher un revenu, achat sur plan sans délai : chacun donne une phrase,
+affichée sur la page du dossier et à l'enregistrement. Le rapprochement se fait
+sur l'**objectif** du client, jamais sur le type de bien : un appartement acheté
+pour être revendu se chiffre légitimement sans loyer, et un contrôle qui
+comparerait « appartement recherché » à « opération de revente » crierait au
+loup sur un dossier cohérent. Un avertissement qui se déclenche à tort est pire
+qu'absent : on cesse de le lire. C'est la même doctrine que partout
+ailleurs dans l'outil — **il documente une décision, il ne la prend pas** :
+proposer autre chose que ce qui a été demandé est un acte de conseil, mais il
+doit être dit par le conseiller plutôt que découvert par le client.
+
+Le budget se compare au **coût d'entrée** (prix + frais + travaux), pas au prix
+affiché : c'est ce que le client sort de sa poche, et un bien « dans le budget »
+qui en sort dès qu'on ajoute 7 % de frais n'y est pas.
+
+Ces règles sont couvertes par `tests/test_brief_et_dossier.py`.
+
 ## 8. Accessibilité et lisibilité
 
 - **Chiffres alignés** : `font-variant-numeric: tabular-nums` sur toutes les

@@ -72,7 +72,21 @@ plus-value, constitution de patrimoine) et l'**horizon d'investissement**.
 
 ## 4. Créer le dossier du bien
 
-Depuis la fiche client : **+ Nouveau dossier**. **Quatre informations suffisent**
+> **Le brief et le dossier ne disent pas la même chose.** Le **brief** est la
+> demande : ce que le client cherche, en fourchettes — 70 à 100 m², 1 à 1,5
+> million, un objectif, un horizon. Il y en a **un seul par client**, et il ne
+> contient aucun chiffre de calcul. Un **dossier** est une réponse possible : il
+> chiffre **un bien précis** qu'on propose au client — son prix, ses travaux,
+> son loyer. Il y en a **autant que de biens étudiés**. Les rendements, la VAN,
+> le TRI se calculent sur un dossier ; jamais sur un brief.
+
+Depuis la fiche client : **+ Nouveau dossier**. Le brief est rappelé en haut de
+l'écran, et ce qu'il dit déjà n'est pas redemandé : le nom du dossier et la
+localisation sont proposés à partir de la zone recherchée, un client venu pour
+un terrain ouvre un dossier « terrain / revente », et les fourchettes du client
+apparaissent en filigrane des champs de superficie et de prix.
+
+**Quatre informations suffisent**
 pour lancer une étude : le nom du dossier, la zone, le prix et le loyer attendu.
 Le bouton **Estimer les charges courantes** remplit le reste à partir du prix et
 du loyer, en affichant la règle employée pour chaque montant ; les valeurs déjà
@@ -87,11 +101,36 @@ saisies ne sont jamais écrasées, et tout reste modifiable.
   **tous les calculs s'actualisent selon la zone**.
 - **Où en est le dossier ?** : recherche, présentation, visites, compromis,
   notaire, livraison. Le déroulé s'affiche en bandeau sur la page du dossier.
+  **Tant que le dossier est en recherche**, aucun bien n'est arrêté : son
+  adresse et sa superficie ne sont pas demandées — les fourchettes du brief
+  tiennent lieu de cadre — et le prix saisi est annoncé comme une *hypothèse de
+  travail*. Ces deux champs apparaissent dès la présentation au client, quand le
+  bien existe vraiment. Une valeur déjà saisie n'est jamais effacée si vous
+  revenez en arrière.
 - **Acquisition** : prix, budget travaux (ou coût de construction), et
   **délai de livraison en mois** pour un achat sur plan.
 - **Exploitation** (locatif seulement) : loyer, charges, gestion, vacance,
   entretien, taxe. En rendez-vous, ne remplissez que ce que vous connaissez :
   les champs vides valent zéro.
+
+### Ce que l'outil vous dit quand le bien s'éloigne du brief
+
+Sur la page du dossier, deux cartes se répondent : **ce que le client cherche**
+et **ce que ce dossier en fait**. Si le bien chiffré s'écarte de la demande,
+l'écart est nommé, en toutes lettres :
+
+- une superficie sous le minimum ou au-dessus du maximum demandé ;
+- un **coût d'entrée** — prix, frais et travaux compris, c'est-à-dire ce que le
+  client sort de sa poche — hors du budget annoncé ;
+- un dossier **sans loyer** proposé à un client qui attend un revenu locatif
+  régulier — le rapprochement se fait sur son objectif, pas sur le type de
+  bien : un appartement acheté pour être revendu se chiffre légitimement sans
+  loyer, et l'outil ne vous le reproche pas ;
+- un achat sur plan sans délai de livraison saisi.
+
+> **Ce n'est jamais un refus.** Proposer un bien plus grand ou plus cher est un
+> acte de conseil, et c'est souvent le bon. Mais l'écart doit être **dit par
+> vous**, pas découvert par le client à la lecture des chiffres.
 
 ## 5. Détailler les travaux (facultatif)
 

@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "_ui.html" import tuile, etapes, vide %}
+{% from "_ui.html" import tuile, etapes, vide, resume_brief, ecarts_brief %}
 {% from "_form_helpers.html" import suggestions %}
 
 {% block title %}{{ projet.nom }} — RentImmo{% endblock %}
@@ -22,7 +22,7 @@
       <span class="etiquette etiquette-sourde">{{ "Locatif" if projet.est_locatif else "Terrain / revente" }}</span>
       Zone <strong>{{ projet.zone.nom }}</strong> ({{ devise }})
       {% if projet.adresse %} · {{ projet.adresse }}{% endif %}
-      {% if projet.surface_m2 %} · {{ projet.surface_m2 }} m²{% endif %}
+      {% if projet.surface_m2 %} · {{ projet.surface_m2 | montant }} m²{% endif %}
       {% if projet.delai_livraison_mois %} · livraison dans {{ projet.delai_livraison_mois }} mois{% endif %}
     </p>
   </div>
@@ -44,10 +44,22 @@
   </div>
 </div>
 
-{% if projet.client.brief %}
+{# Le brief dit ce que le client cherche ; ce dossier chiffre un bien précis.
+   Les deux se lisent ensemble : c'est la seule façon de voir ce que la
+   proposition doit encore justifier. #}
+{% if brief %}
+<div class="row">
+  <div class="col-lg-6">
+    {{ resume_brief(criteres_brief, url_for('clients.brief', client_id=projet.client_id),
+                    titre="Ce que le client cherche") }}
+  </div>
+  <div class="col-lg-6">{{ ecarts_brief(ecarts) }}</div>
+</div>
+{% else %}
 <div class="rappel mb-4">
-  Objectif du client : <strong>{{ projet.client.brief.objectif_libelle }}</strong>
-  sur <strong>{{ projet.client.brief.horizon_annees }} ans</strong>.
+  Ce client n'a pas de brief de recherche : rien ne dit ce qu'il cherche, et les
+  chiffres de ce dossier ne se rapportent donc à aucun objectif.
+  <a href="{{ url_for('clients.brief', client_id=projet.client_id) }}">Le renseigner</a>.
 </div>
 {% endif %}
 

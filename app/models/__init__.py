@@ -8,7 +8,7 @@ from datetime import datetime, timezone
 from flask_login import UserMixin
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from ..core import profil_bien
+from ..core import coherence, profil_bien
 from ..extensions import db, login_manager
 
 
@@ -287,6 +287,17 @@ class Projet(db.Model):
         """Position dans le déroulé recherche → livraison (pour l'affichage)."""
         codes = [code for code, _ in self.STATUTS]
         return codes.index(self.statut) if self.statut in codes else 0
+
+    @property
+    def bien_identifie(self) -> bool:
+        """Un bien précis est-il arrêté ?
+
+        Tant que le dossier en est à la recherche, on chiffre une hypothèse de
+        travail à partir du brief : il n'y a ni adresse ni superficie à saisir,
+        puisqu'il n'y a pas encore de bien. Elles se demandent à partir de la
+        présentation au client.
+        """
+        return self.statut != coherence.STATUT_SANS_BIEN
 
 
 class LigneTravaux(db.Model):

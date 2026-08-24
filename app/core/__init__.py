@@ -18,4 +18,10 @@ saisie — cf. docs/etude_automatique.md) :
 - ``arbitrage``    : classe selon l'objectif du client et met la réponse en mots.
 - ``estimation``   : ordres de grandeur des charges courantes d'un locatif.
 - ``format_fr``    : mise en forme française des nombres dans les phrases.
+
+Le brief du client et le bien qu'on lui chiffre (ajoutés après un relevé
+d'incohérences entre les deux écrans) :
+- ``profil_bien``  : ce qu'il est logique de demander selon le type de bien.
+- ``coherence``    : ce qui, dans un dossier, s'écarte de ce que le client a
+  demandé — dit, jamais bloqué.
 """

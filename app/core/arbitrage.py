@@ -199,7 +199,7 @@ def expliquer(meilleur, second, projet, brief, budget_disponible, devise) -> dic
         "resume": _resume(candidat, r, projet, brief, devise),
         "arguments": argumentaire["avantages"],
         "nuances": argumentaire["nuances"],
-        "vigilance": _vigilance(meilleur, projet, budget_disponible, devise),
+        "vigilance": _vigilance(meilleur, projet, brief, budget_disponible, devise),
         "comparaison": _comparaison(meilleur, second, projet, devise),
         "chiffres_cles": _chiffres_cles(
             est_locatif, apport, cashflow, valeur, horizon, r, devise
@@ -356,7 +356,7 @@ def _arguments(meilleur, second, projet, devise) -> dict:
     return {"avantages": avantages, "nuances": nuances}
 
 
-def _vigilance(meilleur, projet, budget_disponible, devise) -> list[str]:
+def _vigilance(meilleur, projet, brief, budget_disponible, devise) -> list[str]:
     """Ce qu'il faut dire au client avant qu'il signe."""
     points: list[str] = []
     candidat, r = meilleur["candidat"], meilleur["r"]
@@ -374,6 +374,21 @@ def _vigilance(meilleur, projet, budget_disponible, devise) -> list[str]:
         points.append(
             f"L'apport mobilise {pct_texte(100 * apport / budget_disponible, 0)} du budget "
             "déclaré : il ne restera presque pas de réserve pour les imprévus."
+        )
+    # Le brief dit comment le client comptait payer. L'étude construit quand
+    # même toute la famille de montages — écarter un crédit sans l'avoir chiffré
+    # reviendrait à décider à sa place — mais le dire est un dû.
+    finance = getattr(brief, "mode_financement", None) if brief else None
+    if finance == "comptant" and candidat.mode == "credit":
+        points.append(
+            "Le client a annoncé vouloir payer comptant, et le montage le mieux "
+            "placé passe par un crédit : la comparaison est faite, la décision "
+            "lui revient."
+        )
+    elif finance == "pret" and candidat.mode != "credit":
+        points.append(
+            "Le client envisageait un prêt bancaire, et c'est le paiement "
+            "comptant qui ressort ici — au regard de son objectif et de son horizon."
         )
     if candidat.mode == "credit" and horizon < candidat.duree_annees:
         crd = r["revente"]["capital_restant_du"]

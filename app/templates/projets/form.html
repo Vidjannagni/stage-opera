@@ -1,5 +1,8 @@
 {% extends "base.html" %}
 {% from "_form_helpers.html" import render_field, suggestions %}
+{% from "_ui.html" import resume_brief %}
+
+{% set cherche_encore = form.statut.data == "recherche" %}
 
 {% block title %}{{ titre }} — RentImmo{% endblock %}
 
@@ -14,15 +17,21 @@
 
 <h3 class="mb-1">{{ titre }}</h3>
 <p class="text-muted mb-4">
-  Quatre informations suffisent pour lancer une étude : le <strong>nom du
-  dossier</strong>, la <strong>zone</strong>, le <strong>prix</strong> et le
-  <strong>loyer attendu</strong>. Le reste peut être estimé d'un clic, ou
-  laissé de côté — les champs vides valent zéro.
+  Un dossier chiffre <strong>un bien</strong> proposé à {{ client.nom }} — le
+  brief, lui, dit ce que le client cherche. Quatre informations suffisent pour
+  lancer une étude : le <strong>nom du dossier</strong>, la <strong>zone</strong>,
+  le <strong>prix</strong> et le <strong>loyer attendu</strong>. Le reste peut
+  être estimé d'un clic, ou laissé de côté — les champs vides valent zéro.
 </p>
 
 <form method="post" novalidate>
   {{ form.hidden_tag() }}
   {{ suggestions("liste-zones", SUGGESTIONS.zones_recherche) }}
+  {% if criteres_brief %}
+  <div class="row"><div class="col-lg-6">
+    {{ resume_brief(criteres_brief, url_for('clients.brief', client_id=client.id)) }}
+  </div></div>
+  {% endif %}
   <div class="row">
     <div class="col-lg-6">
       <div class="card mb-4">
@@ -32,11 +41,21 @@
           {{ render_field(form.type_operation) }}
           {{ render_field(form.zone_id) }}
           <div id="zone-info" class="rappel mb-3" role="status"></div>
-          {{ render_field(form.adresse) }}
-          <div class="row">
-            <div class="col-md-6">{{ render_field(form.surface_m2) }}</div>
-            <div class="col-md-6">{{ render_field(form.statut) }}</div>
+          {{ render_field(form.statut) }}
+          {# Tant qu'aucun bien n'est arrêté, son adresse et sa superficie
+             n'existent pas : les fourchettes du brief tiennent lieu de cadre,
+             et le prix saisi n'est qu'une hypothèse de travail. #}
+          <div class="rappel mb-3" id="note-recherche" {% if not cherche_encore %}hidden{% endif %}>
+            Dossier <strong>en recherche</strong> : aucun bien n'est encore
+            arrêté. Son adresse et sa superficie ne sont donc pas demandées —
+            {% if brief %}le brief du client fait foi
+            {%- if brief.superficie_min or brief.superficie_max %}
+            ({{ brief.superficie_min | montant if brief.superficie_min }}{% if brief.superficie_min and brief.superficie_max %} à {% endif %}{{ brief.superficie_max | montant if brief.superficie_max }} m² recherchés){% endif %}.
+            {%- else %}renseignez le brief du client pour cadrer la recherche.{% endif %}
+            Le prix saisi ici est une hypothèse de travail.
           </div>
+          {{ render_field(form.adresse, visible=not cherche_encore) }}
+          {{ render_field(form.surface_m2, visible=not cherche_encore) }}
         </div>
       </div>
 
@@ -212,5 +231,25 @@
 
   champOperation.addEventListener("change", actualiserOperation);
   actualiserOperation();
+
+  // Tant que le dossier est en recherche, aucun bien n'est arrêté : son
+  // adresse et sa superficie ne se demandent pas, et le prix n'est qu'une
+  // hypothèse. Le serveur applique la même règle (ProjetForm.appliquer_statut).
+  const champStatut = document.getElementById("statut");
+  const noteRecherche = document.getElementById("note-recherche");
+  const etiquettePrix = document.querySelector('label[for="prix_bien"]');
+
+  function actualiserStatut() {
+    const chercheEncore = champStatut.value === "recherche";
+    noteRecherche.hidden = !chercheEncore;
+    ["adresse", "surface_m2"].forEach((nom) => {
+      const bloc = document.querySelector(`[data-champ="${nom}"]`);
+      if (bloc) bloc.hidden = chercheEncore;
+    });
+    etiquettePrix.textContent = chercheEncore ? "Prix envisagé" : "Prix du bien";
+  }
+
+  champStatut.addEventListener("change", actualiserStatut);
+  actualiserStatut();
 </script>
 {% endblock %}
