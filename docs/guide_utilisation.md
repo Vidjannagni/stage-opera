@@ -37,14 +37,30 @@ E-mail, téléphone et notes servent à votre suivi.
 L'enregistrement de la fiche vous amène directement au **brief**, c'est-à-dire ce
 que le client recherche :
 
-- **type de bien** (terrain, villa, appartement, immeuble) et **standing**
-  (économique, social, moyen, haut standing, luxe) ;
+- **type de bien** : terrain, villa, appartement, immeuble, local commercial ;
 - **superficie** recherchée et **zone géographique** ;
-- pour un appartement : **chambres, salles de bains, salons, étage, orientation**
-  (ce bloc disparaît si vous choisissez « Terrain ») ;
 - **commodités** souhaitées : transports, écoles, commerces… ;
-- **type d'acquisition** : bien déjà construit ou achat sur plan (VEFA) ;
 - **budget** et **mode de financement** (comptant ou prêt bancaire).
+
+**Le formulaire s'ajuste au type de bien**, et c'est le premier champ à
+renseigner : les questions qui suivent en dépendent.
+
+| Vous cherchez | On vous demande en plus | Acquisition proposée |
+| --- | --- | --- |
+| Appartement | **standing** (économique, moyen, haut standing), chambres, salles de bains, salons, étage, orientation | ancien, neuf, VEFA |
+| Villa | **standing**, chambres, salles de bains, salons, orientation — ni étage ni ascenseur, et la superficie s'entend terrain compris | ancien, neuf, VEFA |
+| Immeuble de rapport | **standing** et **nombre de lots** — pas de détail pièce par pièce | ancien, neuf |
+| Local commercial | **état du local** (neuf, bon état, à rafraîchir, à rénover) au lieu du standing | local construit, local neuf, bail commercial |
+| Terrain | **réseaux déjà amenés**, **relief**, **zone d'urbanisme**, **constructibilité** — ni standing ni distribution | terrain nu, terrain viabilisé, lot en lotissement |
+
+Les commodités proposées suivent la même logique : une vitrine sur rue et un
+flux piéton pour un local, un accès routier et une vue dégagée pour un terrain.
+
+> **Ce qui n'est pas demandé n'est pas enregistré.** Si vous changez le type de
+> bien après coup, les critères devenus sans objet sont effacés : un terrain ne
+> conservera pas le standing saisi quand le dossier parlait encore d'un
+> appartement. Mieux vaut une case vide qu'un critère que le client n'a jamais
+> exprimé.
 
 Deux réponses comptent particulièrement : l'**objectif** (revenu locatif,
 plus-value, constitution de patrimoine) et l'**horizon d'investissement**.

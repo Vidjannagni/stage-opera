@@ -214,7 +214,43 @@ du scénario. Leur ensemble est arrêté, donc les fermer est légitime.
 Les commodités disposent en plus de **puces cliquables** qui ajoutent ou
 retirent une valeur du champ libre : c'est le seul champ où le cabinet a cité
 une énumération (« transports, écoles, commerces »), et où l'on coche
-naturellement plusieurs entrées.
+naturellement plusieurs entrées. Les réseaux d'un terrain, ajoutés ensuite,
+reprennent le même mécanisme.
+
+## 7 bis. Un formulaire qui suit le bien recherché
+
+Le brief sert pour un terrain comme pour un appartement, un immeuble de rapport
+ou un local commercial. Les questions, elles, ne se recouvrent pas : le standing
+ne veut rien dire pour un terrain, la VEFA n'existe pas sur un terrain nu, un
+local se juge sur son état et son passage.
+
+Laisser toutes les questions à l'écran aurait un coût précis : **une question
+sans objet se remplit au hasard**, et un critère inventé oriente ensuite une
+recherche pour rien. Le formulaire masque donc ce qui ne s'applique pas, adapte
+les libellés (superficie *habitable*, *utile* ou *du terrain*) et les puces de
+commodités, et propose les seuls modes d'acquisition qui existent pour ce bien.
+
+**Trois niveaux de standing, et non cinq.** Le cabinet en citait cinq
+(économique, social, moyen standing, haut standing, luxe). Les deux extrêmes se
+plaidaient toujours par rapport aux trois autres, sans critère qui les sépare :
+les garder revenait surtout à s'assurer que deux conseillers classent le même
+bien différemment, et rendait les dossiers moins comparables — l'inverse du but
+poursuivi. Les briefs déjà saisis sont rapatriés vers le niveau voisin par la
+migration, plutôt que vidés.
+
+Trois précautions :
+
+1. **Une seule table décide** (`app/core/profil_bien.py`). Le formulaire, la
+   page et la fiche client la lisent ; elles ne peuvent donc pas diverger, et
+   ajouter un type de bien tient en une entrée.
+2. **Le serveur applique la même règle que l'écran.** Masquer un champ ne prouve
+   rien : un formulaire soumis sans JavaScript passe par `appliquer_type`, qui
+   n'exige, ne valide et n'enregistre que les champs qui s'appliquent.
+3. **Ce qui n'est plus demandé est effacé.** Un brief passé d'appartement à
+   terrain garderait sinon un standing que plus personne n'a saisi, et que la
+   fiche client afficherait comme un critère du client.
+
+Ces règles sont couvertes par `tests/test_champs_par_type.py`.
 
 ## 8. Accessibilité et lisibilité
 

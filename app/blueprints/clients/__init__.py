@@ -2,6 +2,7 @@
 from flask import Blueprint, abort, flash, redirect, render_template, url_for
 from flask_login import current_user, login_required
 
+from ...core import profil_bien
 from ...extensions import db
 from ...models import Brief, Client
 from .forms import BriefForm, ClientForm
@@ -63,7 +64,17 @@ def brief(client_id: int):
         db.session.commit()
         flash("Brief de recherche enregistré.", "success")
         return redirect(url_for("clients.detail", client_id=client.id))
-    return render_template("clients/brief.html", form=form, client=client, brief=brief)
+    # Les tables de `profil_bien` servent deux fois : au formulaire, pour ne
+    # valider que les champs qui s'appliquent, et à la page, pour masquer les
+    # autres sans rechargement quand le type de bien change.
+    return render_template(
+        "clients/brief.html", form=form, client=client, brief=brief,
+        PROFILS=profil_bien.PROFILS,
+        CHAMPS_OPTIONNELS=profil_bien.CHAMPS_OPTIONNELS,
+        ACQUISITIONS=profil_bien.ACQUISITIONS,
+        RESEAUX=profil_bien.RESEAUX,
+        ZONES_URBANISME=profil_bien.ZONES_URBANISME,
+    )
 
 
 @bp.route("/<int:client_id>/modifier", methods=["GET", "POST"])

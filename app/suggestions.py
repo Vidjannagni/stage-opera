@@ -12,6 +12,11 @@ lors du cadrage métier (cf. docs/retour_cabinet.md).
 Les listes fermées — type de bien, standing, mode de financement, objectif —
 ne sont pas ici : ce sont des ``SelectField``, car leur ensemble de valeurs
 est arrêté et sert aux calculs.
+
+Ne sont pas ici non plus les suggestions qui dépendent du bien recherché —
+commodités, réseaux, zonage : une vitrine sur rue se propose pour un local,
+pas pour un terrain. Elles vivent dans ``core.profil_bien``, avec le reste de
+ce qui s'ajuste au type de bien.
 """
 
 SITUATIONS_PROFESSIONNELLES = [
@@ -53,13 +58,6 @@ ORIENTATIONS = [
     "Nord", "Nord-Est", "Nord-Ouest", "Traversant", "Indifférente",
 ]
 
-COMMODITES = [
-    "Transports en commun", "Écoles et crèches", "Commerces de proximité",
-    "Centre commercial", "Cliniques et pharmacies", "Espaces verts",
-    "Accès autoroute", "Bord de mer", "Mosquée", "Parking privatif",
-    "Gardiennage", "Ascenseur",
-]
-
 POSTES_TRAVAUX = [
     "Cuisine équipée", "Salle de bain", "Peinture et enduits",
     "Électricité — mise aux normes", "Plomberie", "Menuiserie aluminium",
@@ -80,7 +78,6 @@ TOUTES = {
     "zones_recherche": ZONES_RECHERCHE,
     "etages": ETAGES,
     "orientations": ORIENTATIONS,
-    "commodites": COMMODITES,
     "postes_travaux": POSTES_TRAVAUX,
     "noms_scenarios": NOMS_SCENARIOS,
 }

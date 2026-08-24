@@ -15,6 +15,7 @@ def test_vitrine_presente_le_cabinet(http):
     assert "Terrains" in page and "Immeubles" in page   # les biens traités
     assert page.count("<li><strong>") == 6     # les six étapes du métier
     assert "facteur temps" in page             # la règle de décision, citée
+    assert "cadrage métier" not in page        # une note de travail, pas un propos public
 
 
 def test_vitrine_naffiche_que_les_coordonnees_fournies(http):

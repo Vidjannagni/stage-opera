@@ -8,6 +8,7 @@ from datetime import datetime, timezone
 from flask_login import UserMixin
 from werkzeug.security import check_password_hash, generate_password_hash
 
+from ..core import profil_bien
 from ..extensions import db, login_manager
 
 
@@ -115,9 +116,13 @@ class Brief(db.Model):
 
     __tablename__ = "briefs"
 
-    TYPES_BIEN = ("Terrain", "Villa", "Appartement", "Immeuble", "Autre")
-    STANDINGS = ("Économique", "Social", "Moyen standing", "Haut standing", "Luxe")
-    TYPES_ACQUISITION = (("existant", "Bien déjà construit"), ("vefa", "Achat sur plan (VEFA)"))
+    # Le vocabulaire du brief — et surtout ce qui est demandé selon le type de
+    # bien — vit dans ``core.profil_bien`` : un terrain n'a pas de standing,
+    # un local commercial pas de chambres.
+    TYPES_BIEN = profil_bien.TYPES_BIEN
+    STANDINGS = profil_bien.STANDINGS
+    ETATS_LOCAL = profil_bien.ETATS_LOCAL
+    TYPES_ACQUISITION = tuple(profil_bien.ACQUISITIONS.items())
     MODES_FINANCEMENT = (("comptant", "Paiement comptant"), ("pret", "Prêt bancaire"))
     OBJECTIFS = (
         ("revenu", "Revenu locatif régulier"),
@@ -143,6 +148,17 @@ class Brief(db.Model):
     etage = db.Column(db.String(40))
     orientation = db.Column(db.String(40))
 
+    # Local commercial : l'état tient lieu de standing.
+    etat_local = db.Column(db.String(40))
+    # Immeuble de rapport : ce sont les lots qui se comptent, pas les pièces.
+    nb_lots = db.Column(db.Integer)
+
+    # Terrain : ce qui décide de son prix et de ce qu'on pourra y faire.
+    viabilisation = db.Column(db.Text)
+    topographie = db.Column(db.String(40))
+    zone_urbanisme = db.Column(db.String(80))
+    constructibilite = db.Column(db.String(60))
+
     commodites = db.Column(db.Text)
     type_acquisition = db.Column(db.String(20), nullable=False, default="existant")
     budget_min = db.Column(db.Float)
@@ -162,7 +178,15 @@ class Brief(db.Model):
 
     @property
     def type_acquisition_libelle(self) -> str:
-        return dict(self.TYPES_ACQUISITION).get(self.type_acquisition, self.type_acquisition)
+        """Le libellé dépend du type de bien : « ancien » pour un appartement,
+        « terrain nu » pour un terrain."""
+        return profil_bien.libelle_acquisition(self.type_bien, self.type_acquisition)
+
+    @property
+    def champs_demandes(self) -> tuple:
+        """Les champs qui ont un sens pour ce type de bien — la fiche client
+        n'affiche que ceux-là."""
+        return profil_bien.champs(self.type_bien)
 
     @property
     def mode_financement_libelle(self) -> str:

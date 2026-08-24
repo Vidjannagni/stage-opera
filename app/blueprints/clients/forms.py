@@ -7,6 +7,7 @@ from wtforms.validators import (
     DataRequired, Email, InputRequired, Length, NumberRange, Optional,
 )
 
+from ...core import profil_bien
 from ...models import Brief
 
 
@@ -40,15 +41,28 @@ class ClientForm(FlaskForm):
 
 
 class BriefForm(FlaskForm):
-    """Cahier de recherche renseigné au premier entretien."""
+    """Cahier de recherche renseigné au premier entretien.
+
+    Le formulaire s'ajuste au type de bien : un terrain n'a ni standing ni
+    chambres, un immeuble de rapport se compte en lots, un local commercial ne
+    se vend pas en VEFA. Ce qui est demandé pour chaque type est décrit une
+    seule fois, dans ``core.profil_bien`` ; la page masque les autres champs à
+    l'écran, et ``appliquer_type`` fait la même chose côté serveur — un champ
+    masqué n'est ni exigé, ni validé, ni enregistré.
+    """
 
     type_bien = SelectField(
         "Type de bien recherché", default="Appartement",
-        choices=[(t, t) for t in Brief.TYPES_BIEN], validators=[DataRequired()],
+        choices=[(t, t) for t in profil_bien.TYPES_BIEN], validators=[DataRequired()],
     )
     standing = SelectField(
         "Niveau de standing", default="Moyen standing",
-        choices=[(s, s) for s in Brief.STANDINGS], validators=[DataRequired()],
+        choices=[(s, s) for s in profil_bien.STANDINGS], validators=[DataRequired()],
+    )
+    etat_local = SelectField(
+        "État du local", default="Bon état",
+        choices=[(e, e) for e in profil_bien.ETATS_LOCAL], validators=[DataRequired()],
+        description="Ce qui tient lieu de standing pour un local : les travaux à prévoir.",
     )
     zone_recherchee = StringField(
         "Zone géographique recherchée", validators=[DataRequired(), Length(max=160)],
@@ -61,6 +75,30 @@ class BriefForm(FlaskForm):
     superficie_max = FloatField(
         "Superficie maximale (m²)", validators=[Optional(), NumberRange(min=0)],
         render_kw={"placeholder": "Ex. : 100"},
+    )
+
+    nb_lots = IntegerField(
+        "Nombre de lots", validators=[Optional(), NumberRange(min=1, max=500)],
+        description="Appartements ou locaux que compte l'immeuble.",
+        render_kw={"placeholder": "Ex. : 12"},
+    )
+
+    viabilisation = TextAreaField(
+        "Réseaux déjà amenés", validators=[Optional()],
+        description="Ce qui manque est à financer : c'est une part du coût d'entrée.",
+        render_kw={"rows": 2, "placeholder": "Ex. : Eau potable, Électricité"},
+    )
+    topographie = SelectField(
+        "Relief du terrain", validators=[Optional()],
+        choices=[("", "Indifférent")] + [(t, t) for t in profil_bien.TOPOGRAPHIES],
+    )
+    zone_urbanisme = StringField(
+        "Zone d'urbanisme", validators=[Optional(), Length(max=80)],
+        render_kw={"list": "liste-zonages", "placeholder": "Ex. : Zone villa"},
+    )
+    constructibilite = SelectField(
+        "Constructibilité", default="À vérifier au plan d'aménagement",
+        choices=[(c, c) for c in profil_bien.CONSTRUCTIBILITES], validators=[Optional()],
     )
 
     nb_chambres = IntegerField("Chambres", validators=[Optional(), NumberRange(min=0, max=50)])
@@ -82,7 +120,7 @@ class BriefForm(FlaskForm):
     )
     type_acquisition = SelectField(
         "Type d'acquisition", default="existant",
-        choices=list(Brief.TYPES_ACQUISITION), validators=[DataRequired()],
+        choices=profil_bien.acquisitions("Appartement"), validators=[DataRequired()],
     )
     budget_min = FloatField(
         "Budget minimal", validators=[Optional(), NumberRange(min=0)],
@@ -109,6 +147,44 @@ class BriefForm(FlaskForm):
 
     submit = SubmitField("Enregistrer le brief")
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.appliquer_type(self.type_bien.data)
+
+    def appliquer_type(self, type_bien: str | None) -> None:
+        """N'expose que les questions qui ont un sens pour ce type de bien.
+
+        La page fait la même chose à l'écran, mais l'écran ne prouve rien : un
+        formulaire soumis sans JavaScript, ou un type changé au dernier moment,
+        passe quand même par ici.
+        """
+        profil = profil_bien.profil(type_bien)
+        for nom, texte in profil["libelles"].items():
+            getattr(self, nom).label.text = texte
+
+        # Un terrain ne s'achète pas en VEFA, un immeuble de rapport non plus.
+        self.type_acquisition.choices = profil_bien.acquisitions(type_bien)
+        if self.type_acquisition.data not in dict(self.type_acquisition.choices):
+            self.type_acquisition.data = self.type_acquisition.choices[0][0]
+
+        for nom in profil_bien.CHAMPS_OPTIONNELS:
+            if nom not in profil["champs"]:
+                self._sans_objet(getattr(self, nom))
+
+    @staticmethod
+    def _sans_objet(champ) -> None:
+        """Vide un champ que ce type de bien ne pose pas.
+
+        Le vider, et pas seulement le masquer : un brief passé d'appartement à
+        terrain garderait sinon un standing que plus personne n'a saisi, et que
+        la fiche client afficherait comme un critère du client.
+        """
+        champ.data = None
+        champ.validators = [Optional()]
+        # Un SelectField refuserait une valeur absente de ses choix ; ici la
+        # question n'est pas posée, il n'y a donc rien à contrôler.
+        champ.pre_validate = lambda form: None
+
     def validate(self, extra_validators=None) -> bool:
         """Contrôles portant sur plusieurs champs à la fois.
 
@@ -117,6 +193,7 @@ class BriefForm(FlaskForm):
         souvent « jusqu'à tant » sans plancher — mais au moins une des deux
         bornes.
         """
+        self.appliquer_type(self.type_bien.data)
         if not super().validate(extra_validators):
             return False
         valide = True

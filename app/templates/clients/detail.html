@@ -44,7 +44,12 @@
     <div class="row g-3 small">
       <div class="col-md-4">
         <div class="titre-section mb-2">Le bien</div>
-        <div>{{ b.type_bien }}{% if b.standing %} — {{ b.standing }}{% endif %}</div>
+        {% set champs = b.champs_demandes %}
+        <div>
+          {{ b.type_bien }}
+          {%- if b.standing and "standing" in champs %} — {{ b.standing }}{% endif %}
+          {%- if b.etat_local and "etat_local" in champs %} — {{ b.etat_local }}{% endif %}
+        </div>
         {% if b.zone_recherchee %}<div class="text-muted">{{ b.zone_recherchee }}</div>{% endif %}
         {% if b.superficie_min or b.superficie_max %}
         <div class="text-muted">
@@ -53,17 +58,33 @@
         {% endif %}
         <div class="text-muted">{{ b.type_acquisition_libelle }}</div>
       </div>
+      {# Ce qui est affiché suit ce qui a été demandé : un terrain n'a pas de
+         distribution, un immeuble de rapport se compte en lots. #}
       <div class="col-md-4">
+        {% if "nb_chambres" in champs %}
         <div class="titre-section mb-2">Distribution</div>
-        {% if b.type_bien == "Terrain" %}
-        <div class="text-muted">Sans objet pour un terrain.</div>
-        {% else %}
         <div>
           {{ b.nb_chambres or "—" }} chambre(s) · {{ b.nb_salles_bains or "—" }} SDB ·
           {{ b.nb_salons or "—" }} salon(s)
         </div>
-        {% if b.etage %}<div class="text-muted">Étage : {{ b.etage }}</div>{% endif %}
+        {% if b.etage and "etage" in champs %}<div class="text-muted">Étage : {{ b.etage }}</div>{% endif %}
         {% if b.orientation %}<div class="text-muted">Orientation : {{ b.orientation }}</div>{% endif %}
+        {% elif "viabilisation" in champs %}
+        <div class="titre-section mb-2">Le terrain</div>
+        <div>Réseaux : {{ b.viabilisation or "aucun signalé" }}</div>
+        {% if b.topographie %}<div class="text-muted">Relief : {{ b.topographie }}</div>{% endif %}
+        {% if b.zone_urbanisme %}<div class="text-muted">Zonage : {{ b.zone_urbanisme }}</div>{% endif %}
+        {% if b.constructibilite %}<div class="text-muted">{{ b.constructibilite }}</div>{% endif %}
+        {% elif "nb_lots" in champs %}
+        <div class="titre-section mb-2">L'immeuble</div>
+        <div>{{ b.nb_lots or "—" }} lot(s)</div>
+        <div class="text-muted">Le détail des lots se décrit dossier par dossier.</div>
+        {% else %}
+        <div class="titre-section mb-2">Le local</div>
+        <div class="text-muted">
+          Ni distribution ni standing : un local se juge sur son état et son
+          environnement, renseignés ci-contre.
+        </div>
         {% endif %}
       </div>
       <div class="col-md-4">

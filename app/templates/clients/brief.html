@@ -1,6 +1,9 @@
 {% extends "base.html" %}
 {% from "_form_helpers.html" import render_field, suggestions %}
 
+{% set profil = PROFILS.get(form.type_bien.data, PROFILS["Autre"]) %}
+{% set demande = profil.champs %}
+
 {% block title %}Brief de recherche — {{ client.nom }} — RentImmo{% endblock %}
 
 {% block content %}
@@ -15,7 +18,9 @@
 <h3 class="mb-1">Brief de recherche — {{ client.nom }}</h3>
 <p class="text-muted mb-4">
   Les critères recueillis au premier entretien. Ils orientent la recherche, et
-  l'objectif comme l'horizon servent ensuite à lire les indicateurs.
+  l'objectif comme l'horizon servent ensuite à lire les indicateurs. Les
+  questions posées s'ajustent au type de bien : on ne demande pas le standing
+  d'un terrain.
 </p>
 
 <form method="post" novalidate>
@@ -23,26 +28,51 @@
   {{ suggestions("liste-zones", SUGGESTIONS.zones_recherche) }}
   {{ suggestions("liste-etages", SUGGESTIONS.etages) }}
   {{ suggestions("liste-orientations", SUGGESTIONS.orientations) }}
+  {{ suggestions("liste-zonages", ZONES_URBANISME) }}
   <div class="row">
     <div class="col-lg-6">
       <div class="card mb-4">
         <div class="card-header">Le bien recherché</div>
         <div class="card-body">
           {{ render_field(form.type_bien) }}
-          {{ render_field(form.standing) }}
+          <div class="rappel mb-3" id="note-type">{{ profil.note }}</div>
+          {{ render_field(form.standing, visible="standing" in demande) }}
+          {{ render_field(form.etat_local, visible="etat_local" in demande) }}
           {{ render_field(form.zone_recherchee) }}
           <div class="row">
             <div class="col-md-6">{{ render_field(form.superficie_min) }}</div>
             <div class="col-md-6">{{ render_field(form.superficie_max) }}</div>
           </div>
           {{ render_field(form.type_acquisition) }}
+          {{ render_field(form.nb_lots, visible="nb_lots" in demande) }}
+        </div>
+      </div>
+
+      {# Ce qui fait le prix d'un terrain : les réseaux à amener, le relief à
+         terrasser, et ce que le plan d'aménagement autorise à y bâtir. #}
+      <div class="card mb-4" id="carte-terrain" {% if "viabilisation" not in demande %}hidden{% endif %}>
+        <div class="card-header">Le terrain</div>
+        <div class="card-body">
+          {{ render_field(form.viabilisation) }}
+          <div class="d-flex flex-wrap gap-2 mb-3" id="puces-reseaux">
+            {% for reseau in RESEAUX %}
+            <button type="button" class="etiquette etiquette-sourde border-0"
+                    data-puce="{{ reseau }}">+ {{ reseau }}</button>
+            {% endfor %}
+          </div>
+          <div class="row">
+            <div class="col-md-6">{{ render_field(form.topographie) }}</div>
+            <div class="col-md-6">{{ render_field(form.zone_urbanisme) }}</div>
+          </div>
+          {{ render_field(form.constructibilite) }}
         </div>
       </div>
 
       {# Le cabinet cite ces précisions en terminant par « etc. » : ce sont des
          souhaits, pas des conditions. Elles se replient donc, et le formulaire
          tient à l'écran sans faire défiler. #}
-      <details class="avance mb-4" id="carte-distribution">
+      <details class="avance mb-4" id="carte-distribution"
+               {% if "nb_chambres" not in demande %}hidden{% endif %}>
         <summary>Distribution souhaitée — chambres, étage, orientation (facultatif)</summary>
         <div class="contenu-avance">
           <div class="card">
@@ -51,8 +81,8 @@
                 <div class="col-md-4">{{ render_field(form.nb_chambres) }}</div>
                 <div class="col-md-4">{{ render_field(form.nb_salles_bains) }}</div>
                 <div class="col-md-4">{{ render_field(form.nb_salons) }}</div>
-                <div class="col-md-6">{{ render_field(form.etage) }}</div>
-                <div class="col-md-6">{{ render_field(form.orientation) }}</div>
+                <div class="col-md-6">{{ render_field(form.etage, visible="etage" in demande) }}</div>
+                <div class="col-md-6">{{ render_field(form.orientation, visible="orientation" in demande) }}</div>
               </div>
             </div>
           </div>
@@ -66,11 +96,13 @@
         <div class="card-body">
           {{ render_field(form.commodites) }}
           {# Raccourcis de saisie : un clic ajoute ou retire la commodité du
-             champ ci-dessus, qui reste modifiable à la main. #}
+             champ ci-dessus, qui reste modifiable à la main. La liste proposée
+             suit le type de bien — une vitrine sur rue pour un local, un accès
+             aux réseaux pour un terrain. #}
           <div class="d-flex flex-wrap gap-2" id="puces-commodites">
-            {% for commodite in SUGGESTIONS.commodites %}
+            {% for commodite in profil.commodites %}
             <button type="button" class="etiquette etiquette-sourde border-0"
-                    data-commodite="{{ commodite }}">+ {{ commodite }}</button>
+                    data-puce="{{ commodite }}">+ {{ commodite }}</button>
             {% endfor %}
           </div>
         </div>
@@ -111,46 +143,113 @@
 
 {% block scripts %}
 <script>
-  // La distribution (chambres, salons, étage…) ne concerne pas un terrain.
+  // Ce qui est demandé pour chaque type de bien — la même table que celle
+  // dont se sert le serveur (app/core/profil_bien.py), pour que la page et le
+  // formulaire ne puissent pas diverger.
+  const PROFILS = {{ PROFILS | tojson }};
+  const CHAMPS_OPTIONNELS = {{ CHAMPS_OPTIONNELS | tojson }};
+  const ACQUISITIONS = {{ ACQUISITIONS | tojson }};
+
   const champType = document.getElementById("type_bien");
-  const carte = document.getElementById("carte-distribution");
+  const champAcquisition = document.getElementById("type_acquisition");
+  const noteType = document.getElementById("note-type");
+  const carteTerrain = document.getElementById("carte-terrain");
+  const carteDistribution = document.getElementById("carte-distribution");
 
-  function actualiserDistribution() {
-    carte.hidden = champType.value === "Terrain";
+  function cadre(nom) {
+    return document.querySelector(`[data-champ="${nom}"]`);
   }
 
-  champType.addEventListener("change", actualiserDistribution);
-  actualiserDistribution();
+  function appliquerType() {
+    const profil = PROFILS[champType.value] || PROFILS["Autre"];
+    const demande = profil.champs;
 
-  // Commodités : les puces ajoutent ou retirent une valeur du champ libre.
-  const champCommodites = document.getElementById("commodites");
-
-  function listeCommodites() {
-    return champCommodites.value.split(",").map((v) => v.trim()).filter(Boolean);
-  }
-
-  function refletDesPuces() {
-    const choisies = listeCommodites();
-    document.querySelectorAll("[data-commodite]").forEach((puce) => {
-      const active = choisies.includes(puce.dataset.commodite);
-      puce.classList.toggle("etiquette-accent", active);
-      puce.classList.toggle("etiquette-sourde", !active);
-      puce.textContent = (active ? "\u2713 " : "+ ") + puce.dataset.commodite;
+    // Les champs sans objet sont masqués ici et vidés côté serveur : ce que
+    // le conseiller ne voit pas ne sera pas enregistré non plus.
+    CHAMPS_OPTIONNELS.forEach((nom) => {
+      const bloc = cadre(nom);
+      if (bloc) bloc.hidden = !demande.includes(nom);
     });
+    carteTerrain.hidden = !demande.includes("viabilisation");
+    carteDistribution.hidden = !demande.includes("nb_chambres");
+
+    // Un terrain ne s'achète pas sur plan ; un local commercial se loue.
+    const choisi = champAcquisition.value;
+    champAcquisition.innerHTML = "";
+    profil.acquisitions.forEach((valeur) => {
+      const libelle = (profil.acquisitions_libelles || {})[valeur] || ACQUISITIONS[valeur];
+      const option = document.createElement("option");
+      option.value = valeur;
+      option.textContent = libelle;
+      champAcquisition.appendChild(option);
+    });
+    champAcquisition.value = profil.acquisitions.includes(choisi)
+      ? choisi : profil.acquisitions[0];
+
+    // Une superficie ne se lit pas pareil selon le bien : habitable pour un
+    // appartement, utile pour un local, brute pour un terrain.
+    Object.entries(profil.libelles).forEach(([nom, texte]) => {
+      const etiquette = document.querySelector(`label[for="${nom}"]`);
+      if (etiquette) etiquette.textContent = texte;
+    });
+
+    noteType.textContent = profil.note;
+    reconstruirePuces(profil.commodites);
   }
 
-  document.querySelectorAll("[data-commodite]").forEach((puce) => {
-    puce.addEventListener("click", () => {
-      const valeur = puce.dataset.commodite;
-      const choisies = listeCommodites();
-      const index = choisies.indexOf(valeur);
-      if (index === -1) choisies.push(valeur); else choisies.splice(index, 1);
-      champCommodites.value = choisies.join(", ");
-      refletDesPuces();
-    });
-  });
+  // Puces cliquables : elles ajoutent ou retirent une valeur d'un champ libre,
+  // qui reste modifiable à la main.
+  function brancherPuces(idChamp, idPuces) {
+    const champ = document.getElementById(idChamp);
+    const boite = document.getElementById(idPuces);
 
-  champCommodites.addEventListener("input", refletDesPuces);
-  refletDesPuces();
+    function choisies() {
+      return champ.value.split(",").map((v) => v.trim()).filter(Boolean);
+    }
+
+    function reflet() {
+      const valeurs = choisies();
+      boite.querySelectorAll("[data-puce]").forEach((puce) => {
+        const active = valeurs.includes(puce.dataset.puce);
+        puce.classList.toggle("etiquette-accent", active);
+        puce.classList.toggle("etiquette-sourde", !active);
+        puce.textContent = (active ? "✓ " : "+ ") + puce.dataset.puce;
+      });
+    }
+
+    boite.addEventListener("click", (evenement) => {
+      const puce = evenement.target.closest("[data-puce]");
+      if (!puce) return;
+      const valeurs = choisies();
+      const index = valeurs.indexOf(puce.dataset.puce);
+      if (index === -1) valeurs.push(puce.dataset.puce); else valeurs.splice(index, 1);
+      champ.value = valeurs.join(", ");
+      reflet();
+    });
+
+    champ.addEventListener("input", reflet);
+    reflet();
+    return reflet;
+  }
+
+  const refletCommodites = brancherPuces("commodites", "puces-commodites");
+  brancherPuces("viabilisation", "puces-reseaux");
+
+  function reconstruirePuces(valeurs) {
+    const boite = document.getElementById("puces-commodites");
+    boite.innerHTML = "";
+    valeurs.forEach((valeur) => {
+      const puce = document.createElement("button");
+      puce.type = "button";
+      puce.className = "etiquette etiquette-sourde border-0";
+      puce.dataset.puce = valeur;
+      puce.textContent = "+ " + valeur;
+      boite.appendChild(puce);
+    });
+    refletCommodites();
+  }
+
+  champType.addEventListener("change", appliquerType);
+  appliquerType();
 </script>
 {% endblock %}

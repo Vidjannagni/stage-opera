@@ -1,5 +1,9 @@
-{% macro render_field(field, placeholder=none) %}
-<div class="mb-3">
+{# `visible` : un champ sans objet pour le bien recherché est rendu masqué,
+   pas absent — la page du brief le réaffiche sans rechargement si le
+   conseiller change de type de bien. L'attribut `data-champ` lui sert de
+   prise. #}
+{% macro render_field(field, placeholder=none, visible=true) %}
+<div class="mb-3" data-champ="{{ field.id }}"{% if not visible %} hidden{% endif %}>
   {{ field.label(class="form-label") }}
   {% set css = "form-select" if field.type == "SelectField" else "form-control" %}
   {% set attributs = {"placeholder": placeholder} if placeholder else {} %}

@@ -24,14 +24,19 @@ def creer_client(http, **surcharges):
     return http.post("/clients/nouveau", data=donnees, follow_redirects=True)
 
 
+#: Brief type : un terrain, donc sans standing ni distribution — le
+#: formulaire ne pose pas ces questions pour ce type de bien.
 DONNEES_BRIEF = {
     "type_bien": "Terrain",
-    "standing": "Moyen standing",
     "zone_recherchee": "Périphérie de Casablanca",
     "superficie_min": "20000",
     "superficie_max": "30000",
     "commodites": "Axe routier, école à proximité",
-    "type_acquisition": "existant",
+    "viabilisation": "Eau potable, Électricité",
+    "topographie": "Plat",
+    "zone_urbanisme": "Zone villa",
+    "constructibilite": "Constructible",
+    "type_acquisition": "terrain_nu",
     "budget_min": "900000",
     "budget_max": "1100000",
     "mode_financement": "comptant",

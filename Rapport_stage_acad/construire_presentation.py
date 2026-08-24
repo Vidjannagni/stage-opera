@@ -622,7 +622,8 @@ def diapo_07_brief(prez):
     carte(d, MARGE, y, largeur, 1.14, bord_gauche=BLEU)
     tf = zone(d, MARGE + 0.32, y + 0.20, largeur - 0.6, 0.85)
     ecrire(tf, "Type de bien, standing, superficie, distribution, commodités, "
-               "zone, budget, mode de financement.", taille=12.5,
+               "zone, budget, mode de financement — ajustés au bien cherché.",
+           taille=12.5,
            interligne=1.16, premier=True)
 
     x = MARGE + largeur + 0.34
